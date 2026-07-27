@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "name": "TechNova Inc.",
+    "logo": "https://picsum.photos/seed/technova/80/80.jpg",
+    "website": "https://technova.example.com",
+    "industry": "Technology",
+    "size": "500-1000",
+    "founded": "2018",
+    "description": "TechNova is a leading technology company building next-generation SaaS products for enterprise clients worldwide.",
+    "locations": ["San Francisco, CA", "New York, NY"],
+    "jobCount": 3
+  }
+]

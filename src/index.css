@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #f0fdfa;
+  --color-primary-100: #ccfbf1;
+  --color-primary-200: #99f6e4;
+  --color-primary-300: #5eead4;
+  --color-primary-400: #2dd4bf;
+  --color-primary-500: #14b8a6;
+  --color-primary-600: #0d9488;
+  --color-primary-700: #0f766e;
+  --color-primary-800: #115e59;
+  --color-primary-900: #134e4a;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+  --color-dark-800: #1e293b;
+  --color-dark-900: #0f172a;
+}
+
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary-300) transparent;
+  }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .gradient-text {
+    background: linear-gradient(135deg, var(--color-primary-500), var(--color-accent-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .gradient-btn {
+    background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700));
+    transition: all 0.3s ease;
+  }
+  .gradient-btn:hover {
+    background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(13, 148, 136, 0.35);
+  }
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  }
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}
