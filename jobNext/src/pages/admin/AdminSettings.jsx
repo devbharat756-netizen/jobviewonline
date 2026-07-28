@@ -8,7 +8,7 @@ import { HiTrash, HiArrowDownTray, HiArrowPath, HiCloud, HiCloudArrowUp, HiCheck
 export default function AdminSettings() {
   const { addToast } = useToast();
   const [theme, setTheme] = useLocalStorage('theme', 'light');
-  const [siteName, setSiteName] = useState('jobNext');
+  const [siteName, setSiteName] = useState('jobView');
   const [tagline, setTagline] = useState('Find Your Dream Job');
   const { allJobs, resetToDefaults, syncing, cloudStatus, syncToCloud } = useJobs();
 

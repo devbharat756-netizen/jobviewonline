@@ -18,7 +18,7 @@ export default function Contact() {
 
   return (
     <>
-      <SEO path="/contact" title="Contact Us" description="Get in touch with the jobNext team. We're here to help with any questions about our platform." />
+      <SEO path="/contact" title="Contact Us" description="Get in touch with the jobView team. We're here to help with any questions about our platform." />
       <div className="pt-28 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -30,7 +30,7 @@ export default function Contact() {
             {/* Info Cards */}
             <div className="space-y-4">
               {[
-                { icon: HiEnvelope, label: 'Email', value: 'hello@jobNext.com' },
+                { icon: HiEnvelope, label: 'Email', value: 'hello@jobView.com' },
                 { icon: HiPhone, label: 'Phone', value: '+1 (555) 123-4567' },
                 { icon: HiMapPin, label: 'Address', value: 'San Francisco, CA 94105' },
               ].map(item => (

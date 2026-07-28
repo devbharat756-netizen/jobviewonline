@@ -23,7 +23,7 @@ export default function Companies() {
 
   return (
     <>
-      <SEO path="/companies" title="Companies" description="Explore top companies hiring on jobNext. Find your next employer from hundreds of leading organizations." />
+      <SEO path="/companies" title="Companies" description="Explore top companies hiring on jobView. Find your next employer from hundreds of leading organizations." />
       <div className="pt-28 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
@@ -32,9 +32,9 @@ export default function Companies() {
           </div>
 
           <div className="max-w-md mb-8">
-            <div className="flex items-center gap-3 px-4 py-2.5 bg-white border border-gray-200 rounded-xl">
-              <HiMagnifyingGlass className="w-5 h-5 text-gray-400" />
-              <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search companies..." className="flex-1 text-sm focus:outline-none bg-transparent" />
+            <div className="flex items-center gap-3 px-4 py-2.5 search-uniform rounded-2xl">
+              <span className="search-icon-bg"><HiMagnifyingGlass className="w-4 h-4 text-gray-300" /></span>
+              <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search companies..." className="flex-1 text-sm focus:outline-none bg-transparent text-gray-100 placeholder-gray-400" />
             </div>
           </div>
 

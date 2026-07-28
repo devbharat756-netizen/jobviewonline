@@ -22,7 +22,7 @@ export default function SavedJobs() {
 
   return (
     <>
-      <SEO path="/dashboard/saved-jobs" title="Saved Jobs" description="View and manage your saved job listings on jobNext." />
+      <SEO path="/dashboard/saved-jobs" title="Saved Jobs" description="View and manage your saved job listings on jobView." />
       <div className="pt-28 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-8">

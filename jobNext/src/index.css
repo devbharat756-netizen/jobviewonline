@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary-50: #f0fdfa;
   --color-primary-100: #ccfbf1;
@@ -23,10 +25,28 @@
     scrollbar-width: thin;
     scrollbar-color: var(--color-primary-300) transparent;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #f8fafc;
+    color: #0f172a;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .dark body {
+    background-color: #020617;
+    color: #e2e8f0;
+  }
+
+  ::selection {
+    background-color: rgba(20, 184, 166, 0.3);
+    color: inherit;
   }
 }
 
@@ -58,4 +78,180 @@
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
+}
+
+/* UI polish: pointer cursors, focus outlines, smoother shadows */
+button,
+.gradient-btn,
+.card-hover,
+.pagination-button,
+.clickable {
+  cursor: pointer;
+}
+
+/* Make links clearly interactive (anchors already default, but ensure consistency) */
+a {
+  cursor: pointer;
+}
+
+/* Improve focus visibility for keyboard users */
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid rgba(20,184,166,0.12);
+  outline-offset: 3px;
+}
+
+/* Slightly stronger, but soft shadows for cards and buttons */
+.card-hover {
+  box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+}
+
+.gradient-btn {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.18s ease;
+}
+
+/* Dark-mode shadow tuning */
+.dark .card-hover {
+  box-shadow: 0 8px 30px rgba(2,6,23,0.5);
+}
+
+/* Ensure consistent rounded corners across larger components */
+.rounded-2xl {
+  border-radius: 16px;
+}
+
+/* Small helper for clickable cards that are links */
+.card-hover a {
+  display: block;
+}
+
+.dark .bg-white {
+  background-color: #0f172a !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: #111827 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1e293b !important;
+}
+
+.dark .bg-gray-200 {
+  background-color: #334155 !important;
+}
+
+.dark .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+.dark .text-gray-800 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-gray-500 {
+  color: #64748b !important;
+}
+
+.dark .text-gray-400 {
+  color: #475569 !important;
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.28), 0 8px 24px rgba(2, 6, 23, 0.35) !important;
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 12px 35px rgba(2, 6, 23, 0.45) !important;
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.dark .card-hover:hover {
+  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.55);
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: rgba(148, 163, 184, 0.25) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Catch opacity/background utility variants (e.g. bg-white/90, bg-gray-50/50) */
+.dark [class*="bg-white"] {
+  background-color: #0b1220 !important;
+}
+
+.dark [class*="bg-white/"] {
+  background-color: rgba(11,18,32,0.9) !important;
+}
+
+.dark [class*="bg-gray-50"] {
+  background-color: #0b1220 !important;
+}
+
+.dark [class*="bg-gray-50/"] {
+  background-color: rgba(11,18,32,0.75) !important;
+}
+
+.dark [class*="bg-gray-100"] {
+  background-color: #0f172a !important;
+}
+
+/* Fallback for other semi-transparent utility classes */
+.dark [class*="/50"] {
+  background-color: rgba(11,18,32,0.75) !important;
+}
+
+/* Uniform search panel styling */
+.search-uniform {
+  background: var(--search-bg) !important;
+  border: 1px solid var(--search-border) !important;
+  box-shadow: var(--search-shadow);
+}
+.search-uniform input {
+  background: transparent !important;
+  color: inherit;
+}
+.search-uniform input::placeholder {
+  color: var(--search-placeholder) !important;
+}
+
+:root {
+  /* Light theme defaults for search panels */
+  --search-bg: #ffffff; /* white panel in light mode */
+  --search-border: rgba(15,23,42,0.06);
+  --search-placeholder: rgba(15,23,42,0.45);
+  --search-shadow: 0 6px 18px rgba(2,6,23,0.06);
+}
+
+/* Dark theme overrides (applied when .dark is on documentElement) */
+.dark {
+  --search-bg: #0b1220;
+  --search-border: rgba(148,163,184,0.06);
+  --search-placeholder: rgba(203,213,225,0.16);
+  --search-shadow: 0 8px 24px rgba(2,6,23,0.45);
 }

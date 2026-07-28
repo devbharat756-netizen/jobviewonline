@@ -57,9 +57,9 @@ export default function About() {
           </div>
 
           {/* Team placeholder */}
-          <div className="text-center bg-gradient-to-br from-primary-50 to-amber-50 rounded-2xl p-12 border border-primary-100">
-            <h2 className="text-2xl font-extrabold text-gray-900 mb-3">Join Our Team</h2>
-            <p className="text-gray-600 max-w-lg mx-auto mb-6">We're always looking for passionate people to help us build the future of job searching.</p>
+          <div className="text-center bg-gradient-to-br from-primary-50 to-amber-50 dark:from-slate-800/40 dark:via-slate-900/30 dark:to-slate-900/60 rounded-2xl p-12 border border-primary-100 dark:border-slate-800">
+            <h2 className="text-2xl font-extrabold text-gray-900 dark:text-slate-100 mb-3">Join Our Team</h2>
+            <p className="text-gray-600 dark:text-slate-300 max-w-lg mx-auto mb-6">We're always looking for passionate people to help us build the future of job searching.</p>
             <a href="/jobs" className="inline-block gradient-btn text-white px-8 py-3 rounded-xl font-semibold text-sm">View Open Positions</a>
           </div>
         </div>

@@ -18,7 +18,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <SEO path="/dashboard" title="Dashboard" description="Your jobNext dashboard - manage your profile, applications, and saved jobs." />
+      <SEO path="/dashboard" title="Dashboard" description="Your jobView dashboard - manage your profile, applications, and saved jobs." />
       <div className="pt-28 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-extrabold text-gray-900 mb-8">Dashboard</h1>

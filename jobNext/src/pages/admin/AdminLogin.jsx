@@ -28,7 +28,7 @@ export default function AdminLogin() {
             <HiBriefcase className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-2xl font-extrabold text-white">Admin Panel</h1>
-          <p className="text-gray-400 text-sm mt-1">jobNext Administration</p>
+          <p className="text-gray-400 text-sm mt-1">jobView Administration</p>
         </div>
         <form onSubmit={handleSubmit} className="bg-gray-800/50 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50">
           <div className="mb-4">

@@ -24,7 +24,9 @@ export default function Navbar() {
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-      scrolled ? 'bg-white/90 backdrop-blur-xl shadow-sm shadow-gray-200/50' : 'bg-transparent'
+      scrolled
+        ? 'bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl shadow-sm shadow-gray-200/50 dark:shadow-slate-950/40'
+        : 'bg-transparent'
     }`}>
       <AdPlaceholder type="horizontal" label="Header Ad Space" />
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,8 +36,8 @@ export default function Navbar() {
             <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-md shadow-primary-200">
               <HiBriefcase className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-extrabold text-gray-900">
-              Job<span className="text-primary-600">Next</span>
+            <span className="text-xl font-extrabold text-gray-900 dark:text-slate-100">
+              Job<span className="text-primary-600">View</span>
             </span>
           </Link>
 
@@ -45,10 +47,10 @@ export default function Navbar() {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive(link.path)
-                    ? 'text-primary-600 bg-primary-50'
-                    : 'text-gray-600 hover:text-primary-600 hover:bg-gray-50'
+                    ? 'text-primary-600 bg-primary-50 dark:bg-primary-500/10 dark:text-primary-400'
+                    : 'text-gray-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-50 dark:hover:bg-slate-800/70'
                 }`}
               >
                 {link.label}
@@ -58,17 +60,18 @@ export default function Navbar() {
 
           {/* Right */}
           <div className="flex items-center gap-2">
-            {/* <button onClick={toggleTheme} className="w-9 h-9 rounded-xl hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors" aria-label="Toggle theme">
+            <button
+              onClick={toggleTheme}
+              className="w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800/70 flex items-center justify-center text-gray-600 dark:text-slate-300 transition-colors"
+              aria-label="Toggle theme"
+            >
               {theme === 'light' ? <HiMoon className="w-5 h-5" /> : <HiSun className="w-5 h-5" />}
-            </button> */}
-            <Link to="/dashboard" className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
+            </button>
+            <Link to="/dashboard" className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800/70 rounded-xl transition-colors">
               <HiUserCircle className="w-5 h-5" />
               Dashboard
             </Link>
-            {/* <Link to="/admin/login" className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 rounded-xl transition-colors">
-              Admin
-            </Link> */}
-            <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden w-9 h-9 rounded-xl hover:bg-gray-100 flex items-center justify-center text-gray-600" aria-label="Toggle menu">
+            <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden w-9 h-9 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800/70 flex items-center justify-center text-gray-600 dark:text-slate-300" aria-label="Toggle menu">
               {isOpen ? <HiXMark className="w-5 h-5" /> : <HiBars3 className="w-5 h-5" />}
             </button>
           </div>
@@ -82,7 +85,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-white border-t border-gray-100 overflow-hidden"
+            className="lg:hidden bg-white/95 dark:bg-slate-950/95 border-t border-gray-100 dark:border-slate-800 overflow-hidden"
           >
             <div className="px-4 py-3 space-y-1">
               {NAV_LINKS.map(link => (
@@ -90,14 +93,16 @@ export default function Navbar() {
                   key={link.path}
                   to={link.path}
                   className={`block px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                    isActive(link.path) ? 'text-primary-600 bg-primary-50' : 'text-gray-600 hover:bg-gray-50'
+                    isActive(link.path)
+                      ? 'text-primary-600 bg-primary-50 dark:bg-primary-500/10 dark:text-primary-400'
+                      : 'text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800/70'
                   }`}
                 >
                   {link.label}
                 </Link>
               ))}
-              <Link to="/dashboard" className="block px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Dashboard</Link>
-              <Link to="/admin/login" className="block px-4 py-2.5 rounded-xl text-sm font-medium text-gray-400 hover:bg-gray-50">Admin Panel</Link>
+              <Link to="/dashboard" className="block px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800/70">Dashboard</Link>
+              <Link to="/admin/login" className="block px-4 py-2.5 rounded-xl text-sm font-medium text-gray-400 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800/70">Admin Panel</Link>
             </div>
           </motion.div>
         )}

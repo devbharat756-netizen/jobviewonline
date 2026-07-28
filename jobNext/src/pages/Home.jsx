@@ -38,22 +38,22 @@ export default function Home() {
 
   return (
     <>
-      <SEO path="/" description="jobNext - Find Your Dream Job. Browse thousands of job listings from top companies worldwide." />
+      <SEO path="/" description="jobView - Find Your Dream Job. Browse thousands of job listings from top companies worldwide." />
 
       {/* Hero */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-amber-50/50" />
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-200/20 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-amber-50/50 dark:from-transparent dark:via-slate-900/40 dark:to-slate-900/60" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200/30 dark:bg-primary-800/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-200/20 dark:bg-amber-900/10 rounded-full blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-flex items-center gap-2 text-sm font-medium text-primary-700 bg-primary-100 px-4 py-1.5 rounded-full mb-6">
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-primary-700 dark:text-primary-300 bg-primary-100 dark:bg-primary-800/20 px-4 py-1.5 rounded-full mb-6">
               <HiSparkles className="w-4 h-4" /> Trusted by 50,000+ job seekers
             </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-slate-100 leading-tight mb-6">
               Find Your <span className="gradient-text">Dream Job</span>
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-10">Discover opportunities at the world's best companies. Your next career move starts here.</p>
+            <p className="text-lg text-gray-600 dark:text-slate-300 max-w-2xl mx-auto mb-10">Discover opportunities at the world's best companies. Your next career move starts here.</p>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="max-w-4xl mx-auto">
             <SearchBar large />
