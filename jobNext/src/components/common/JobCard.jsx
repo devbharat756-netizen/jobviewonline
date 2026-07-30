@@ -31,7 +31,7 @@ export default function JobCard({ job, index = 0 }) {
       <Link to={`/jobs/${job.id}`} className="block bg-white rounded-2xl p-6 shadow-sm border border-gray-100 card-hover group">
         <div className="flex items-start gap-4 mb-4">
           <img
-            src={job.companyLogo}
+            src={job.companyLogo || `https://ui-avatars.com/api/?name=${encodeURIComponent(job.company)}&background=random&size=80`}
             alt={job.company}
             className="w-12 h-12 rounded-xl object-cover bg-gray-100 flex-shrink-0"
             loading="lazy"

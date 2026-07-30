@@ -17,6 +17,8 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Applications from './pages/Applications';
 import SavedJobs from './pages/SavedJobs';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -26,11 +28,14 @@ import AdminCategories from './pages/admin/AdminCategories';
 import AdminSkills from './pages/admin/AdminSkills';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminApplications from './pages/admin/AdminApplications';
 import ScrollToTop from './components/common/ScrollToTop';
+import ProtectedRoute from './components/common/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <ScrollToTop />
       <Routes>
         {/* Public Routes */}
@@ -45,12 +50,18 @@ export default function App() {
         <Route path="/privacy-policy" element={<><Navbar /><PrivacyPolicy /><Footer /></>} />
         <Route path="/terms" element={<><Navbar /><Terms /><Footer /></>} />
         <Route path="/disclaimer" element={<><Navbar /><Disclaimer /><Footer /></>} />
+        
+        {/* Guest Auth Routes */}
+        <Route path="/login" element={<><Navbar /><Login /><Footer /></>} />
+        <Route path="/signup" element={<><Navbar /><Signup /><Footer /></>} />
 
-        {/* Dashboard Routes */}
-        <Route path="/dashboard" element={<><Navbar /><Dashboard /><Footer /></>} />
-        <Route path="/dashboard/profile" element={<><Navbar /><Profile /><Footer /></>} />
-        <Route path="/dashboard/applications" element={<><Navbar /><Applications /><Footer /></>} />
-        <Route path="/dashboard/saved-jobs" element={<><Navbar /><SavedJobs /><Footer /></>} />
+        {/* Protected Dashboard Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<><Navbar /><Dashboard /><Footer /></>} />
+          <Route path="/dashboard/profile" element={<><Navbar /><Profile /><Footer /></>} />
+          <Route path="/dashboard/applications" element={<><Navbar /><Applications /><Footer /></>} />
+          <Route path="/dashboard/saved-jobs" element={<><Navbar /><SavedJobs /><Footer /></>} />
+        </Route>
 
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -62,11 +73,12 @@ export default function App() {
           <Route path="skills" element={<AdminSkills />} />
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="applications" element={<AdminApplications />} />
         </Route>
 
         {/* 404 */}
         <Route path="*" element={<><Navbar /><NotFound /><Footer /></>} />
       </Routes>
-    </>
+    </AuthProvider>
   );
 }

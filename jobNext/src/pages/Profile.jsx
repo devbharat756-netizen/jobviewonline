@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { HiArrowLeft, HiCloudArrowUp, HiTrash } from 'react-icons/hi2';
+import { HiArrowLeft, HiCloudArrowUp, HiTrash, HiDocumentText } from 'react-icons/hi2';
 import { Link } from 'react-router-dom';
 import SEO from '@components/common/SEO';
 import DashboardSidebar from '@components/layout/DashboardSidebar';
-import { useLocalStorage } from '@hooks/useLocalStorage';
 import { useToast } from '@context/ToastContext';
+
+import { useAuth } from '../context/AuthContext';
 
 const emptyProfile = { name: '', email: '', phone: '', address: '', about: '', skills: [], education: [{ degree: '', school: '', year: '' }], experience: [{ title: '', company: '', duration: '' }], portfolio: '', github: '', linkedin: '', avatar: '', resume: '' };
 
@@ -14,21 +15,29 @@ const normalizeProfile = (value) => ({
   ...(value || {}),
   skills: Array.isArray(value?.skills) ? value.skills : [],
   education: Array.isArray(value?.education) && value.education.length > 0
-    ? value.education
+    ? value.education.map(e => ({ degree: e.degree || '', school: e.school || '', year: e.year || '' }))
     : [{ degree: '', school: '', year: '' }],
   experience: Array.isArray(value?.experience) && value.experience.length > 0
-    ? value.experience
+    ? value.experience.map(ex => ({ title: ex.title || '', company: ex.company || '', duration: ex.duration || '' }))
     : [{ title: '', company: '', duration: '' }],
 });
 
 export default function Profile() {
-  const [profile, setProfile] = useLocalStorage('userProfile', emptyProfile);
+  const { user, updateProfile } = useAuth();
   const { addToast } = useToast();
   const [skillInput, setSkillInput] = useState('');
+  const [formState, setFormState] = useState(normalizeProfile(user));
+  const [submitting, setSubmitting] = useState(false);
 
-  const safeProfile = normalizeProfile(profile);
+  useEffect(() => {
+    if (user) {
+      setFormState(normalizeProfile(user));
+    }
+  }, [user]);
 
-  const update = (key, value) => setProfile(prev => normalizeProfile({ ...normalizeProfile(prev), [key]: value }));
+  const safeProfile = formState;
+
+  const update = (key, value) => setFormState(prev => normalizeProfile({ ...prev, [key]: value }));
 
   const addSkill = () => {
     if (skillInput.trim() && !safeProfile.skills.includes(skillInput.trim())) {
@@ -40,30 +49,91 @@ export default function Profile() {
   const removeSkill = (s) => update('skills', safeProfile.skills.filter(sk => sk !== s));
 
   const addEducation = () => update('education', [...safeProfile.education, { degree: '', school: '', year: '' }]);
-  const updateEducation = (i, key, val) => { const ed = [...safeProfile.education]; ed[i][key] = val; update('education', ed); };
+  const updateEducation = (i, key, val) => {
+    const ed = [...safeProfile.education];
+    ed[i] = { ...ed[i], [key]: val };
+    update('education', ed);
+  };
   const removeEducation = (i) => update('education', safeProfile.education.filter((_, idx) => idx !== i));
 
   const addExperience = () => update('experience', [...safeProfile.experience, { title: '', company: '', duration: '' }]);
-  const updateExperience = (i, key, val) => { const ex = [...safeProfile.experience]; ex[i][key] = val; update('experience', ex); };
+  const updateExperience = (i, key, val) => {
+    const ex = [...safeProfile.experience];
+    ex[i] = { ...ex[i], [key]: val };
+    update('experience', ex);
+  };
   const removeExperience = (i) => update('experience', safeProfile.experience.filter((_, idx) => idx !== i));
 
   const handleImage = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      addToast("Please upload an image file (PNG, JPG, WebP).", "error");
+      return;
+    }
+    update('avatarFile', file);
     const reader = new FileReader();
-    reader.onload = (ev) => { update('avatar', ev.target.result); addToast('Profile image updated', 'success'); };
+    reader.onload = (ev) => {
+      update('avatar', ev.target.result);
+      addToast('Profile image selected locally. Click Save to upload.', 'info');
+    };
     reader.readAsDataURL(file);
   };
 
   const handleResume = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => { update('resume', ev.target.result); addToast('Resume uploaded', 'success'); };
-    reader.readAsDataURL(file);
+    if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+      addToast('Please upload a PDF file.', 'error');
+      return;
+    }
+    update('resumeFile', file);
+    update('resume', file.name);
+    addToast('Resume file selected locally. Click Save to upload.', 'info');
   };
 
-  const handleSave = () => { addToast('Profile saved successfully!', 'success'); };
+  const handleSave = async () => {
+    if (!formState.name.trim()) {
+      addToast('Name is required.', 'error');
+      return;
+    }
+    setSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('name', formState.name);
+      formData.append('phone', formState.phone || '');
+      formData.append('address', formState.address || '');
+      formData.append('about', formState.about || '');
+      formData.append('skills', JSON.stringify(formState.skills));
+      formData.append('education', JSON.stringify(formState.education));
+      formData.append('experience', JSON.stringify(formState.experience));
+      formData.append('portfolio', formState.portfolio || '');
+      formData.append('github', formState.github || '');
+      formData.append('linkedin', formState.linkedin || '');
+
+      if (formState.avatarFile) {
+        formData.append('avatar', formState.avatarFile);
+      }
+      if (formState.resumeFile) {
+        formData.append('resume', formState.resumeFile);
+      }
+
+      const res = await updateProfile(formData);
+      if (res.success) {
+        // Reset file controls
+        setFormState(prev => ({
+          ...prev,
+          avatarFile: null,
+          resumeFile: null,
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const inputClass = 'w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500';
 
@@ -90,18 +160,32 @@ export default function Profile() {
                     </div>
                     <div className="flex-1">
                       <label className="block text-sm font-medium text-gray-700 mb-2">Resume (PDF)</label>
-                      <label className="flex items-center gap-3 px-4 py-3 border border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-primary-400 transition-colors w-full">
-                        <HiCloudArrowUp className="w-5 h-5 text-gray-400" />
-                        <span className="text-sm text-gray-500">{safeProfile.resume ? 'Resume uploaded ✓' : 'Choose PDF file'}</span>
-                        <input type="file" accept=".pdf" onChange={handleResume} className="hidden" />
-                      </label>
+                      <div className="flex items-center gap-3">
+                        <label className="flex-1 flex items-center gap-3 px-4 py-3 border border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-primary-400 transition-colors">
+                          <HiCloudArrowUp className="w-5 h-5 text-gray-400" />
+                          <span className="text-sm text-gray-500">{safeProfile.resume ? 'Resume uploaded ✓' : 'Choose PDF file'}</span>
+                          <input type="file" accept=".pdf" onChange={handleResume} className="hidden" />
+                        </label>
+                        {safeProfile.resume && (
+                          <a
+                            href={safeProfile.resume}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl text-sm font-semibold border border-emerald-200 transition-colors flex items-center gap-1.5"
+                            title="View current resume PDF"
+                          >
+                            <HiDocumentText className="w-5 h-5" />
+                            View
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
 
                   {/* Personal Info */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label><input type="text" value={safeProfile.name} onChange={e => update('name', e.target.value)} className={inputClass} placeholder="John Doe" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label><input type="email" value={safeProfile.email} onChange={e => update('email', e.target.value)} className={inputClass} placeholder="john@example.com" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label><input type="email" value={safeProfile.email} readOnly className={`${inputClass} bg-gray-100 cursor-not-allowed`} placeholder="john@example.com" /></div>
                     <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label><input type="tel" value={safeProfile.phone} onChange={e => update('phone', e.target.value)} className={inputClass} placeholder="+1 (555) 123-4567" /></div>
                     <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Address</label><input type="text" value={safeProfile.address} onChange={e => update('address', e.target.value)} className={inputClass} placeholder="San Francisco, CA" /></div>
                   </div>
@@ -152,7 +236,13 @@ export default function Profile() {
                   </div>
 
                   <div className="pt-4 border-t border-gray-100">
-                    <button onClick={handleSave} className="gradient-btn text-white px-8 py-3 rounded-xl font-semibold text-sm">Save Profile</button>
+                    <button
+                      onClick={handleSave}
+                      disabled={submitting}
+                      className="gradient-btn text-white px-8 py-3 rounded-xl font-semibold text-sm disabled:opacity-60 transition-opacity cursor-pointer"
+                    >
+                      {submitting ? 'Saving Profile...' : 'Save Profile'}
+                    </button>
                   </div>
                 </div>
               </div>

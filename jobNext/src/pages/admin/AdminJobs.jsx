@@ -1,68 +1,226 @@
-import { useState, useEffect } from 'react';
-import { HiPlus, HiPencilSquare, HiTrash, HiEye, HiEyeSlash, HiXMark } from 'react-icons/hi2';
-import Modal from '@components/common/Modal';
-import EmptyState from '@components/common/EmptyState';
-import { useJobs } from '@hooks/useJobs';
-import { useToast } from '@context/ToastContext';
-import { EMPLOYMENT_TYPES, WORK_MODES } from '@utils/constants';
-import { generateId } from '@utils/helpers';
+import { useState, useEffect } from "react";
+import {
+  HiPlus,
+  HiPencilSquare,
+  HiTrash,
+  HiEye,
+  HiEyeSlash,
+  HiXMark,
+  HiChevronDown,
+} from "react-icons/hi2";
 
-const emptyJob = { title: '', company: '', companyLogo: '', salary: '', salaryMin: 0, salaryMax: 0, experience: '', location: '', type: 'Full-time', mode: 'Onsite', category: '', skills: [], description: '', responsibilities: [''], requirements: [''], postedDate: new Date().toISOString().split('T')[0], published: true, companyDetails: { name: '', size: '', industry: '', founded: '', website: '', description: '' } };
+import Modal from "@components/common/Modal";
+import EmptyState from "@components/common/EmptyState";
+import { useJobs } from "@hooks/useJobs";
+import { useToast } from "@context/ToastContext";
+import { EMPLOYMENT_TYPES, WORK_MODES } from "@utils/constants";
+
+import {
+  createJob,
+  updateJob,
+  deleteJob,
+  togglePublish,
+} from "../../services/jobService";
+
+const getEmptyJob = () => ({
+  title: "",
+  company: "",
+  companyLogo: "",
+  salary: "",
+  salaryMin: 0,
+  salaryMax: 0,
+  experience: "",
+  location: "",
+  type: "Full-time",
+  mode: "Onsite",
+  category: "",
+  skills: [],
+  description: "",
+  responsibilities: [""],
+  requirements: [""],
+  postedDate: new Date().toISOString(),
+  published: true,
+  companyDetails: {
+    name: "",
+    size: "",
+    industry: "",
+    founded: "",
+    website: "",
+    description: "",
+  },
+});
 
 export default function AdminJobs() {
   const [defaultSkills, setDefaultSkills] = useState([]);
-  const { allJobs, setAdminJobs } = useJobs();
+
+  const { allJobs, fetchJobs } = useJobs();
+
   const { addToast } = useToast();
+
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState(emptyJob);
-  const [skillInput, setSkillInput] = useState('');
+
+  const [form, setForm] = useState(getEmptyJob());
+
+  const [skillInput, setSkillInput] = useState("");
 
   useEffect(() => {
-    fetch('/data/skills.json')
-      .then(res => res.json())
-      .then(data => setDefaultSkills(data))
-      .catch(err => console.error('Failed to load skills:', err));
+    fetch("/data/skills.json")
+      .then((res) => res.json())
+      .then((data) => setDefaultSkills(data))
+      .catch(console.error);
   }, []);
 
-  const openAdd = () => { setForm({ ...emptyJob, id: generateId(), companyLogo: `https://picsum.photos/seed/${Date.now()}/80/80.jpg` }); setEditing(null); setModal(true); };
-  const openEdit = (job) => { setForm({ ...job, responsibilities: job.responsibilities || [''], requirements: job.requirements || [''] }); setEditing(job.id); setModal(true); };
 
-  const save = () => {
-    if (!form.title || !form.company) { addToast('Title and Company are required', 'error'); return; }
-    let updated;
-    if (editing) {
-      updated = allJobs.map(j => j.id === editing ? { ...form, companyDetails: { ...form.companyDetails, name: form.companyDetails.name || form.company } } : j);
-    } else {
-      updated = [...allJobs, { ...form, companyDetails: { ...form.companyDetails, name: form.companyDetails.name || form.company } }];
+  const openAdd = () => {
+    setEditing(null);
+    setForm(getEmptyJob());
+    setModal(true);
+  };
+
+  const openEdit = (job) => {
+    setEditing(job._id);
+
+    setForm({
+      ...job,
+      responsibilities: job.responsibilities || [""],
+      requirements: job.requirements || [""],
+      companyDetails: {
+        name: job.companyDetails?.name || "",
+        size: job.companyDetails?.size || "",
+        industry: job.companyDetails?.industry || "",
+        founded: job.companyDetails?.founded || "",
+        website: job.companyDetails?.website || "",
+        description: job.companyDetails?.description || "",
+      },
+    });
+
+    setModal(true);
+  };
+
+  const save = async () => {
+    if (!form.title || !form.company) {
+      addToast("Title and Company are required", "error");
+      return;
     }
-    setAdminJobs(updated);
-    setModal(false);
-    addToast(editing ? 'Job updated!' : 'Job added!', 'success');
+
+    const computedSalary = form.salaryMin || form.salaryMax 
+      ? `$${Number(form.salaryMin).toLocaleString()} - $${Number(form.salaryMax).toLocaleString()}`
+      : "Negotiable";
+
+    const payload = {
+      ...form,
+      salary: computedSalary,
+      companyDetails: {
+        ...form.companyDetails,
+        name: form.company,
+      }
+    };
+
+    try {
+      if (editing) {
+        await updateJob(editing, payload);
+
+        addToast("Job updated successfully", "success");
+      } else {
+        await createJob(payload);
+
+        addToast("Job created successfully", "success");
+      }
+
+      await fetchJobs();
+
+      setModal(false);
+
+      setEditing(null);
+
+      setForm(getEmptyJob());
+    } catch (err) {
+      console.log(err);
+
+      addToast("Something went wrong", "error");
+    }
   };
 
-  const deleteJob = (id) => {
-    if (!confirm('Delete this job?')) return;
-    setAdminJobs(allJobs.filter(j => j.id !== id));
-    addToast('Job deleted', 'info');
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this job?")) return;
+
+    try {
+      await deleteJob(id);
+
+     await fetchJobs();
+
+      addToast("Job deleted", "success");
+    } catch (err) {
+      console.log(err);
+
+      addToast("Delete failed", "error");
+    }
   };
 
-  const togglePublish = (id) => {
-    setAdminJobs(allJobs.map(j => j.id === id ? { ...j, published: j.published === false ? true : false } : j));
-    addToast('Status updated', 'success');
+  const handleTogglePublish = async (id) => {
+    try {
+      await togglePublish(id);
+
+     await fetchJobs();
+
+      addToast("Status Updated", "success");
+    } catch (err) {
+      console.log(err);
+
+      addToast("Failed", "error");
+    }
   };
 
-  const updateField = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
-  const updateCompanyDetail = (key, val) => setForm(prev => ({ ...prev, companyDetails: { ...prev.companyDetails, [key]: val } }));
+  const updateField = (key, val) =>
+    setForm((prev) => ({
+      ...prev,
+      [key]: val,
+    }));
 
-  const addListItem = (key) => updateField(key, [...form[key], '']);
-  const updateListItem = (key, i, val) => { const arr = [...form[key]]; arr[i] = val; updateField(key, arr); };
-  const removeListItem = (key, i) => updateField(key, form[key].filter((_, idx) => idx !== i));
+  const updateCompanyDetail = (key, val) =>
+    setForm((prev) => ({
+      ...prev,
+      companyDetails: {
+        ...prev.companyDetails,
+        [key]: val,
+      },
+    }));
 
-  const addSkill = () => { if (skillInput.trim() && !form.skills.includes(skillInput.trim())) { updateField('skills', [...form.skills, skillInput.trim()]); setSkillInput(''); } };
+  const addListItem = (key) =>
+    updateField(key, [...form[key], ""]);
 
-  const inputClass = 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500';
-  const labelClass = 'block text-sm font-medium text-gray-700 mb-1';
+  const updateListItem = (key, i, val) => {
+    const arr = [...form[key]];
+
+    arr[i] = val;
+
+    updateField(key, arr);
+  };
+
+  const removeListItem = (key, i) => {
+    updateField(
+      key,
+      form[key].filter((_, idx) => idx !== i)
+    );
+  };
+
+  const addSkill = () => {
+    if (
+      skillInput.trim() &&
+     !(form.skills || []).includes(skillInput.trim())
+    ) {
+      updateField("skills", [...form.skills, skillInput.trim()]);
+
+      setSkillInput("");
+    }
+  };
+
+  const inputClass =
+    "w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500";
+
+  const labelClass =
+    "block text-sm font-medium text-gray-700 mb-1";
 
   return (
     <div>
@@ -74,22 +232,73 @@ export default function AdminJobs() {
       {allJobs.length === 0 ? (
         <EmptyState title="No jobs yet" description="Add your first job listing." action={<button onClick={openAdd} className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium">Add Job</button>} />
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-150 dark:border-slate-800/80 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead><tr className="bg-gray-50 text-left"><th className="px-5 py-3 font-medium text-gray-500">Job</th><th className="px-5 py-3 font-medium text-gray-500">Company</th><th className="px-5 py-3 font-medium text-gray-500">Mode</th><th className="px-5 py-3 font-medium text-gray-500">Status</th><th className="px-5 py-3 font-medium text-gray-500 text-right">Actions</th></tr></thead>
-              <tbody className="divide-y divide-gray-50">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-slate-800/50 text-left border-b border-gray-150 dark:border-slate-800/60">
+                  <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Job / Company</th>
+                  <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Salary Range</th>
+                  <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Mode</th>
+                  <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs tracking-wider text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-150 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
                 {allJobs.map(j => (
-                  <tr key={j.id} className="hover:bg-gray-50/50">
-                    <td className="px-5 py-3"><p className="font-medium text-gray-900">{j.title}</p><p className="text-xs text-gray-400">{j.salary}</p></td>
-                    <td className="px-5 py-3 text-gray-600">{j.company}</td>
-                    <td className="px-5 py-3"><span className={`text-xs font-medium px-2 py-1 rounded-lg ${j.mode === 'Remote' ? 'bg-emerald-50 text-emerald-700' : j.mode === 'Hybrid' ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700'}`}>{j.mode}</span></td>
-                    <td className="px-5 py-3"><span className={`text-xs font-medium px-2 py-1 rounded-lg ${j.published !== false ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>{j.published !== false ? 'Published' : 'Draft'}</span></td>
-                    <td className="px-5 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => togglePublish(j.id)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500" title={j.published !== false ? 'Unpublish' : 'Publish'}>{j.published !== false ? <HiEyeSlash className="w-4 h-4" /> : <HiEye className="w-4 h-4" />}</button>
-                        <button onClick={() => openEdit(j)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500" title="Edit"><HiPencilSquare className="w-4 h-4" /></button>
-                        <button onClick={() => deleteJob(j.id)} className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500" title="Delete"><HiTrash className="w-4 h-4" /></button>
+                  <tr key={j._id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/10 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={j.companyLogo || `https://ui-avatars.com/api/?name=${encodeURIComponent(j.company)}&background=random`} 
+                          alt={j.company} 
+                          className="w-10 h-10 rounded-xl object-cover bg-white shadow-sm flex-shrink-0 border border-gray-100 dark:border-slate-800/65" 
+                        />
+                        <div>
+                          <p className="font-semibold text-gray-900 dark:text-slate-200">{j.title}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{j.company}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-slate-300 font-medium">
+                      {j.salary || "Negotiable"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`text-xs font-semibold px-2.5 py-1.5 rounded-lg border ${
+                        j.mode === 'Remote' 
+                          ? 'bg-emerald-50/50 border-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' 
+                          : j.mode === 'Hybrid' 
+                            ? 'bg-amber-50/50 border-amber-100 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400' 
+                            : 'bg-blue-50/50 border-blue-100 text-blue-700 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400'
+                      }`}>
+                        {j.mode}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                        j.published !== false 
+                          ? 'bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' 
+                          : 'bg-amber-50 border-amber-100 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${j.published !== false ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                        {j.published !== false ? 'Published' : 'Draft'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => handleTogglePublish(j._id)} 
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors border ${
+                            j.published !== false 
+                              ? 'text-amber-600 hover:bg-amber-50 border-amber-100 dark:text-amber-400 dark:border-amber-500/25 dark:hover:bg-amber-500/10' 
+                              : 'text-emerald-600 hover:bg-emerald-50 border-emerald-100 dark:text-emerald-400 dark:border-emerald-500/25 dark:hover:bg-emerald-500/10'
+                          }`} 
+                          title={j.published !== false ? 'Change to Draft' : 'Publish Job'}
+                        >
+                          {j.published !== false ? <HiEyeSlash className="w-4.5 h-4.5" /> : <HiEye className="w-4.5 h-4.5" />}
+                        </button>
+                        <button onClick={() => openEdit(j)} className="w-8 h-8 rounded-lg border border-gray-150 dark:border-slate-800/80 hover:bg-gray-100 dark:hover:bg-slate-800 flex items-center justify-center text-gray-500 dark:text-slate-400 transition-colors" title="Edit"><HiPencilSquare className="w-4.5 h-4.5" /></button>
+                        <button onClick={() => handleDelete(j._id)} className="w-8 h-8 rounded-lg border border-red-100 dark:border-red-500/20 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center justify-center text-red-500 transition-colors" title="Delete"><HiTrash className="w-4.5 h-4.5" /></button>
                       </div>
                     </td>
                   </tr>
@@ -101,61 +310,154 @@ export default function AdminJobs() {
       )}
 
       {/* Add/Edit Modal */}
-      <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Job' : 'Add Job'} size="full">
-        <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-2">
+      <Modal isOpen={modal}
+        onClose={() => {
+          setModal(false);
+          setEditing(null);
+          setForm(getEmptyJob());
+        }} title={editing ? 'Edit Job' : 'Add Job'} size="full">
+        <div className="space-y-6">
+          {/* Section 1: Job Overview */}
+          <div className="bg-gray-50/50 dark:bg-slate-800/10 p-5 rounded-2xl border border-gray-150 dark:border-slate-800/50 space-y-4">
+            <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">Role Overview</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><label className={labelClass}>Job Title *</label><input type="text" value={form.title} onChange={e => updateField('title', e.target.value)} className={inputClass} placeholder="e.g. Senior Frontend Developer" /></div>
+              <div><label className={labelClass}>Company *</label><input type="text" value={form.company} onChange={e => updateField('company', e.target.value)} className={inputClass} placeholder="e.g. TechNova Inc." /></div>
+              <div><label className={labelClass}>Company Logo URL</label><input type="text" value={form.companyLogo} onChange={e => updateField('companyLogo', e.target.value)} className={inputClass} placeholder="https://example.com/logo.png" /></div>
+              <div><label className={labelClass}>Category</label><input type="text" value={form.category} onChange={e => updateField('category', e.target.value)} className={inputClass} placeholder="e.g. Engineering" /></div>
+              <div><label className={labelClass}>Experience Level</label><input type="text" value={form.experience} onChange={e => updateField('experience', e.target.value)} className={inputClass} placeholder="e.g. 3-5 years" /></div>
+            </div>
+          </div>
+
+          {/* Section 2: Work Parameters */}
+          <div className="bg-gray-50/50 dark:bg-slate-800/10 p-5 rounded-2xl border border-gray-150 dark:border-slate-800/50 space-y-4">
+            <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">Work Parameters</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className={labelClass}>Employment Type</label>
+                <div className="relative">
+                  <select value={form.type} onChange={e => updateField('type', e.target.value)} className={inputClass + ' appearance-none pr-10 cursor-pointer'}>
+                    {EMPLOYMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                  <HiChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-3 pointer-events-none" />
+                </div>
+              </div>
+              <div>
+                <label className={labelClass}>Work Mode</label>
+                <div className="relative">
+                  <select value={form.mode} onChange={e => updateField('mode', e.target.value)} className={inputClass + ' appearance-none pr-10 cursor-pointer'}>
+                    {WORK_MODES.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                  <HiChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-3 pointer-events-none" />
+                </div>
+              </div>
+              <div><label className={labelClass}>Location</label><input type="text" value={form.location} onChange={e => updateField('location', e.target.value)} className={inputClass} placeholder="e.g. San Francisco, CA" /></div>
+            </div>
+          </div>
+
+          {/* Section 3: Compensation */}
+          <div className="bg-gray-50/50 dark:bg-slate-800/10 p-5 rounded-2xl border border-gray-150 dark:border-slate-800/50 space-y-4">
+            <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">Compensation (USD per annum)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><label className={labelClass}>Minimum Salary ($)</label><input type="number" value={form.salaryMin || ''} onChange={e => updateField('salaryMin', Number(e.target.value))} className={inputClass} placeholder="e.g. 120000" /></div>
+              <div><label className={labelClass}>Maximum Salary ($)</label><input type="number" value={form.salaryMax || ''} onChange={e => updateField('salaryMax', Number(e.target.value))} className={inputClass} placeholder="e.g. 160000" /></div>
+            </div>
+          </div>
+
+          {/* Section 4: Details & Skills */}
+          <div className="bg-gray-50/50 dark:bg-slate-800/10 p-5 rounded-2xl border border-gray-150 dark:border-slate-800/50 space-y-4">
+            <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">Details & Skills</h3>
+            <div><label className={labelClass}>Job Description</label><textarea rows={4} value={form.description} onChange={e => updateField('description', e.target.value)} className={inputClass + ' resize-none'} placeholder="Write high-level details of the job listing..." /></div>
+            <div>
+              <label className={labelClass}>Skills</label>
+              <div className="flex gap-2 mb-3">
+                <input type="text" value={skillInput} onChange={e => setSkillInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSkill())} className={inputClass + ' flex-1'} placeholder="Press Enter or Add to append skill tag..." />
+                <button type="button" onClick={addSkill} className="px-5 py-2.5 bg-gray-150 dark:bg-slate-800 text-gray-700 dark:text-slate-250 rounded-xl text-sm font-semibold hover:bg-gray-200 dark:hover:bg-slate-700 cursor-pointer">Add</button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(form.skills||[]).map(s => (
+                  <span key={s} className="inline-flex items-center gap-1.5 text-xs text-primary-750 bg-primary-50 dark:bg-primary-500/10 dark:text-primary-400 px-3 py-1.5 rounded-xl font-medium border border-primary-100/50 dark:border-primary-500/20">
+                    {s}
+                    <button type="button" onClick={() => updateField('skills', form.skills.filter(sk => sk !== s))} className="text-primary-500 hover:text-primary-700"><HiXMark className="w-3.5 h-3.5" /></button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 5: List Items */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div><label className={labelClass}>Job Title *</label><input type="text" value={form.title} onChange={e => updateField('title', e.target.value)} className={inputClass} placeholder="Senior Frontend Developer" /></div>
-            <div><label className={labelClass}>Company *</label><input type="text" value={form.company} onChange={e => updateField('company', e.target.value)} className={inputClass} placeholder="TechNova Inc." /></div>
-            <div><label className={labelClass}>Salary</label><input type="text" value={form.salary} onChange={e => updateField('salary', e.target.value)} className={inputClass} placeholder="$120,000 - $160,000" /></div>
-            <div><label className={labelClass}>Salary Min</label><input type="number" value={form.salaryMin} onChange={e => updateField('salaryMin', Number(e.target.value))} className={inputClass} placeholder="120000" /></div>
-            <div><label className={labelClass}>Salary Max</label><input type="number" value={form.salaryMax} onChange={e => updateField('salaryMax', Number(e.target.value))} className={inputClass} placeholder="160000" /></div>
-            <div><label className={labelClass}>Experience</label><input type="text" value={form.experience} onChange={e => updateField('experience', e.target.value)} className={inputClass} placeholder="3-5 years" /></div>
-            <div><label className={labelClass}>Location</label><input type="text" value={form.location} onChange={e => updateField('location', e.target.value)} className={inputClass} placeholder="San Francisco, CA" /></div>
-            <div><label className={labelClass}>Category</label><input type="text" value={form.category} onChange={e => updateField('category', e.target.value)} className={inputClass} placeholder="Engineering" /></div>
-            <div><label className={labelClass}>Employment Type</label><select value={form.type} onChange={e => updateField('type', e.target.value)} className={inputClass}>{EMPLOYMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
-            <div><label className={labelClass}>Work Mode</label><select value={form.mode} onChange={e => updateField('mode', e.target.value)} className={inputClass}>{WORK_MODES.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
-          </div>
+            {/* Responsibilities */}
+            <div className="bg-gray-50/50 dark:bg-slate-800/10 p-5 rounded-2xl border border-gray-150 dark:border-slate-800/50 space-y-3">
+              <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2"><h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm">Responsibilities</h3><button type="button" onClick={() => addListItem('responsibilities')} className="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">+ Add</button></div>
+              <div className="space-y-2">
+                {form.responsibilities.map((r, i) => <div key={i} className="flex gap-2"><input type="text" value={r} onChange={e => updateListItem('responsibilities', i, e.target.value)} className={inputClass + ' flex-1'} placeholder="Responsibility..." />{form.responsibilities.length > 1 && <button type="button" onClick={() => removeListItem('responsibilities', i)} className="text-red-400 hover:text-red-650"><HiXMark className="w-5 h-5" /></button>}</div>)}
+              </div>
+            </div>
 
-          <div><label className={labelClass}>Description</label><textarea rows={4} value={form.description} onChange={e => updateField('description', e.target.value)} className={inputClass + ' resize-none'} placeholder="Job description..." /></div>
-
-          {/* Skills */}
-          <div>
-            <label className={labelClass}>Skills</label>
-            <div className="flex gap-2 mb-2"><input type="text" value={skillInput} onChange={e => setSkillInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSkill())} className={inputClass + ' flex-1'} placeholder="Add skill..." /><button type="button" onClick={addSkill} className="px-4 py-2.5 bg-gray-100 rounded-xl text-sm font-medium hover:bg-gray-200">Add</button></div>
-            <div className="flex flex-wrap gap-1.5">{form.skills.map(s => <span key={s} className="text-xs text-primary-700 bg-primary-50 px-2.5 py-1 rounded-lg flex items-center gap-1">{s}<button onClick={() => updateField('skills', form.skills.filter(sk => sk !== s))}><HiXMark className="w-3 h-3" /></button></span>)}</div>
-          </div>
-
-          {/* Responsibilities */}
-          <div>
-            <div className="flex items-center justify-between mb-1"><label className={labelClass}>Responsibilities</label><button type="button" onClick={() => addListItem('responsibilities')} className="text-xs text-primary-600 font-medium">+ Add</button></div>
-            {form.responsibilities.map((r, i) => <div key={i} className="flex gap-2 mb-2"><input type="text" value={r} onChange={e => updateListItem('responsibilities', i, e.target.value)} className={inputClass + ' flex-1'} placeholder="Responsibility..." />{form.responsibilities.length > 1 && <button onClick={() => removeListItem('responsibilities', i)} className="text-red-400 hover:text-red-600"><HiXMark className="w-5 h-5" /></button>}</div>)}
-          </div>
-
-          {/* Requirements */}
-          <div>
-            <div className="flex items-center justify-between mb-1"><label className={labelClass}>Requirements</label><button type="button" onClick={() => addListItem('requirements')} className="text-xs text-primary-600 font-medium">+ Add</button></div>
-            {form.requirements.map((r, i) => <div key={i} className="flex gap-2 mb-2"><input type="text" value={r} onChange={e => updateListItem('requirements', i, e.target.value)} className={inputClass + ' flex-1'} placeholder="Requirement..." />{form.requirements.length > 1 && <button onClick={() => removeListItem('requirements', i)} className="text-red-400 hover:text-red-600"><HiXMark className="w-5 h-5" /></button>}</div>)}
+            {/* Requirements */}
+            <div className="bg-gray-50/50 dark:bg-slate-800/10 p-5 rounded-2xl border border-gray-150 dark:border-slate-800/50 space-y-3">
+              <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2"><h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm">Requirements</h3><button type="button" onClick={() => addListItem('requirements')} className="text-xs text-primary-600 dark:text-primary-400 font-semibold hover:underline">+ Add</button></div>
+              <div className="space-y-2">
+                {form.requirements.map((r, i) => <div key={i} className="flex gap-2"><input type="text" value={r} onChange={e => updateListItem('requirements', i, e.target.value)} className={inputClass + ' flex-1'} placeholder="Requirement..." />{form.requirements.length > 1 && <button type="button" onClick={() => removeListItem('requirements', i)} className="text-red-400 hover:text-red-650"><HiXMark className="w-5 h-5" /></button>}</div>)}
+              </div>
+            </div>
           </div>
 
           {/* Company Details */}
           <div className="border-t border-gray-100 pt-5">
             <h3 className="font-bold text-gray-900 mb-3">Company Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><label className={labelClass}>Industry</label><input type="text" value={form.companyDetails.industry} onChange={e => updateCompanyDetail('industry', e.target.value)} className={inputClass} /></div>
-              <div><label className={labelClass}>Size</label><input type="text" value={form.companyDetails.size} onChange={e => updateCompanyDetail('size', e.target.value)} className={inputClass} placeholder="100-200" /></div>
-              <div><label className={labelClass}>Founded</label><input type="text" value={form.companyDetails.founded} onChange={e => updateCompanyDetail('founded', e.target.value)} className={inputClass} placeholder="2020" /></div>
-              <div><label className={labelClass}>Website</label><input type="text" value={form.companyDetails.website} onChange={e => updateCompanyDetail('website', e.target.value)} className={inputClass} placeholder="https://..." /></div>
+              <div><label className={labelClass}>Industry</label><input type="text" value={form.companyDetails.industry || ''} onChange={e => updateCompanyDetail('industry', e.target.value)} className={inputClass} /></div>
+              <div><label className={labelClass}>Size</label><input type="text" value={form.companyDetails.size || ''} onChange={e => updateCompanyDetail('size', e.target.value)} className={inputClass} placeholder="100-200" /></div>
+              <div><label className={labelClass}>Founded</label><input type="text" value={form.companyDetails.founded || ''} onChange={e => updateCompanyDetail('founded', e.target.value)} className={inputClass} placeholder="2020" /></div>
+              <div><label className={labelClass}>Website</label><input type="text" value={form.companyDetails.website || ''} onChange={e => updateCompanyDetail('website', e.target.value)} className={inputClass} placeholder="https://..." /></div>
             </div>
-            <div className="mt-4"><label className={labelClass}>Company Description</label><textarea rows={3} value={form.companyDetails.description} onChange={e => updateCompanyDetail('description', e.target.value)} className={inputClass + ' resize-none'} /></div>
+            <div className="mt-4"><label className={labelClass}>Company Description</label><textarea rows={3} value={form.companyDetails.description || ''} onChange={e => updateCompanyDetail('description', e.target.value)} className={inputClass + ' resize-none'} /></div>
           </div>
 
-          {/* Published toggle */}
-          <div className="flex items-center gap-3">
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" checked={form.published} onChange={e => updateField('published', e.target.checked)} className="sr-only peer" />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-            </label>
-            <span className="text-sm text-gray-700 font-medium">Published</span>
+          {/* Job Status Selection Block */}
+          <div className="border-t border-gray-100 pt-5">
+            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2.5">Job Status</label>
+            <div className="grid grid-cols-2 gap-4">
+              {/* Draft option */}
+              <button
+                type="button"
+                onClick={() => updateField('published', false)}
+                className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer ${
+                  form.published === false
+                    ? 'border-amber-500 bg-amber-500/[0.03] dark:border-amber-500/80 dark:bg-amber-500/[0.05]'
+                    : 'border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700'
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${form.published === false ? 'border-amber-500 font-semibold text-amber-500' : 'border-gray-300'}`}>
+                  {form.published === false && <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />}
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-slate-200">Save as Draft</h4>
+                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Save details without showing to candidates.</p>
+                </div>
+              </button>
+
+              {/* Published option */}
+              <button
+                type="button"
+                onClick={() => updateField('published', true)}
+                className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer ${
+                  form.published !== false
+                    ? 'border-emerald-500 bg-emerald-500/[0.03] dark:border-emerald-500/80 dark:bg-emerald-500/[0.05]'
+                    : 'border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700'
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${form.published !== false ? 'border-emerald-500 font-semibold text-emerald-500' : 'border-gray-300'}`}>
+                  {form.published !== false && <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />}
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-slate-200">Publish Immediately</h4>
+                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Activate listing immediately for job seekers.</p>
+                </div>
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4 border-t border-gray-100">

@@ -1,4 +1,4 @@
-import { HiXMark } from 'react-icons/hi2';
+import { HiXMark, HiChevronDown } from 'react-icons/hi2';
 import { SALARY_RANGES, EXPERIENCE_LEVELS, WORK_MODES } from '@utils/constants';
 
 export default function FilterSidebar({ filters, onFilterChange, onClear, isOpen, onClose }) {
@@ -37,48 +37,63 @@ export default function FilterSidebar({ filters, onFilterChange, onClear, isOpen
               {/* Location */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location</label>
-                <select value={locationFilter} onChange={e => onFilterChange('locationFilter', e.target.value)} className={selectClass}>
-                  <option value="">All Locations</option>
-                  {locations?.map(loc => <option key={loc} value={loc}>{loc}</option>)}
-                </select>
+                <div className="relative">
+                  <select value={locationFilter} onChange={e => onFilterChange('locationFilter', e.target.value)} className={selectClass}>
+                    <option value="">All Locations</option>
+                    {locations?.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+                  </select>
+                  <HiChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-3 pointer-events-none" />
+                </div>
               </div>
 
               {/* Company */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Company</label>
-                <select value={companyFilter} onChange={e => onFilterChange('companyFilter', e.target.value)} className={selectClass}>
-                  <option value="">All Companies</option>
-                  {companies?.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <div className="relative">
+                  <select value={companyFilter} onChange={e => onFilterChange('companyFilter', e.target.value)} className={selectClass}>
+                    <option value="">All Companies</option>
+                    {companies?.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <HiChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-3 pointer-events-none" />
+                </div>
               </div>
 
               {/* Category */}
               {categories && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
-                  <select value={categoryFilter} onChange={e => onFilterChange('categoryFilter', e.target.value)} className={selectClass}>
-                    <option value="">All Categories</option>
-                    {categories.map(c => <option key={c.id} value={c.name}>{c.name} ({c.count})</option>)}
-                  </select>
+                  <div className="relative">
+                    <select value={categoryFilter} onChange={e => onFilterChange('categoryFilter', e.target.value)} className={selectClass}>
+                      <option value="">All Categories</option>
+                      {categories.map(c => <option key={c.id} value={c.name}>{c.name} ({c.count})</option>)}
+                    </select>
+                    <HiChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-3 pointer-events-none" />
+                  </div>
                 </div>
               )}
 
               {/* Salary */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Salary Range</label>
-                <select value={salaryFilter} onChange={e => onFilterChange('salaryFilter', e.target.value)} className={selectClass}>
-                  <option value="">Any Salary</option>
-                  {SALARY_RANGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                </select>
+                <div className="relative">
+                  <select value={salaryFilter} onChange={e => onFilterChange('salaryFilter', e.target.value)} className={selectClass}>
+                    <option value="">Any Salary</option>
+                    {SALARY_RANGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                  </select>
+                  <HiChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-3 pointer-events-none" />
+                </div>
               </div>
 
               {/* Experience */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Experience</label>
-                <select value={experienceFilter} onChange={e => onFilterChange('experienceFilter', e.target.value)} className={selectClass}>
-                  <option value="">Any Experience</option>
-                  {EXPERIENCE_LEVELS.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
-                </select>
+                <div className="relative">
+                  <select value={experienceFilter} onChange={e => onFilterChange('experienceFilter', e.target.value)} className={selectClass}>
+                    <option value="">Any Experience</option>
+                    {EXPERIENCE_LEVELS.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
+                  </select>
+                  <HiChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-3 pointer-events-none" />
+                </div>
               </div>
 
               {/* Work Mode */}

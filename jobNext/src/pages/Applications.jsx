@@ -3,25 +3,47 @@ import { HiDocumentText, HiEye, HiTrash, HiArrowRight } from 'react-icons/hi2';
 import SEO from '@components/common/SEO';
 import DashboardSidebar from '@components/layout/DashboardSidebar';
 import EmptyState from '@components/common/EmptyState';
-import { useLocalStorage } from '@hooks/useLocalStorage';
 import { useToast } from '@context/ToastContext';
 import { getStatusColor } from '@utils/helpers';
 import { APPLICATION_STATUSES } from '@utils/constants';
+import { useState, useEffect } from 'react';
+import { getAppliedJobs } from '../services/jobService';
+import LoadingSkeleton from '@components/common/LoadingSkeleton';
 
 export default function Applications() {
-  const [appliedJobs, setAppliedJobs] = useLocalStorage('appliedJobs', []);
+  const [appliedJobs, setAppliedJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { addToast } = useToast();
 
+  useEffect(() => {
+    const fetchApplied = async () => {
+      setLoading(true);
+      try {
+        const res = await getAppliedJobs();
+        if (res.data.success) {
+          setAppliedJobs(res.data.data || []);
+        }
+      } catch (err) {
+        console.error(err);
+        addToast(err.response?.data?.message || 'Failed to load applied jobs.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchApplied();
+  }, []);
+
   const withdraw = (idx) => {
+    // Local withdrawal only for demo purposes in this phase
     setAppliedJobs(prev => prev.filter((_, i) => i !== idx));
-    addToast('Application withdrawn', 'info');
+    addToast('Application withdrawn successfully', 'info');
   };
 
   const changeStatus = (idx, status) => {
     const updated = [...appliedJobs];
     updated[idx] = { ...updated[idx], status };
     setAppliedJobs(updated);
-    addToast(`Status updated to ${status}`, 'success');
+    addToast(`Status updated to ${status} (local preview only)`, 'success');
   };
 
   return (
@@ -37,7 +59,9 @@ export default function Applications() {
                 <span className="text-sm text-gray-500">{appliedJobs.length} total</span>
               </div>
 
-              {appliedJobs.length === 0 ? (
+              {loading ? (
+                <LoadingSkeleton count={3} />
+              ) : appliedJobs.length === 0 ? (
                 <EmptyState icon={HiDocumentText} title="No applications yet" description="Start applying to jobs to track them here." action={<Link to="/jobs" className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium inline-flex items-center gap-2">Browse Jobs <HiArrowRight className="w-4 h-4" /></Link>} />
               ) : (
                 <div className="space-y-3">

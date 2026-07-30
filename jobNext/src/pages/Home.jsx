@@ -24,7 +24,11 @@ export default function Home() {
       .then(data => setCategories(data))
       .catch(err => console.error('Failed to load categories:', err));
   }, []);
-  const featuredJobs = useMemo(() => jobs.filter(j => j.salaryMax >= 130000).slice(0, 6), [jobs]);
+  const featuredJobs = useMemo(() => {
+    return [...jobs]
+      .sort((a, b) => (b.salaryMax || 0) - (a.salaryMax || 0))
+      .slice(0, 4);
+  }, [jobs]);
   const latestJobs = useMemo(() => [...jobs].sort((a, b) => new Date(b.postedDate) - new Date(a.postedDate)).slice(0, 6), [jobs]);
   const remoteJobs = useMemo(() => jobs.filter(j => j.mode === 'Remote').slice(0, 6), [jobs]);
   const topCompanies = useMemo(() => {
@@ -41,21 +45,21 @@ export default function Home() {
       <SEO path="/" description="jobView - Find Your Dream Job. Browse thousands of job listings from top companies worldwide." />
 
       {/* Hero */}
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-amber-50/50 dark:from-transparent dark:via-slate-900/40 dark:to-slate-900/60" />
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200/30 dark:bg-primary-800/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-amber-200/20 dark:bg-amber-900/10 rounded-full blur-3xl" />
+      <section className="relative pt-32 pb-24 lg:pt-44 lg:pb-36 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50/60 via-slate-50 to-secondary-50/60 dark:from-slate-950/70 dark:via-slate-900/50 dark:to-purple-950/30" />
+        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-tr from-primary-300/25 to-emerald-300/25 dark:from-primary-900/10 dark:to-emerald-900/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-gradient-to-br from-secondary-300/20 to-purple-300/10 dark:from-secondary-900/10 dark:to-purple-900/5 rounded-full blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-flex items-center gap-2 text-sm font-medium text-primary-700 dark:text-primary-300 bg-primary-100 dark:bg-primary-800/20 px-4 py-1.5 rounded-full mb-6">
-              <HiSparkles className="w-4 h-4" /> Trusted by 50,000+ job seekers
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary-700 dark:text-primary-300 bg-primary-100/60 dark:bg-primary-800/25 px-4 py-1.5 rounded-full mb-6 border border-primary-200/50 dark:border-primary-500/10">
+              <HiSparkles className="w-4 h-4 text-secondary-500" /> Trusted by 50,000+ job seekers
             </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-slate-100 leading-tight mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-gray-900 dark:text-slate-100 leading-tight mb-6 tracking-tight">
               Find Your <span className="gradient-text">Dream Job</span>
             </h1>
-            <p className="text-lg text-gray-600 dark:text-slate-300 max-w-2xl mx-auto mb-10">Discover opportunities at the world's best companies. Your next career move starts here.</p>
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-slate-350 max-w-2xl mx-auto mb-12 leading-relaxed">Discover high-paying opportunities at the world's best companies. Your next career move starts here.</p>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="max-w-4xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="max-w-4xl mx-auto shadow-xl shadow-primary-500/5 rounded-3xl">
             <SearchBar large />
           </motion.div>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex flex-wrap items-center justify-center gap-3 mt-6 text-sm text-gray-500">
@@ -89,7 +93,7 @@ export default function Home() {
             </div>
             <Link to="/jobs" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-primary-600 hover:text-primary-700">View all <HiArrowRight className="w-4 h-4" /></Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredJobs.map((job, i) => <JobCard key={job.id} job={job} index={i} />)}
           </div>
           <div className="mt-8 text-center sm:hidden">

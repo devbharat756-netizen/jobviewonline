@@ -30,9 +30,9 @@ export default function Contact() {
             {/* Info Cards */}
             <div className="space-y-4">
               {[
-                { icon: HiEnvelope, label: 'Email', value: 'hello@jobView.com' },
-                { icon: HiPhone, label: 'Phone', value: '+1 (555) 123-4567' },
-                { icon: HiMapPin, label: 'Address', value: 'San Francisco, CA 94105' },
+                { icon: HiEnvelope, label: 'Email', value: 'support@jobview.online' },
+                { icon: HiPhone, label: 'Phone', value: '+917563003439' },
+                { icon: HiMapPin, label: 'Address', value: 'Tech Avenue, Patna, Bihar, India' },
               ].map(item => (
                 <div key={item.label} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-start gap-4">
                   <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center flex-shrink-0"><item.icon className="w-5 h-5" /></div>

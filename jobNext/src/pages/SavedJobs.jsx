@@ -4,20 +4,47 @@ import SEO from '@components/common/SEO';
 import DashboardSidebar from '@components/layout/DashboardSidebar';
 import EmptyState from '@components/common/EmptyState';
 import JobCard from '@components/common/JobCard';
-import { useLocalStorage } from '@hooks/useLocalStorage';
-import { useJobs } from '@hooks/useJobs';
 import { useToast } from '@context/ToastContext';
+import { useState, useEffect } from 'react';
+import { getSavedJobs, toggleSaveJob } from '../services/jobService';
+import LoadingSkeleton from '@components/common/LoadingSkeleton';
 
 export default function SavedJobs() {
-  const [savedJobs, setSavedJobs] = useLocalStorage('savedJobs', []);
-  const { jobs } = useJobs();
+  const [savedJobList, setSavedJobList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { addToast } = useToast();
 
-  const savedJobList = jobs.filter(j => savedJobs.some(s => s.id === j.id));
+  useEffect(() => {
+    const fetchSaved = async () => {
+      setLoading(true);
+      try {
+        const res = await getSavedJobs();
+        if (res.data.success) {
+          setSavedJobList(res.data.data || []);
+        }
+      } catch (err) {
+        console.error(err);
+        addToast(err.response?.data?.message || 'Failed to load saved jobs.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSaved();
+  }, []);
 
-  const remove = (jobId) => {
-    setSavedJobs(prev => prev.filter(s => s.id !== jobId));
-    addToast('Job removed from saved', 'info');
+  const remove = async (jobId) => {
+    try {
+      const res = await toggleSaveJob(jobId);
+      if (res.data.success) {
+        setSavedJobList(prev => prev.filter(
+          j => (j.id || j._id) !== jobId
+        ));
+        addToast('Job removed from saved', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to remove job.', 'error');
+    }
   };
 
   return (
@@ -33,14 +60,16 @@ export default function SavedJobs() {
                 <span className="text-sm text-gray-500">{savedJobList.length} saved</span>
               </div>
 
-              {savedJobList.length === 0 ? (
+              {loading ? (
+                <LoadingSkeleton count={3} />
+              ) : savedJobList.length === 0 ? (
                 <EmptyState icon={HiBookmark} title="No saved jobs" description="Bookmark jobs you're interested in to find them here later." action={<Link to="/jobs" className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium inline-flex items-center gap-2">Browse Jobs <HiArrowRight className="w-4 h-4" /></Link>} />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {savedJobList.map((job, i) => (
-                    <div key={job.id} className="relative">
+                    <div key={job.id || job._id} className="relative">
                       <JobCard job={job} index={i} />
-                      <button onClick={() => remove(job.id)} className="absolute top-4 right-4 z-10 w-8 h-8 rounded-lg bg-red-50 text-red-400 hover:text-red-600 hover:bg-red-100 flex items-center justify-center transition-colors" title="Remove"><HiTrash className="w-4 h-4" /></button>
+                      <button onClick={() => remove(job.id || job._id)} className="absolute top-4 right-4 z-10 w-8 h-8 rounded-lg bg-red-50 text-red-400 hover:text-red-600 hover:bg-red-100 flex items-center justify-center transition-colors" title="Remove"><HiTrash className="w-4 h-4" /></button>
                     </div>
                   ))}
                 </div>

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
-export default function StatisticsCard({ icon: Icon, label, value, color = 'primary', index = 0 }) {
+export default function StatisticsCard({ icon: Icon, label, value, color = 'primary', index = 0, to }) {
   const colorMap = {
     primary: 'bg-primary-50 text-primary-600',
     amber: 'bg-amber-50 text-amber-600',
@@ -10,19 +11,36 @@ export default function StatisticsCard({ icon: Icon, label, value, color = 'prim
     cyan: 'bg-cyan-50 text-cyan-600',
   };
 
+  const content = (
+    <>
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${colorMap[color]}`}>
+        <Icon className="w-6 h-6" />
+      </div>
+      <p className="text-3xl font-bold text-gray-900 mb-1">{value}</p>
+      <p className="text-sm text-gray-500">{label}</p>
+    </>
+  );
+
+  const cardClass = `bg-white rounded-2xl p-6 shadow-sm border border-gray-100 block transition-all ${
+    to ? 'hover:shadow-md hover:border-gray-250 cursor-pointer' : ''
+  }`;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
     >
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${colorMap[color]}`}>
-        <Icon className="w-6 h-6" />
-      </div>
-      <p className="text-3xl font-bold text-gray-900 mb-1">{value}</p>
-      <p className="text-sm text-gray-500">{label}</p>
+      {to ? (
+        <Link to={to} className={cardClass}>
+          {content}
+        </Link>
+      ) : (
+        <div className={cardClass}>
+          {content}
+        </div>
+      )}
     </motion.div>
   );
 }
