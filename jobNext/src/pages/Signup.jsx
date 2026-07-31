@@ -85,7 +85,7 @@ export default function Signup() {
                   <input
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => setName(e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1))}
                     className={inputClass('name')}
                     placeholder="John Doe"
                     disabled={submitting}
@@ -119,9 +119,9 @@ export default function Signup() {
                   <input
                     type="tel"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     className={inputClass('phone')}
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="e.g. 5550000000"
                     disabled={submitting}
                   />
                 </div>

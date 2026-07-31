@@ -33,16 +33,16 @@ export default function CareerTips() {
             <div className="flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {filtered.map((tip, i) => (
-                  <motion.article key={tip.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 card-hover cursor-pointer group" onClick={() => setSelectedTip(tip)}>
+                  <motion.article key={tip.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 card-hover cursor-pointer group" onClick={() => setSelectedTip(tip)}>
                     <div className="h-48 overflow-hidden"><img src={tip.image} alt={tip.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" /></div>
-                    <div className="p-5">
+                    <div className="p-5 flex-1 flex flex-col">
                       <div className="flex items-center gap-3 mb-3">
                         <span className="text-xs font-medium text-primary-600 bg-primary-50 px-2.5 py-1 rounded-lg">{tip.category}</span>
                         <span className="text-xs text-gray-400 flex items-center gap-1"><HiClock className="w-3.5 h-3.5" />{tip.readTime}</span>
                       </div>
                       <h2 className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors mb-2 line-clamp-2">{tip.title}</h2>
                       <p className="text-sm text-gray-500 line-clamp-2">{tip.excerpt}</p>
-                      <span className="inline-flex items-center gap-1 text-sm text-primary-600 font-medium mt-3 group-hover:gap-2 transition-all">Read more <HiArrowRight className="w-4 h-4" /></span>
+                      <span className="inline-flex items-center gap-1 text-sm text-primary-600 font-medium mt-auto pt-3 group-hover:gap-2 transition-all">Read more <HiArrowRight className="w-4 h-4" /></span>
                     </div>
                   </motion.article>
                 ))}

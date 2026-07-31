@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { getJobs } from "../services/jobService";
+import { getFreelanceProjects } from "../services/freelanceService";
 
-export function useJobs({ isFreelance = false } = {}) {
+export function useFreelance() {
   const [adminJobs, setAdminJobs] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,14 +18,14 @@ export function useJobs({ isFreelance = false } = {}) {
 
   const fetchJobs = async () => {
     try {
-      const res = await getJobs();
+      const res = await getFreelanceProjects();
       const mappedJobs = (res.data.data || []).map(j => ({
         ...j,
         id: j._id,
       }));
       setAdminJobs(mappedJobs);
     } catch (err) {
-      console.error("Failed to fetch jobs:", err);
+      console.error("Failed to fetch freelance projects:", err);
     }
   };
 
@@ -36,8 +36,8 @@ export function useJobs({ isFreelance = false } = {}) {
   const jobs = adminJobs;
 
   const publishedJobs = useMemo(() => {
-    return jobs.filter((j) => j.published !== false && (isFreelance ? j.isFreelance === true : !j.isFreelance));
-  }, [jobs, isFreelance]);
+    return jobs.filter((j) => j.published !== false);
+  }, [jobs]);
 
   const companies = useMemo(() => {
     return [...new Set(publishedJobs.map((j) => j.company))];

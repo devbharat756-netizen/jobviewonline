@@ -5,7 +5,7 @@ import { useLocalStorage } from '@hooks/useLocalStorage';
 import { useToast } from '@context/ToastContext';
 import { formatDate, getModeColor } from '@utils/helpers';
 
-export default function JobCard({ job, index = 0 }) {
+export default function JobCard({ job, index = 0, isFreelance = false }) {
   const [savedJobs, setSavedJobs] = useLocalStorage('savedJobs', []);
   const { addToast } = useToast();
   const isSaved = savedJobs.some(s => s.id === job.id);
@@ -22,13 +22,16 @@ export default function JobCard({ job, index = 0 }) {
     }
   };
 
+  const linkTarget = isFreelance ? `/freelance/${job.id}` : `/jobs/${job.id}`;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
+      className="h-full"
     >
-      <Link to={`/jobs/${job.id}`} className="block bg-white rounded-2xl p-6 shadow-sm border border-gray-100 card-hover group">
+      <Link to={linkTarget} className="flex flex-col h-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 card-hover group">
         <div className="flex items-start gap-4 mb-4">
           <img
             src={job.companyLogo || `https://ui-avatars.com/api/?name=${encodeURIComponent(job.company)}&background=random&size=80`}
@@ -72,7 +75,7 @@ export default function JobCard({ job, index = 0 }) {
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
           <span className="text-sm font-semibold text-gray-800 flex items-center gap-1">
             <HiBriefcase className="w-4 h-4 text-primary-500" />{job.salary}
           </span>

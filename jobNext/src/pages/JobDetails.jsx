@@ -8,10 +8,12 @@ import EmptyState from '@components/common/EmptyState';
 import Modal from '@components/common/Modal';
 import AdPlaceholder from '@components/common/AdPlaceholder';
 import { useJobs } from '@hooks/useJobs';
+import { useFreelance } from '@hooks/useFreelance';
 import { useToast } from '@context/ToastContext';
 import { formatDate, getModeColor } from '@utils/helpers';
 import { useState, useRef, useEffect } from 'react';
 import { getJobDetails, applyJob, toggleSaveJob } from '../services/jobService';
+import { getFreelanceProjectDetails, applyFreelance } from '../services/freelanceService';
 import LoadingSkeleton from '@components/common/LoadingSkeleton';
 import { useAuth } from '../context/AuthContext';
 
@@ -33,9 +35,10 @@ const emptyForm = {
   customQuestion: '',
 };
 
-export default function JobDetails() {
+export default function JobDetails({ isFreelance = false }) {
   const { id } = useParams();
   const { jobs } = useJobs();
+  const freelanceHooks = useFreelance();
   const { addToast } = useToast();
   const { user } = useAuth();
   
@@ -82,23 +85,27 @@ export default function JobDetails() {
       setForm(getResetForm());
 
       try {
-        const res = await getJobDetails(id);
+        const res = isFreelance 
+          ? await getFreelanceProjectDetails(id)
+          : await getJobDetails(id);
         if (res.data.success) {
           setJob(res.data.data);
           setIsSaved(res.data.data.isSaved);
           setIsApplied(res.data.data.isApplied);
           setApplicantCount(res.data.data.totalApplicantCount || 0);
         } else {
-          setError(res.data.message || "Failed to load job details.");
+          setError(res.data.message || "Failed to load details.");
         }
       } catch (err) {
         console.error("Fetch job details failed:", err);
         if (!handleAuthError(err)) {
-          setError(err.response?.data?.message || "Failed to load job details.");
+          setError(err.response?.data?.message || "Failed to load details.");
         } else {
           // Re-fetch as guest to display public details
           try {
-            const guestRes = await getJobDetails(id);
+            const guestRes = isFreelance 
+              ? await getFreelanceProjectDetails(id)
+              : await getJobDetails(id);
             if (guestRes.data.success) {
               setJob(guestRes.data.data);
               setIsSaved(false);
@@ -106,7 +113,7 @@ export default function JobDetails() {
               setApplicantCount(guestRes.data.data.totalApplicantCount || 0);
             }
           } catch (guestErr) {
-            setError(guestErr.response?.data?.message || "Failed to load job details.");
+            setError(guestErr.response?.data?.message || "Failed to load details.");
           }
         }
       } finally {
@@ -115,7 +122,7 @@ export default function JobDetails() {
     };
 
     fetchJobData();
-  }, [id, user]);
+  }, [id, user, isFreelance]);
 
   if (loading) {
     return (
@@ -129,9 +136,9 @@ export default function JobDetails() {
     return (
       <div className="pt-32 pb-16 max-w-4xl mx-auto px-4">
         <EmptyState
-          title="Error Loading Job"
+          title={isFreelance ? "Error Loading Project" : "Error Loading Job"}
           description={error}
-          action={<Link to="/jobs" className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium">Browse Jobs</Link>}
+          action={<Link to={isFreelance ? "/freelance" : "/jobs"} className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium">Browse {isFreelance ? "Freelance Projects" : "Jobs"}</Link>}
         />
       </div>
     );
@@ -141,15 +148,16 @@ export default function JobDetails() {
     return (
       <div className="pt-32 pb-16 max-w-4xl mx-auto px-4">
         <EmptyState
-          title="Job Not Found"
-          description="This job listing may have been removed or doesn't exist."
-          action={<Link to="/jobs" className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium">Browse Jobs</Link>}
+          title={isFreelance ? "Project Not Found" : "Job Not Found"}
+          description={isFreelance ? "This freelance listing may have been removed or doesn't exist." : "This job listing may have been removed or doesn't exist."}
+          action={<Link to={isFreelance ? "/freelance" : "/jobs"} className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium">Browse {isFreelance ? "Freelance Projects" : "Jobs"}</Link>}
         />
       </div>
     );
   }
 
   const toggleSave = async () => {
+    if (isFreelance) return;
     if (!user) {
       addToast('Please complete your profile details and save your Profile in the Dashboard to save jobs.', 'warning');
       return;
@@ -169,7 +177,13 @@ export default function JobDetails() {
   };
 
   const updateField = (key, value) => {
-    setForm(prev => ({ ...prev, [key]: value }));
+    let formattedValue = value;
+    if (key === 'phone' && typeof value === 'string') {
+      formattedValue = value.replace(/\D/g, '').slice(0, 10);
+    } else if (typeof value === 'string' && key !== 'email' && key !== 'linkedIn' && key !== 'portfolio' && key !== 'resumeName') {
+      formattedValue = value.charAt(0).toUpperCase() + value.slice(1);
+    }
+    setForm(prev => ({ ...prev, [key]: formattedValue }));
     if (errors[key]) setErrors(prev => { const n = { ...prev }; delete n[key]; return n; });
   };
 
@@ -200,9 +214,10 @@ export default function JobDetails() {
     if (!form.email.trim()) errs.email = 'Email is required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Enter a valid email';
     if (!form.phone.trim()) errs.phone = 'Phone number is required';
+    else if (!/^\d{10}$/.test(form.phone)) errs.phone = 'Phone number must be exactly 10 digits';
     if (!form.resume) errs.resume = 'Resume is required';
     if (!form.yearsOfExperience) errs.yearsOfExperience = 'Years of experience is required';
-    if (!form.expectedSalary.trim()) errs.expectedSalary = 'Expected salary is required';
+    if (!form.expectedSalary.trim()) errs.expectedSalary = 'Expected salary/rate is required';
     if (!form.noticePeriod.trim()) errs.noticePeriod = 'Notice period is required';
     if (!form.availability) errs.availability = 'Please select availability';
     setErrors(errs);
@@ -211,7 +226,7 @@ export default function JobDetails() {
 
   const handleApply = async () => {
     if (isApplied) {
-      addToast('You already applied for this job', 'warning');
+      addToast('You already applied for this listing', 'warning');
       return;
     }
     if (!validate()) {
@@ -236,7 +251,9 @@ export default function JobDetails() {
       formData.append('coverLetter', form.coverLetter);
       formData.append('resume', form.resume);
 
-      const res = await applyJob(jobId, formData);
+      const res = isFreelance 
+        ? await applyFreelance(jobId, formData)
+        : await applyJob(jobId, formData);
 
       if (res.data.success) {
         setIsApplied(true);
@@ -247,7 +264,7 @@ export default function JobDetails() {
         addToast('Application submitted successfully!', 'success');
       }
     } catch (err) {
-      console.error("Apply job failed:", err);
+      console.error("Apply failed:", err);
       if (!handleAuthError(err)) {
         const errMsg = err.response?.data?.message || 'Failed to submit application. Please try again.';
         addToast(errMsg, 'error');
@@ -274,7 +291,7 @@ export default function JobDetails() {
     setShowApply(false);
   };
 
-  const similarJobs = jobs
+  const similarJobs = (isFreelance ? freelanceHooks.jobs : jobs)
     .filter(j => {
       if ((j._id || j.id) === jobId) return false;
 
@@ -294,11 +311,11 @@ export default function JobDetails() {
 
   return (
     <>
-      <SEO path={`/jobs/${jobId}`} title={job.title} description={`${job.title} at ${job.company}. ${(job.description || '').substring(0, 150)}...`} />
+      <SEO path={isFreelance ? `/freelance/${jobId}` : `/jobs/${jobId}`} title={job.title} description={`${job.title} at ${job.company}. ${(job.description || '').substring(0, 150)}...`} />
 
       <div className="pt-28 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Breadcrumb items={[{ label: 'Jobs', path: '/jobs' }, { label: job.title }]} />
+          <Breadcrumb items={[{ label: isFreelance ? 'Freelance' : 'Jobs', path: isFreelance ? '/freelance' : '/jobs' }, { label: job.title }]} />
 
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Main Content */}
@@ -309,7 +326,7 @@ export default function JobDetails() {
                   <img src={job.companyLogo || `https://ui-avatars.com/api/?name=${encodeURIComponent(job.company)}&background=random&size=80`} alt={job.company} className="w-16 h-16 rounded-2xl object-cover bg-gray-100 flex-shrink-0" />
                   <div className="flex-1">
                     <h1 className="text-2xl lg:text-3xl font-extrabold text-gray-900 mb-1">{job.title}</h1>
-                    <Link to={`/jobs?company=${encodeURIComponent(job.company || '')}`} className="text-primary-600 hover:text-primary-700 font-medium">{job.company}</Link>
+                    <Link to={isFreelance ? `/freelance?company=${encodeURIComponent(job.company || '')}` : `/jobs?company=${encodeURIComponent(job.company || '')}`} className="text-primary-600 hover:text-primary-700 font-medium">{job.company}</Link>
                     <div className="flex flex-wrap gap-3 mt-3">
                       <span className="inline-flex items-center gap-1.5 text-sm text-gray-600"><HiMapPin className="w-4 h-4 text-gray-400" />{job.location}</span>
                       <span className="inline-flex items-center gap-1.5 text-sm text-gray-600"><HiClock className="w-4 h-4 text-gray-400" />{job.experience}</span>
@@ -333,9 +350,11 @@ export default function JobDetails() {
                   >
                     {isApplied ? 'Already Applied' : 'Apply Now'}
                   </button>
-                  <button onClick={toggleSave} className={`px-5 py-3 rounded-xl font-semibold text-sm border-2 flex items-center justify-center gap-2 transition-colors ${isSaved ? 'border-primary-200 bg-primary-50 text-primary-600' : 'border-gray-200 text-gray-600 hover:border-primary-200 hover:text-primary-600'}`}>
-                    <HiBookmark className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />{isSaved ? 'Saved' : 'Save Job'}
-                  </button>
+                  {!isFreelance && (
+                    <button onClick={toggleSave} className={`px-5 py-3 rounded-xl font-semibold text-sm border-2 flex items-center justify-center gap-2 transition-colors ${isSaved ? 'border-primary-200 bg-primary-50 text-primary-600' : 'border-gray-200 text-gray-600 hover:border-primary-200 hover:text-primary-600'}`}>
+                      <HiBookmark className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />{isSaved ? 'Saved' : 'Save Job'}
+                    </button>
+                  )}
                   <button onClick={() => setShowShare(true)} className="px-5 py-3 rounded-xl font-semibold text-sm border-2 border-gray-200 text-gray-600 hover:border-primary-200 hover:text-primary-600 flex items-center justify-center gap-2 transition-colors">
                     <HiShare className="w-5 h-5" />Share
                   </button>
@@ -344,7 +363,7 @@ export default function JobDetails() {
 
               {/* Description */}
               <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-gray-100 mb-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Job Description</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">{isFreelance ? 'Project Description' : 'Job Description'}</h2>
                 <p className="text-gray-600 leading-relaxed"> {job.description || "No description available."}</p>
               </div>
 
@@ -379,12 +398,12 @@ export default function JobDetails() {
               {/* Company Details */}
               {job.companyDetails && (
                 <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-sm border border-gray-100 mb-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">About {job.company}</h2>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">{isFreelance ? 'About Client' : `About ${job.company}`}</h2>
                   <p className="text-gray-600 leading-relaxed mb-5">{job.companyDetails?.description}</p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="bg-gray-50 rounded-xl p-3 text-center"><HiBuildingOffice2 className="w-5 h-5 mx-auto text-gray-400 mb-1" /><p className="text-xs text-gray-500">Industry</p><p className="text-sm font-semibold text-gray-900">{job.companyDetails?.industry}</p></div>
-                    <div className="bg-gray-50 rounded-xl p-3 text-center"><HiUserGroup className="w-5 h-5 mx-auto text-gray-400 mb-1" /><p className="text-xs text-gray-500">Size</p><p className="text-sm font-semibold text-gray-900">{job.companyDetails?.size}</p></div>
-                    <div className="bg-gray-50 rounded-xl p-3 text-center"><HiCalendarDays className="w-5 h-5 mx-auto text-gray-400 mb-1" /><p className="text-xs text-gray-500">Founded</p><p className="text-sm font-semibold text-gray-900">{job.companyDetails?.founded}</p></div>
+                    <div className="bg-gray-50 rounded-xl p-3 text-center"><HiBuildingOffice2 className="w-5 h-5 mx-auto text-gray-400 mb-1" /><p className="text-xs text-gray-500">Industry</p><p className="text-sm font-semibold text-gray-900">{job.companyDetails?.industry || 'N/A'}</p></div>
+                    <div className="bg-gray-50 rounded-xl p-3 text-center"><HiUserGroup className="w-5 h-5 mx-auto text-gray-400 mb-1" /><p className="text-xs text-gray-500">Size</p><p className="text-sm font-semibold text-gray-900">{job.companyDetails?.size || 'N/A'}</p></div>
+                    <div className="bg-gray-50 rounded-xl p-3 text-center"><HiCalendarDays className="w-5 h-5 mx-auto text-gray-400 mb-1" /><p className="text-xs text-gray-500">Founded</p><p className="text-sm font-semibold text-gray-900">{job.companyDetails?.founded || 'N/A'}</p></div>
                     <div className="bg-gray-50 rounded-xl p-3 text-center"><HiGlobeAlt className="w-5 h-5 mx-auto text-gray-400 mb-1" /><p className="text-xs text-gray-500">Website</p>
                       <a
                         href={job.companyDetails?.website}
@@ -392,7 +411,7 @@ export default function JobDetails() {
                         rel="noopener noreferrer"
                         className="text-sm font-semibold text-primary-600 hover:underline truncate block"
                       >
-                        {(job.companyDetails?.website || '').replace(/^https?:\/\//, '')}
+                        {(job.companyDetails?.website || 'N/A').replace(/^https?:\/\//, '')}
                       </a>
                     </div>
                   </div>
@@ -402,9 +421,9 @@ export default function JobDetails() {
               {/* Similar Jobs */}
               {similarJobs.length > 0 && (
                 <div className="mt-10">
-                  <h2 className="text-xl font-bold text-gray-900 mb-6">Similar Jobs</h2>
+                  <h2 className="text-xl font-bold text-gray-900 mb-6">{isFreelance ? 'Similar Freelance Projects' : 'Similar Jobs'}</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {similarJobs.map((j, i) => <JobCard key={j._id || j.id} job={j} index={i} />)}
+                    {similarJobs.map((j, i) => <JobCard key={j._id || j.id} job={j} index={i} isFreelance={isFreelance} />)}
                   </div>
                 </div>
               )}
@@ -414,7 +433,7 @@ export default function JobDetails() {
             <div className="lg:w-80 flex-shrink-0 space-y-6">
               <AdPlaceholder type="square" label="Sidebar Ad" />
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <h3 className="font-bold text-gray-900 mb-4">Job Overview</h3>
+                <h3 className="font-bold text-gray-900 mb-4">{isFreelance ? 'Project Overview' : 'Job Overview'}</h3>
                 <div className="space-y-4">
                   {[
                     {
@@ -423,17 +442,17 @@ export default function JobDetails() {
                       icon: HiMapPin,
                     },
                     {
-                      label: 'Salary',
+                      label: isFreelance ? 'Project Budget' : 'Salary',
                       value: job.salary || 'Not disclosed',
                       icon: HiCurrencyDollar,
                     },
                     {
-                      label: 'Experience',
+                      label: isFreelance ? 'Project Duration' : 'Experience',
                       value: job.experience || 'Not specified',
                       icon: HiClock,
                     },
                     {
-                      label: 'Job Type',
+                      label: isFreelance ? 'Project Type' : 'Job Type',
                       value: job.type || 'Not specified',
                       icon: HiBriefcase,
                     },
@@ -461,7 +480,7 @@ export default function JobDetails() {
       </div>
 
       {/* Apply Modal */}
-      <Modal isOpen={showApply} onClose={closeApplyModal} title="Apply for this Position" size="xl">
+      <Modal isOpen={showApply} onClose={closeApplyModal} title={isFreelance ? 'Apply for this Project' : 'Apply for this Position'} size="xl">
         <div className="space-y-6">
           {/* Job Summary Banner */}
           <div className="bg-gradient-to-r from-primary-50/70 to-secondary-50/70 dark:from-primary-950/20 dark:to-secondary-950/20 rounded-2xl p-5 flex items-center gap-4 border border-primary-100/60 dark:border-primary-900/30">

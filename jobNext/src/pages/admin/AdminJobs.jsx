@@ -12,6 +12,7 @@ import {
 import Modal from "@components/common/Modal";
 import EmptyState from "@components/common/EmptyState";
 import { useJobs } from "@hooks/useJobs";
+import { useFreelance } from "@hooks/useFreelance";
 import { useToast } from "@context/ToastContext";
 import { EMPLOYMENT_TYPES, WORK_MODES } from "@utils/constants";
 
@@ -21,6 +22,12 @@ import {
   deleteJob,
   togglePublish,
 } from "../../services/jobService";
+import {
+  createFreelanceProject,
+  updateFreelanceProject,
+  deleteFreelanceProject,
+  togglePublishFreelance,
+} from "../../services/freelanceService";
 
 const getEmptyJob = () => ({
   title: "",
@@ -40,6 +47,7 @@ const getEmptyJob = () => ({
   requirements: [""],
   postedDate: new Date().toISOString(),
   published: true,
+  isFreelance: false,
   companyDetails: {
     name: "",
     size: "",
@@ -51,9 +59,12 @@ const getEmptyJob = () => ({
 });
 
 export default function AdminJobs() {
+  const [activeTab, setActiveTab] = useState("jobs");
   const [defaultSkills, setDefaultSkills] = useState([]);
 
-  const { allJobs, fetchJobs } = useJobs();
+  const jobHooks = useJobs();
+  const freelanceHooks = useFreelance();
+  const currentHooks = activeTab === "jobs" ? jobHooks : freelanceHooks;
 
   const { addToast } = useToast();
 
@@ -74,7 +85,10 @@ export default function AdminJobs() {
 
   const openAdd = () => {
     setEditing(null);
-    setForm(getEmptyJob());
+    setForm({
+      ...getEmptyJob(),
+      isFreelance: activeTab === "freelance",
+    });
     setModal(true);
   };
 
@@ -85,6 +99,7 @@ export default function AdminJobs() {
       ...job,
       responsibilities: job.responsibilities || [""],
       requirements: job.requirements || [""],
+      isFreelance: activeTab === "freelance" || job.isFreelance || false,
       companyDetails: {
         name: job.companyDetails?.name || "",
         size: job.companyDetails?.size || "",
@@ -105,7 +120,9 @@ export default function AdminJobs() {
     }
 
     const computedSalary = form.salaryMin || form.salaryMax 
-      ? `$${Number(form.salaryMin).toLocaleString()} - $${Number(form.salaryMax).toLocaleString()}`
+      ? (activeTab === "freelance" 
+          ? `$${Number(form.salaryMin).toLocaleString()} - $${Number(form.salaryMax).toLocaleString()} (Project Budget)`
+          : `$${Number(form.salaryMin).toLocaleString()} - $${Number(form.salaryMax).toLocaleString()}`)
       : "Negotiable";
 
     const payload = {
@@ -119,82 +136,94 @@ export default function AdminJobs() {
 
     try {
       if (editing) {
-        await updateJob(editing, payload);
-
-        addToast("Job updated successfully", "success");
+        if (activeTab === "freelance") {
+          await updateFreelanceProject(editing, payload);
+        } else {
+          await updateJob(editing, payload);
+        }
+        addToast("Updated successfully", "success");
       } else {
-        await createJob(payload);
-
-        addToast("Job created successfully", "success");
+        if (activeTab === "freelance") {
+          await createFreelanceProject(payload);
+        } else {
+          await createJob(payload);
+        }
+        addToast("Created successfully", "success");
       }
 
-      await fetchJobs();
-
+      await currentHooks.fetchJobs();
       setModal(false);
-
       setEditing(null);
-
       setForm(getEmptyJob());
     } catch (err) {
       console.log(err);
-
       addToast("Something went wrong", "error");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Delete this job?")) return;
+    if (!confirm("Delete this listing?")) return;
 
     try {
-      await deleteJob(id);
-
-     await fetchJobs();
-
-      addToast("Job deleted", "success");
+      if (activeTab === "freelance") {
+        await deleteFreelanceProject(id);
+      } else {
+        await deleteJob(id);
+      }
+      await currentHooks.fetchJobs();
+      addToast("Deleted successfully", "success");
     } catch (err) {
       console.log(err);
-
       addToast("Delete failed", "error");
     }
   };
 
   const handleTogglePublish = async (id) => {
     try {
-      await togglePublish(id);
-
-     await fetchJobs();
-
+      if (activeTab === "freelance") {
+        await togglePublishFreelance(id);
+      } else {
+        await togglePublish(id);
+      }
+      await currentHooks.fetchJobs();
       addToast("Status Updated", "success");
     } catch (err) {
       console.log(err);
-
-      addToast("Failed", "error");
+      addToast("Failed to update status", "error");
     }
   };
 
-  const updateField = (key, val) =>
+  const updateField = (key, val) => {
+    let formatted = val;
+    if (typeof val === "string" && key !== "companyLogo" && key !== "website") {
+      formatted = val.charAt(0).toUpperCase() + val.slice(1);
+    }
     setForm((prev) => ({
       ...prev,
-      [key]: val,
+      [key]: formatted,
     }));
+  };
 
-  const updateCompanyDetail = (key, val) =>
+  const updateCompanyDetail = (key, val) => {
+    let formatted = val;
+    if (typeof val === "string" && key !== "website") {
+      formatted = val.charAt(0).toUpperCase() + val.slice(1);
+    }
     setForm((prev) => ({
       ...prev,
       companyDetails: {
         ...prev.companyDetails,
-        [key]: val,
+        [key]: formatted,
       },
     }));
+  };
 
   const addListItem = (key) =>
     updateField(key, [...form[key], ""]);
 
   const updateListItem = (key, i, val) => {
     const arr = [...form[key]];
-
-    arr[i] = val;
-
+    arr[i] = typeof val === "string" ? val.charAt(0).toUpperCase() + val.slice(1) : val;
     updateField(key, arr);
   };
 
@@ -210,7 +239,9 @@ export default function AdminJobs() {
       skillInput.trim() &&
      !(form.skills || []).includes(skillInput.trim())
     ) {
-      updateField("skills", [...form.skills, skillInput.trim()]);
+      const tag = skillInput.trim();
+      const capitalized = tag.charAt(0).toUpperCase() + tag.slice(1);
+      updateField("skills", [...form.skills, capitalized]);
 
       setSkillInput("");
     }
@@ -223,14 +254,36 @@ export default function AdminJobs() {
     "block text-sm font-medium text-gray-700 mb-1";
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-sm text-gray-500">{allJobs.length} jobs total</p>
-        <button onClick={openAdd} className="gradient-btn text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2"><HiPlus className="w-4 h-4" />Add Job</button>
+    <div className="space-y-6">
+      {/* Tab Switcher */}
+      <div className="flex items-center justify-between border-b border-gray-150 dark:border-slate-800/80 pb-1">
+        <div className="flex gap-5">
+          <button
+            onClick={() => setActiveTab("jobs")}
+            className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+              activeTab === "jobs"
+                ? "border-primary-500 text-primary-650 dark:text-primary-400"
+                : "border-transparent text-gray-500 dark:text-slate-450 hover:text-gray-700"
+            }`}
+          >
+            Permanent Jobs ({jobHooks.allJobs.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("freelance")}
+            className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+              activeTab === "freelance"
+                ? "border-secondary-500 text-secondary-650 dark:text-secondary-400"
+                : "border-transparent text-gray-500 dark:text-slate-450 hover:text-gray-700"
+            }`}
+          >
+            Freelance Projects ({freelanceHooks.allJobs.length})
+          </button>
+        </div>
+        <button onClick={openAdd} className="gradient-btn text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 mb-2"><HiPlus className="w-4 h-4" />{activeTab === "jobs" ? "Add Job" : "Add Project"}</button>
       </div>
 
-      {allJobs.length === 0 ? (
-        <EmptyState title="No jobs yet" description="Add your first job listing." action={<button onClick={openAdd} className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium">Add Job</button>} />
+      {currentHooks.allJobs.length === 0 ? (
+        <EmptyState title={activeTab === "jobs" ? "No jobs yet" : "No freelance projects yet"} description={activeTab === "jobs" ? "Add your first job listing." : "Add your first freelance project."} action={<button onClick={openAdd} className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium">Add {activeTab === "jobs" ? "Job" : "Project"}</button>} />
       ) : (
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-150 dark:border-slate-800/80 overflow-hidden">
           <div className="overflow-x-auto">
@@ -245,7 +298,7 @@ export default function AdminJobs() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-150 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
-                {allJobs.map(j => (
+                {currentHooks.allJobs.map(j => (
                   <tr key={j._id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/10 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
@@ -255,7 +308,10 @@ export default function AdminJobs() {
                           className="w-10 h-10 rounded-xl object-cover bg-white shadow-sm flex-shrink-0 border border-gray-100 dark:border-slate-800/65" 
                         />
                         <div>
-                          <p className="font-semibold text-gray-900 dark:text-slate-200">{j.title}</p>
+                          <p className="font-semibold text-gray-900 dark:text-slate-200 flex items-center gap-1.5">
+                            {j.title}
+                            {j.isFreelance && <span className="text-[10px] font-bold text-secondary-700 bg-secondary-50 dark:bg-secondary-500/10 dark:text-secondary-400 px-1.5 py-0.5 rounded border border-secondary-100 dark:border-secondary-500/15">Freelance</span>}
+                          </p>
                           <p className="text-xs text-gray-400 mt-0.5">{j.company}</p>
                         </div>
                       </div>
@@ -315,17 +371,17 @@ export default function AdminJobs() {
           setModal(false);
           setEditing(null);
           setForm(getEmptyJob());
-        }} title={editing ? 'Edit Job' : 'Add Job'} size="full">
+        }} title={editing ? (form.isFreelance ? 'Edit Freelance Project' : 'Edit Job') : (form.isFreelance ? 'Add Freelance Project' : 'Add Job')} size="full">
         <div className="space-y-6">
           {/* Section 1: Job Overview */}
           <div className="bg-gray-50/50 dark:bg-slate-800/10 p-5 rounded-2xl border border-gray-150 dark:border-slate-800/50 space-y-4">
-            <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">Role Overview</h3>
+            <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">{form.isFreelance ? 'Project Overview' : 'Role Overview'}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><label className={labelClass}>Job Title *</label><input type="text" value={form.title} onChange={e => updateField('title', e.target.value)} className={inputClass} placeholder="e.g. Senior Frontend Developer" /></div>
-              <div><label className={labelClass}>Company *</label><input type="text" value={form.company} onChange={e => updateField('company', e.target.value)} className={inputClass} placeholder="e.g. TechNova Inc." /></div>
-              <div><label className={labelClass}>Company Logo URL</label><input type="text" value={form.companyLogo} onChange={e => updateField('companyLogo', e.target.value)} className={inputClass} placeholder="https://example.com/logo.png" /></div>
+              <div><label className={labelClass}>{form.isFreelance ? 'Project Title *' : 'Job Title *'}</label><input type="text" value={form.title} onChange={e => updateField('title', e.target.value)} className={inputClass} placeholder={form.isFreelance ? 'e.g. Design a landing page for SaaS' : 'e.g. Senior Frontend Developer'} /></div>
+              <div><label className={labelClass}>{form.isFreelance ? 'Client / Organization *' : 'Company *'}</label><input type="text" value={form.company} onChange={e => updateField('company', e.target.value)} className={inputClass} placeholder={form.isFreelance ? 'e.g. Acme Corp or Client Name' : 'e.g. TechNova Inc.'} /></div>
+              <div><label className={labelClass}>{form.isFreelance ? 'Client Logo URL' : 'Company Logo URL'}</label><input type="text" value={form.companyLogo} onChange={e => updateField('companyLogo', e.target.value)} className={inputClass} placeholder="https://example.com/logo.png" /></div>
               <div><label className={labelClass}>Category</label><input type="text" value={form.category} onChange={e => updateField('category', e.target.value)} className={inputClass} placeholder="e.g. Engineering" /></div>
-              <div><label className={labelClass}>Experience Level</label><input type="text" value={form.experience} onChange={e => updateField('experience', e.target.value)} className={inputClass} placeholder="e.g. 3-5 years" /></div>
+              <div><label className={labelClass}>{form.isFreelance ? 'Project Duration' : 'Experience Level'}</label><input type="text" value={form.experience} onChange={e => updateField('experience', e.target.value)} className={inputClass} placeholder={form.isFreelance ? 'e.g. 2 months, 6 weeks' : 'e.g. 3-5 years'} /></div>
             </div>
           </div>
 
@@ -357,10 +413,10 @@ export default function AdminJobs() {
 
           {/* Section 3: Compensation */}
           <div className="bg-gray-50/50 dark:bg-slate-800/10 p-5 rounded-2xl border border-gray-150 dark:border-slate-800/50 space-y-4">
-            <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">Compensation (USD per annum)</h3>
+            <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">{form.isFreelance ? 'Project Budget (USD)' : 'Compensation (USD per annum)'}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><label className={labelClass}>Minimum Salary ($)</label><input type="number" value={form.salaryMin || ''} onChange={e => updateField('salaryMin', Number(e.target.value))} className={inputClass} placeholder="e.g. 120000" /></div>
-              <div><label className={labelClass}>Maximum Salary ($)</label><input type="number" value={form.salaryMax || ''} onChange={e => updateField('salaryMax', Number(e.target.value))} className={inputClass} placeholder="e.g. 160000" /></div>
+              <div><label className={labelClass}>{form.isFreelance ? 'Minimum Budget ($)' : 'Minimum Salary ($)'}</label><input type="number" value={form.salaryMin || ''} onChange={e => updateField('salaryMin', Number(e.target.value))} className={inputClass} placeholder={form.isFreelance ? 'e.g. 5000' : 'e.g. 120000'} /></div>
+              <div><label className={labelClass}>{form.isFreelance ? 'Maximum Budget ($)' : 'Maximum Salary ($)'}</label><input type="number" value={form.salaryMax || ''} onChange={e => updateField('salaryMax', Number(e.target.value))} className={inputClass} placeholder={form.isFreelance ? 'e.g. 10000' : 'e.g. 160000'} /></div>
             </div>
           </div>
 
@@ -405,15 +461,15 @@ export default function AdminJobs() {
           </div>
 
           {/* Company Details */}
-          <div className="border-t border-gray-100 pt-5">
-            <h3 className="font-bold text-gray-900 mb-3">Company Details</h3>
+          <div className="border-t border-gray-100 dark:border-slate-800 pt-5">
+            <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-3">{form.isFreelance ? 'Client / Organization Details' : 'Company Details'}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><label className={labelClass}>Industry</label><input type="text" value={form.companyDetails.industry || ''} onChange={e => updateCompanyDetail('industry', e.target.value)} className={inputClass} /></div>
-              <div><label className={labelClass}>Size</label><input type="text" value={form.companyDetails.size || ''} onChange={e => updateCompanyDetail('size', e.target.value)} className={inputClass} placeholder="100-200" /></div>
-              <div><label className={labelClass}>Founded</label><input type="text" value={form.companyDetails.founded || ''} onChange={e => updateCompanyDetail('founded', e.target.value)} className={inputClass} placeholder="2020" /></div>
+              <div><label className={labelClass}>Industry</label><input type="text" value={form.companyDetails.industry || ''} onChange={e => updateCompanyDetail('industry', e.target.value)} className={inputClass} placeholder={form.isFreelance ? 'e.g. Design, Software' : ''} /></div>
+              <div><label className={labelClass}>Size</label><input type="text" value={form.companyDetails.size || ''} onChange={e => updateCompanyDetail('size', e.target.value)} className={inputClass} placeholder="e.g. 10-50" /></div>
+              <div><label className={labelClass}>Founded</label><input type="text" value={form.companyDetails.founded || ''} onChange={e => updateCompanyDetail('founded', e.target.value)} className={inputClass} placeholder="e.g. 2020" /></div>
               <div><label className={labelClass}>Website</label><input type="text" value={form.companyDetails.website || ''} onChange={e => updateCompanyDetail('website', e.target.value)} className={inputClass} placeholder="https://..." /></div>
             </div>
-            <div className="mt-4"><label className={labelClass}>Company Description</label><textarea rows={3} value={form.companyDetails.description || ''} onChange={e => updateCompanyDetail('description', e.target.value)} className={inputClass + ' resize-none'} /></div>
+            <div className="mt-4"><label className={labelClass}>{form.isFreelance ? 'Client / Project Description' : 'Company Description'}</label><textarea rows={3} value={form.companyDetails.description || ''} onChange={e => updateCompanyDetail('description', e.target.value)} className={inputClass + ' resize-none'} /></div>
           </div>
 
           {/* Job Status Selection Block */}

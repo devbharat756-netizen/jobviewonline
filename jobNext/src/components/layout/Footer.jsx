@@ -6,60 +6,65 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300">
+    <footer className="bg-slate-950 text-slate-400">
       <AdPlaceholder type="horizontal" label="Footer Ad Space" />
+      {/* Gradient accent bar */}
+      <div className="h-px bg-gradient-to-r from-transparent via-primary-500/60 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
-          <div>
-            <Link to="/" className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center">
+          <div className="lg:col-span-1">
+            <Link to="/" className="flex items-center gap-3 mb-5 group">
+              <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
                 <HiBriefcase className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-extrabold text-gray-900 dark:text-white">job<span className="text-primary-400">View</span></span>
+              <span className="text-xl font-extrabold text-white tracking-tight">
+                Job<span className="gradient-text">View</span>
+              </span>
             </Link>
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-              Find Your Dream Job. jobView connects talented professionals with top companies worldwide. Browse thousands of opportunities across every industry.
+            <p className="text-sm text-slate-400 leading-relaxed mb-6 max-w-xs">
+              Connecting talented professionals with world-class companies. Your next great opportunity is just a search away.
             </p>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs text-slate-500 font-medium">50,000+ active job seekers</span>
+            </div>
           </div>
 
           {/* For Job Seekers */}
           <div>
-            <h4 className="text-gray-900 dark:text-white font-bold mb-4">For Job Seekers</h4>
-            <ul className="space-y-2.5">
-              <li><Link to="/jobs" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">Browse Jobs</Link></li>
-              <li><Link to="/career-tips" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">Career Tips</Link></li>
-              <li><Link to="/dashboard" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">My Dashboard</Link></li>
-              <li><Link to="/dashboard/saved-jobs" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">Saved Jobs</Link></li>
-              <li><Link to="/dashboard/applications" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">My Applications</Link></li>
+            <h4 className="text-white font-bold mb-5 text-sm uppercase tracking-wider">For Job Seekers</h4>
+            <ul className="space-y-3">
+              {[['Browse Jobs', '/jobs'], ['Freelance Projects', '/freelance'], ['Career Tips', '/career-tips'], ['My Dashboard', '/dashboard'], ['Saved Jobs', '/dashboard/saved-jobs'], ['My Applications', '/dashboard/applications']].map(([label, path]) => (
+                <li key={path}><Link to={path} className="text-sm text-slate-400 hover:text-primary-400 transition-colors duration-200">{label}</Link></li>
+              ))}
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h4 className="text-gray-900 dark:text-white font-bold mb-4">Company</h4>
-            <ul className="space-y-2.5">
-              <li><Link to="/about" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">About Us</Link></li>
-              <li><Link to="/companies" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">Companies</Link></li>
-              <li><Link to="/contact" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">Contact Us</Link></li>
-              <li><Link to="/faq" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">FAQ</Link></li>
+            <h4 className="text-white font-bold mb-5 text-sm uppercase tracking-wider">Company</h4>
+            <ul className="space-y-3">
+              {[['About Us', '/about'], ['Companies', '/companies'], ['Contact Us', '/contact'], ['FAQ', '/faq']].map(([label, path]) => (
+                <li key={path}><Link to={path} className="text-sm text-slate-400 hover:text-primary-400 transition-colors duration-200">{label}</Link></li>
+              ))}
             </ul>
           </div>
 
           {/* Legal */}
           <div>
-            <h4 className="text-gray-900 dark:text-white font-bold mb-4">Legal</h4>
-            <ul className="space-y-2.5">
-              <li><Link to="/privacy-policy" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">Terms of Service</Link></li>
-              <li><Link to="/disclaimer" className="text-sm text-gray-600 dark:text-gray-400 hover:text-primary-400 transition-colors">Disclaimer</Link></li>
+            <h4 className="text-white font-bold mb-5 text-sm uppercase tracking-wider">Legal</h4>
+            <ul className="space-y-3">
+              {[['Privacy Policy', '/privacy-policy'], ['Terms of Service', '/terms'], ['Disclaimer', '/disclaimer'], ['DMCA Policy', '/dmca']].map(([label, path]) => (
+                <li key={path}><Link to={path} className="text-sm text-slate-400 hover:text-primary-400 transition-colors duration-200">{label}</Link></li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">&copy; {currentYear} jobView. All rights reserved.</p>
-          <p className="text-xs text-gray-500 dark:text-gray-500">Made with care for job seekers everywhere.</p>
+        <div className="mt-14 pt-8 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-slate-500">&copy; {currentYear} JobView. All rights reserved.</p>
+          <p className="text-xs text-slate-600">Made with ♥ for job seekers everywhere.</p>
         </div>
       </div>
     </footer>

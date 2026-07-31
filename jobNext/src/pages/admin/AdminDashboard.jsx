@@ -35,15 +35,20 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-150 dark:border-slate-800/80">
-          <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-4 text-base border-b border-gray-100 dark:border-slate-800 pb-3">Recent Jobs</h3>
-          <div className="space-y-4">
+          <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-5 text-base">Recent Jobs</h3>
+          <div className="space-y-2">
             {jobs.slice(0, 5).map(j => (
-              <div key={j.id} className="flex items-center justify-between py-2.5 border-b border-gray-50 dark:border-slate-800/50 last:border-0 last:pb-0">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-slate-200">{j.title}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{j.company}</p>
+              <div key={j.id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800/50 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-1 h-9 rounded-full flex-shrink-0 ${j.published !== false ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-slate-100 truncate">{j.title}</p>
+                    <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{j.company}</p>
+                  </div>
                 </div>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg ${j.published !== false ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'}`}>{j.published !== false ? 'Published' : 'Draft'}</span>
+                <span className={`text-xs font-bold px-3 py-1 rounded-full flex-shrink-0 ml-3 ${j.published !== false ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400'}`}>
+                  {j.published !== false ? 'Published' : 'Draft'}
+                </span>
               </div>
             ))}
           </div>

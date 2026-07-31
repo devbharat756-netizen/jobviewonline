@@ -3,6 +3,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import Jobs from './pages/Jobs';
+import FreelanceJobs from './pages/FreelanceJobs';
 import JobDetails from './pages/JobDetails';
 import Companies from './pages/Companies';
 import CareerTips from './pages/CareerTips';
@@ -12,6 +13,7 @@ import FAQ from './pages/FAQ';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Terms from './pages/Terms';
 import Disclaimer from './pages/Disclaimer';
+import Dmca from './pages/Dmca';
 import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
@@ -29,6 +31,7 @@ import AdminSkills from './pages/admin/AdminSkills';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminApplications from './pages/admin/AdminApplications';
+import AdminNewsletter from './pages/admin/AdminNewsletter';
 import ScrollToTop from './components/common/ScrollToTop';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -42,6 +45,8 @@ export default function App() {
         <Route path="/" element={<><Navbar /><Home /><Footer /></>} />
         <Route path="/jobs" element={<><Navbar /><Jobs /><Footer /></>} />
         <Route path="/jobs/:id" element={<><Navbar /><JobDetails /><Footer /></>} />
+        <Route path="/freelance" element={<><Navbar /><FreelanceJobs /><Footer /></>} />
+        <Route path="/freelance/:id" element={<><Navbar /><JobDetails isFreelance={true} /><Footer /></>} />
         <Route path="/companies" element={<><Navbar /><Companies /><Footer /></>} />
         <Route path="/career-tips" element={<><Navbar /><CareerTips /><Footer /></>} />
         <Route path="/about" element={<><Navbar /><About /><Footer /></>} />
@@ -50,6 +55,7 @@ export default function App() {
         <Route path="/privacy-policy" element={<><Navbar /><PrivacyPolicy /><Footer /></>} />
         <Route path="/terms" element={<><Navbar /><Terms /><Footer /></>} />
         <Route path="/disclaimer" element={<><Navbar /><Disclaimer /><Footer /></>} />
+        <Route path="/dmca" element={<><Navbar /><Dmca /><Footer /></>} />
         
         {/* Guest Auth Routes */}
         <Route path="/login" element={<><Navbar /><Login /><Footer /></>} />
@@ -74,6 +80,7 @@ export default function App() {
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="applications" element={<AdminApplications />} />
+          <Route path="newsletter" element={<AdminNewsletter />} />
         </Route>
 
         {/* 404 */}

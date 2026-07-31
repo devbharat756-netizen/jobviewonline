@@ -27,6 +27,7 @@ export const APPLICATION_STATUSES = ['Applied', 'Shortlisted', 'Interview', 'Rej
 export const NAV_LINKS = [
   { label: 'Home', path: '/' },
   { label: 'Jobs', path: '/jobs' },
+  { label: 'Freelance', path: '/freelance' },
   { label: 'Companies', path: '/companies' },
   { label: 'Career Tips', path: '/career-tips' },
   { label: 'About', path: '/about' },
@@ -40,8 +41,38 @@ export const CAREER_TIPS = [
     excerpt: 'Your resume is your first impression. Avoid these common pitfalls that recruiters say are instant dealbreakers.',
     category: 'Resume',
     readTime: '6 min',
-    image: 'https://picsum.photos/seed/resume-tips/600/400.jpg',
-    content: `Your resume is often the first thing a hiring manager sees, and you only get about 6 seconds to make an impression. Here are the top 10 mistakes that could send your resume straight to the rejection pile:\n\n**1. Typos and Grammatical Errors**\nNothing says "I don't pay attention to detail" like a typo. Always proofread your resume multiple times and have someone else review it too.\n\n**2. Using a Generic Objective Statement**\n"Dedicated professional seeking a challenging position" tells the recruiter nothing. Replace it with a targeted summary that highlights your specific value.\n\n**3. Listing Duties Instead of Achievements**\nInstead of "Managed a team of 10," write "Led a team of 10 to deliver a $2M project 2 weeks ahead of schedule." Quantify your impact.\n\n**4. Including Irrelevant Information**\nYour high school GPA, hobbies (unless relevant), and personal details like marital status don't belong on a professional resume.\n\n**5. Poor Formatting**\nUse consistent fonts, bullet points, and spacing. Avoid crazy colors, graphics, or unusual layouts that confuse ATS systems.\n\n**6. Being Too Vague**\n"Improved sales" is weak. "Increased sales by 35% in Q3 through implementing a new CRM strategy" is powerful.\n\n**7. One-Size-Fits-All Approach**\nTailor your resume for each job. Mirror the language from the job description and highlight the most relevant experience.\n\n**8. Missing Keywords**\nMost companies use ATS (Applicant Tracking Systems) that scan for keywords. Include terms from the job description naturally throughout your resume.\n\n**9. Too Long or Too Short**\nFor most professionals, 1-2 pages is ideal. Senior executives might go to 3 pages, but anything longer is likely unnecessary.\n\n**10. No Contact Information or Wrong Contact Info**\nDouble-check your phone number and email. Include your LinkedIn profile and optionally your portfolio URL.`
+    image: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=600&auto=format&fit=crop',
+    content: `Your resume is often the first thing a hiring manager sees, and you only get about 6 seconds to make an impression. Here is an in-depth breakdown of the top 10 mistakes that could send your resume straight to the rejection pile, and how to fix them:
+
+**1. Typos and Grammatical Errors**
+Nothing says "I don't pay attention to detail" like a typo. Always proofread your resume multiple times, use online writing assistants, and have a trusted peer review it before submitting.
+
+**2. Using a Generic Objective Statement**
+Statements like "Dedicated professional seeking a challenging position" are outdated and tell the recruiter nothing about what you bring to the table. Replace it with a targeted professional summary that highlights your specific value, years of experience, and core skills.
+
+**3. Listing Duties Instead of Achievements**
+Do not copy and paste your past job descriptions. Instead of writing "Managed a team of 10," write "Led a team of 10 developers to deliver a $2M SaaS platform 2 weeks ahead of schedule." Quantify your impact with metrics, percentages, and dollar amounts.
+
+**4. Including Irrelevant Information**
+Your high school GPA, unrelated hobbies, and personal details (like marital status or profile photos in regions where not standard) do not belong on a professional resume. Focus purely on professional competence.
+
+**5. Poor Formatting and Bad Typography**
+Use clean, readable, professional fonts (like Inter, Arial, or Calibri) with consistent spacing. Avoid excessive colors, complicated sidebars, or unusual layouts that confuse Applicant Tracking Systems (ATS).
+
+**6. Being Too Vague**
+Vague claims like "Improved sales" are weak. Be specific: "Increased sales by 35% in Q3 through implementing a new automated CRM funnel."
+
+**7. One-Size-Fits-All Approach**
+Tailor your resume for every single job you apply for. Mirror the exact keywords from the job description and show how your experience matches their needs.
+
+**8. Missing Keywords for ATS**
+Most mid-to-large companies use automated systems to scan resumes. Make sure skills mentioned in the job post appear naturally in your text.
+
+**9. Too Long or Too Short**
+For most professionals, a 1-to-2 page resume is ideal. Senior executives might go to 3 pages, but anything longer is unnecessary.
+
+**10. Inaccurate Contact Information**
+Double-check your email and phone number. Make sure your LinkedIn profile link works and is professional.`
   },
   {
     id: 2,
@@ -49,8 +80,30 @@ export const CAREER_TIPS = [
     excerpt: 'Technical interviews have evolved. Learn the latest strategies to demonstrate both coding skills and engineering thinking.',
     category: 'Interview',
     readTime: '8 min',
-    image: 'https://picsum.photos/seed/tech-interview/600/400.jpg',
-    content: `Technical interviews in 2025 look different from even a few years ago. Companies are moving beyond pure algorithmic puzzles toward assessing real-world engineering skills. Here's how to prepare:\n\n**Understand the Format**\nMost technical interviews now include: a coding round (45-60 min), a system design round (45 min), and a behavioral round (30 min). Some companies have added "take-home" projects or pair programming sessions.\n\n**Master the Fundamentals**\nData structures (arrays, hash maps, trees, graphs) and algorithms (sorting, searching, dynamic programming, BFS/DFS) are still the foundation. Use platforms like LeetCode, but focus on understanding patterns rather than memorizing solutions.\n\n**Think Out Loud**\nInterviewers want to see your thought process. Start by clarifying the problem, discuss your approach before coding, and explain your decisions as you go.\n\n**Write Clean Code**\nUse meaningful variable names, keep functions short, handle edge cases, and add comments for complex logic. Code quality matters as much as correctness.\n\n**System Design Preparation**\nFor mid-to-senior roles, system design is crucial. Practice designing scalable systems: load balancers, caching strategies, database sharding, message queues. Start with high-level architecture and drill into components.\n\n**Behavioral Questions Matter**\n"Tell me about a time..." questions reveal your soft skills. Use the STAR method (Situation, Task, Action, Result) to structure your answers. Prepare 5-6 stories that demonstrate leadership, conflict resolution, and impact.\n\n**Ask Great Questions**\nWhen given the chance to ask questions, show genuine curiosity about the team, tech stack, challenges, and culture. This is your interview too.`
+    image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=600&auto=format&fit=crop',
+    content: `Technical interviews in 2025 look different from even a few years ago. Companies are moving beyond pure algorithmic puzzles toward assessing real-world engineering skills. Here's a structured approach to preparing:
+
+**Understand the Interview Format**
+Most technical interviews now consist of multiple rounds:
+1. Online Assessment (OA) / Take-home assignment.
+2. Live coding round (45-60 min) focused on data structures and problem-solving.
+3. System Design round (45 min) focused on high-level architecture.
+4. Behavioral interview focusing on teamwork and past experience.
+
+**Master the Algorithmic Fundamentals**
+Data structures (arrays, hash maps, trees, graphs) and algorithms (sorting, searching, dynamic programming, BFS/DFS) are still the foundation. Focus on understanding patterns rather than memorizing solutions.
+
+**Think and Code Out Loud**
+The interviewer wants to see how you solve problems under pressure. Start by asking clarifying questions, discuss your approach before writing any code, and explain your trade-offs (time and space complexity) as you program.
+
+**Write Production-Ready Code**
+Use meaningful variable names, keep functions modular, handle edge cases, and add tests. Code quality and clean architecture matter as much as correctness.
+
+**System Design Preparation**
+For mid-to-senior roles, system design is crucial. Practice designing scalable systems: load balancers, caching strategies, database sharding, and message queues. Start with high-level architecture and drill into components.
+
+**Prepare Behavioral Stories**
+Use the STAR method (Situation, Task, Action, Result) to answer behavioral questions. Have 5-6 stories ready that showcase conflict resolution, learning from failure, and team leadership.`
   },
   {
     id: 3,
@@ -58,8 +111,31 @@ export const CAREER_TIPS = [
     excerpt: 'Don\'t leave money on the table. Learn proven negotiation tactics that can increase your offer by 10-20%.',
     category: 'Salary',
     readTime: '7 min',
-    image: 'https://picsum.photos/seed/salary-neg/600/400.jpg',
-    content: `Salary negotiation is one of the highest-ROI activities in your career. A single successful negotiation can mean tens of thousands of dollars over your tenure. Here's how to do it right:\n\n**Do Your Research**\nBefore any negotiation, know your market value. Use Glassdoor, Levels.fyi, Payscale, and industry surveys. Factor in your location, experience level, and the company's size.\n\n**Never Share Your Number First**\nIf asked for your salary expectations early, try to defer: "I'd like to learn more about the role's responsibilities before discussing compensation." If pressed, give a wide range based on your research.\n\n**Get the Offer in Writing First**\nAlways negotiate after receiving a written offer. This gives you leverage and shows the company is already invested in you.\n\n**Negotiate the Total Package**\nSalary is just one component. Also negotiate: signing bonus, equity/RSUs, annual bonus percentage, vacation days, remote work flexibility, professional development budget, and title.\n\n**Use the "We" Frame**\nInstead of "I want more money," try "I'm excited about this role and want to make sure we find a number that reflects my experience and the value I'll bring."\n\n**Have a Walk-Away Number**\nKnow your absolute minimum before entering negotiations. This gives you confidence and prevents you from accepting an offer you'll regret.\n\n**Practice Your Pitch**\nRehearse your negotiation conversation. Role-play with a friend. The more comfortable you are, the more natural and confident you'll sound.\n\n**Get Everything in Writing**\nVerbal promises mean nothing. Ensure every agreed-upon term is documented in the final offer letter.`
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop',
+    content: `Salary negotiation is one of the highest-ROI activities in your career. A single successful negotiation can mean tens of thousands of dollars over your tenure. Here is how to navigate the process:
+
+**Do Your Research Early**
+Before you even speak with a recruiter, know your market value. Use Glassdoor, Levels.fyi, Payscale, and industry surveys. Factor in your location, experience level, and the company's size.
+
+**Do Not Disclose Your Number First**
+If asked for your salary expectations early in the process, try to defer: "I'd like to learn more about the role's responsibilities before discussing compensation." If pressed, give a wide range based on your research.
+
+**Get the Offer in Writing**
+Always wait to negotiate until you have a written offer letter in hand. This gives you concrete leverage and shows the company is fully invested in hiring you.
+
+**Negotiate the Total Package**
+Salary is just one component. Also negotiate:
+- Sign-on bonuses.
+- Stock options / RSUs.
+- Vacation days.
+- Remote work flexibility.
+- Professional development budget.
+
+**Use the "We" Frame**
+Instead of demanding more, frame it as a collaborative discussion: "I'm excited about this opportunity and want to find a number that reflects my experience and the value I'll bring to the team."
+
+**Know Your Walk-Away Number**
+Establish your absolute minimum before entering negotiations. This keeps you grounded and prevents you from accepting an offer you'll regret.`
   },
   {
     id: 4,
@@ -67,17 +143,47 @@ export const CAREER_TIPS = [
     excerpt: 'Remote work is here to stay. Discover strategies to maintain productivity, avoid burnout, and build relationships from anywhere.',
     category: 'Remote Work',
     readTime: '5 min',
-    image: 'https://picsum.photos/seed/remote-work/600/400.jpg',
-    content: `Remote work offers incredible flexibility, but it also requires discipline and intentional habits. Here are proven strategies to thrive while working remotely:\n\n**Create a Dedicated Workspace**\nEven if you don't have a separate office, designate a specific area for work. This helps your brain switch into "work mode" and creates boundaries between professional and personal life.\n\n**Establish a Routine**\nStart and end your workday at consistent times. Include a "commute" ritual — even if it's just walking to your desk with coffee. Routines reduce decision fatigue and create structure.\n\n**Over-Communicate**\nIn remote settings, no one can see you working. Share progress updates proactively, document your work, and don't assume people know what you're doing.\n\n**Use Async Communication Wisely**\nNot everything needs a meeting. Use written updates, Loom videos, and shared documents for status updates. Reserve meetings for discussions that benefit from real-time interaction.\n\n**Schedule Virtual Social Time**\nRemote work can be isolating. Schedule virtual coffee chats, participate in non-work Slack channels, and attend virtual team events.\n\n**Take Real Breaks**\nStep away from your screen. Walk, exercise, eat lunch away from your desk. The Pomodoro technique (25 min work, 5 min break) works well for many remote workers.\n\n**Set Boundaries**\nCommunicate your working hours to your team. Turn off notifications outside those hours. Having clear boundaries prevents burnout and sustains long-term productivity.\n\n**Invest in Your Setup**\nA good chair, external monitor, quality webcam, and reliable internet are not luxuries — they're productivity tools that pay for themselves.`
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=600&auto=format&fit=crop',
+    content: `Remote work offers incredible flexibility, but it also requires discipline and intentional habits. Here are proven strategies to thrive while working remotely:
+
+**Create a Dedicated Workspace**
+Avoid working from your bed or couch. Designate a specific desk or table for work. This helps your brain switch into "work mode" and creates physical boundaries between professional and personal life.
+
+**Establish a Daily Routine**
+Start and end your workday at consistent times. Include a "commute" ritual — like taking a morning walk or reading a book — to simulate the transition into work.
+
+**Over-Communicate**
+In remote settings, visibility must be intentional. Share progress updates proactively, document your processes, and let your team know when you'll be away.
+
+**Use Asynchronous Communication**
+Not everything needs a meeting. Use written updates, screen recordings, and shared documents for status reports. Reserve meetings for complex discussions.
+
+**Prioritize Physical and Mental Health**
+Step away from your screen periodically. Use the Pomodoro technique (25 min work, 5 min break) to keep fresh. Make sure to schedule social interactions outside of work.`
   },
   {
     id: 5,
-    title: 'Building a LinkedIn Profile That Recruiters Actually Notice',
+    title: 'Building a LinkedIn Profile That Recruiters Notice',
     excerpt: 'LinkedIn is the #1 platform for job seekers. Learn how to optimize your profile to attract recruiters and opportunities.',
     category: 'Personal Branding',
     readTime: '6 min',
-    image: 'https://picsum.photos/seed/linkedin-tips/600/400.jpg',
-    content: `With over 900 million users, LinkedIn is where recruiters actively search for candidates. An optimized profile can be the difference between being found and being invisible:\n\n**Professional Headshot**\nUse a high-quality, recent headshot with good lighting. No selfies, no wedding photos, no cropped group shots. Your face should take up 60-70% of the frame.\n\n**Compelling Headline**\nYour headline is your elevator pitch. Instead of "Software Engineer at X," try "Senior Full Stack Engineer | React & Node.js | Building Scalable SaaS Products."\n\n**About Section That Tells a Story**\nWrite in first person. Explain what you do, who you help, and what makes you unique. Include keywords naturally. End with a call to action.\n\n**Showcase Achievements, Not Just Titles**\nUnder each position, highlight 3-5 key accomplishments with metrics. Use bullet points for readability.\n\n**Get Recommendations**\nAim for at least 5-6 recommendations from managers, colleagues, and clients. These add social proof that your claims are backed by others.\n\n**Skills and Endorsements**\nList your top skills and reorder them so the most relevant ones appear first. Endorsements from credible connections boost your profile's strength.\n\n**Be Active**\nPost original content 2-3 times per week. Comment thoughtfully on others' posts. Engage in your industry's conversations. Activity signals that you're current and engaged.\n\n**Custom URL**\nChange your LinkedIn URL to linkedin.com/in/yourname — it looks more professional and is easier to share.`
+    image: 'https://images.unsplash.com/photo-1616469829581-73993eb86b02?q=80&w=600&auto=format&fit=crop',
+    content: `With over 900 million users, LinkedIn is where recruiters actively search for candidates. An optimized profile can be the difference between being found and being invisible:
+
+**Professional Headshot**
+Use a high-quality, recent headshot with good lighting. No selfies or cropped group photos. Your face should take up 60-70% of the frame.
+
+**Compelling Headline**
+Instead of just listing your title, write a value statement: "Senior Full Stack Engineer | React & Node.js | Building Scalable SaaS Products."
+
+**About Section That Tells a Story**
+Write in the first person. Explain what you do, who you help, and what makes you unique. Include relevant keywords for your industry.
+
+**Showcase Achievements, Not Just Titles**
+Under each position, highlight 3-5 key accomplishments with metrics. Use bullet points for readability.
+
+**Get Recommendations**
+Aim for recommendations from managers, colleagues, and clients. These add social proof that your claims are backed by others.`
   },
   {
     id: 6,
@@ -85,8 +191,23 @@ export const CAREER_TIPS = [
     excerpt: 'Bootcamp graduates face unique challenges. Here\'s an honest, actionable guide to landing your first tech role.',
     category: 'Career Transition',
     readTime: '7 min',
-    image: 'https://picsum.photos/seed/bootcamp-career/600/400.jpg',
-    content: `Coding bootcamps can be an excellent path into tech, but the transition isn't automatic. Here's a realistic roadmap for bootcamp graduates:\n\n**Manage Your Expectations**\nThe average bootcamp graduate takes 3-6 months to land their first role. It's a marathon, not a sprint. Prepare financially and mentally for this timeline.\n\n**Build Beyond Bootcamp Projects**\nBootcamp projects are a starting point, not an endpoint. Build 2-3 additional projects that solve real problems, use modern stacks, and demonstrate depth beyond tutorial-level work.\n\n**Contribute to Open Source**\nEven small contributions (documentation fixes, good first issues) show you can work with real codebases and collaborate with other developers.\n\n**Network Intentionally**\nAttend local meetups, join Discord communities, participate in hackathons. Many bootcamp graduates land their first role through connections, not applications.\n\n**Target the Right Companies**\nLarge tech companies often have degree requirements. Focus on startups, agencies, and mid-size companies that value skills over credentials. Many excellent companies hire based on ability alone.\n\n**Master the Fundamentals**\nGo deeper than what the bootcamp covered. Study data structures, algorithms, system design basics, and computer science fundamentals. Free resources like CS50, freeCodeCamp, and The Odin Project can fill gaps.\n\n**Practice Interviewing Early**\nDon't wait until you're "ready." Start practicing technical interviews from week one of your job search. The gap between knowing and performing under pressure is real.\n\n**Consider Contract-to-Hire**\nMany bootcamp graduates break in through contract roles. These can lead to full-time positions and provide the experience that makes future job searches much easier.`
+    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=600&auto=format&fit=crop',
+    content: `Coding bootcamps can be an excellent path into tech, but the transition isn't automatic. Here's a realistic roadmap for bootcamp graduates:
+
+**Manage Your Expectations**
+The average bootcamp graduate takes 3-6 months to land their first role. Prepare financially and mentally for this timeline.
+
+**Build Beyond Bootcamp Projects**
+Tutorial projects look identical on other graduate portfolios. Build 2-3 unique projects that solve real problems, use modern stacks, and demonstrate depth.
+
+**Contribute to Open Source**
+Even small contributions (documentation fixes, minor bug fixes) show you can work with real codebases and collaborate with other developers.
+
+**Network Intentionally**
+Attend local meetups, join Discord communities, participate in hackathons. Many bootcamp graduates land their first role through connections, not applications.
+
+**Master the Fundamentals**
+Go deeper than what the bootcamp covered. Study data structures, algorithms, system design basics, and computer science fundamentals.`
   }
 ];
 

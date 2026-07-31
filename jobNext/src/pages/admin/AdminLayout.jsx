@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
-import { HiBriefcase, HiHome, HiRectangleStack, HiBuildingOffice2, HiSquares2X2, HiChartBar, HiCog6Tooth, HiArrowRightOnRectangle, HiBars3, HiXMark, HiUsers } from 'react-icons/hi2';
+import { HiBriefcase, HiHome, HiRectangleStack, HiBuildingOffice2, HiSquares2X2, HiChartBar, HiCog6Tooth, HiArrowRightOnRectangle, HiBars3, HiXMark, HiUsers, HiEnvelope } from 'react-icons/hi2';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const links = [
@@ -10,6 +10,7 @@ const links = [
   { label: 'Categories', path: '/admin/categories', icon: HiSquares2X2 },
   { label: 'Skills', path: '/admin/skills', icon: HiBriefcase },
   { label: 'Applications', path: '/admin/applications', icon: HiUsers },
+  { label: 'Newsletter', path: '/admin/newsletter', icon: HiEnvelope },
   { label: 'Analytics', path: '/admin/analytics', icon: HiChartBar },
   { label: 'Settings', path: '/admin/settings', icon: HiCog6Tooth },
 ];

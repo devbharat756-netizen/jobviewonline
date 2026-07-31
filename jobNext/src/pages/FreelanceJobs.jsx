@@ -9,14 +9,14 @@ import LoadingSkeleton from '@components/common/LoadingSkeleton';
 import EmptyState from '@components/common/EmptyState';
 import AdPlaceholder from '@components/common/AdPlaceholder';
 import SearchBar from '@components/common/SearchBar';
-import { useJobs } from '@hooks/useJobs';
+import { useFreelance } from '@hooks/useFreelance';
 
-export default function Jobs() {
+export default function FreelanceJobs() {
   const [searchParams] = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
-  const jobHooks = useJobs();
+  const jobHooks = useFreelance();
 
   useEffect(() => {
     fetch('/data/categories.json')
@@ -63,14 +63,14 @@ export default function Jobs() {
 
   return (
     <>
-      <SEO path="/jobs" title="Browse Jobs" description="Search and filter thousands of job listings. Find opportunities by location, salary, skills, and work mode." />
+      <SEO path="/freelance" title="Freelance Projects" description="Search and filter thousands of freelance gigs. Find projects by category, budget, skills, and work mode." />
 
       <div className="pt-28 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Browse Jobs</h1>
-            <p className="text-gray-500">Showing {jobHooks.totalJobs} {jobHooks.totalJobs === 1 ? 'job' : 'jobs'}</p>
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-slate-100 mb-2">Browse Freelance Projects</h1>
+            <p className="text-gray-500">Showing {jobHooks.totalJobs} {jobHooks.totalJobs === 1 ? 'project' : 'projects'}</p>
           </div>
 
           {/* Search */}
@@ -87,7 +87,7 @@ export default function Jobs() {
               <span className="text-sm text-gray-500 hidden sm:inline">Sort by:</span>
               {['newest', 'highest', 'lowest'].map(s => (
                 <button key={s} onClick={() => jobHooks.setSortBy(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${jobHooks.sortBy === s ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-100'}`}>
-                  {s === 'newest' ? 'Newest' : s === 'highest' ? 'Highest Salary' : 'Lowest Salary'}
+                  {s === 'newest' ? 'Newest' : s === 'highest' ? 'Highest Budget' : 'Lowest Budget'}
                 </button>
               ))}
             </div>
@@ -129,11 +129,11 @@ export default function Jobs() {
               {loading ? (
                 <LoadingSkeleton count={6} />
               ) : jobHooks.paginatedJobs.length === 0 ? (
-                <EmptyState title="No jobs found" description="Try adjusting your search or filters to find more opportunities." action={<button onClick={clearFilters} className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium">Clear Filters</button>} />
+                <EmptyState title="No freelance projects found" description="Try adjusting your search or filters to find more opportunities." action={<button onClick={clearFilters} className="gradient-btn text-white px-6 py-2.5 rounded-xl text-sm font-medium">Clear Filters</button>} />
               ) : (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                    {jobHooks.paginatedJobs.map((job, i) => <JobCard key={job.id} job={job} index={i} />)}
+                    {jobHooks.paginatedJobs.map((job, i) => <JobCard key={job.id} job={job} index={i} isFreelance={true} />)}
                   </div>
                   <Pagination currentPage={jobHooks.currentPage} totalPages={jobHooks.totalPages} onPageChange={jobHooks.setCurrentPage} />
                 </>

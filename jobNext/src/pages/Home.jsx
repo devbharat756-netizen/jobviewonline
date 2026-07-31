@@ -10,13 +10,41 @@ import StatisticsCard from '@components/common/StatisticsCard';
 import AdPlaceholder from '@components/common/AdPlaceholder';
 import Banner300x250 from '@components/common/Banner300x250';
 import { useJobs } from '@hooks/useJobs';
+import { useFreelance } from '@hooks/useFreelance';
 import { CAREER_TIPS, TESTIMONIALS } from '@utils/constants';
+import { useToast } from '@context/ToastContext';
+import { subscribeNewsletter } from '../services/jobService';
 
 const iconMap = { Engineering: HiBriefcase, Design: HiPaintBrush, 'Data Science': HiChartBar, Mobile: HiAcademicCap, Security: HiShieldCheck, Marketing: HiUserGroup };
 
 export default function Home() {
   const [categories, setCategories] = useState([]);
   const { jobs } = useJobs();
+  const freelanceHook = useFreelance();
+  const { addToast } = useToast();
+
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [submittingNewsletter, setSubmittingNewsletter] = useState(false);
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    setSubmittingNewsletter(true);
+    try {
+      const res = await subscribeNewsletter(newsletterEmail.trim());
+      if (res.data.success) {
+        addToast(res.data.message || 'Subscribed successfully!', 'success');
+        setNewsletterEmail('');
+      } else {
+        addToast(res.data.message || 'Subscription failed.', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      addToast(err.response?.data?.message || 'Subscription failed. Please try again.', 'error');
+    } finally {
+      setSubmittingNewsletter(false);
+    }
+  };
 
   useEffect(() => {
     fetch('/data/categories.json')
@@ -31,6 +59,11 @@ export default function Home() {
   }, [jobs]);
   const latestJobs = useMemo(() => [...jobs].sort((a, b) => new Date(b.postedDate) - new Date(a.postedDate)).slice(0, 6), [jobs]);
   const remoteJobs = useMemo(() => jobs.filter(j => j.mode === 'Remote').slice(0, 6), [jobs]);
+  const latestFreelance = useMemo(() => {
+    return [...freelanceHook.jobs]
+      .sort((a, b) => new Date(b.postedDate) - new Date(a.postedDate))
+      .slice(0, 6);
+  }, [freelanceHook.jobs]);
   const topCompanies = useMemo(() => {
     const map = {};
     jobs.forEach(j => {
@@ -44,37 +77,45 @@ export default function Home() {
     <>
       <SEO path="/" description="jobView - Find Your Dream Job. Browse thousands of job listings from top companies worldwide." />
 
-      {/* Hero */}
-      <section className="relative pt-32 pb-24 lg:pt-44 lg:pb-36 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50/60 via-slate-50 to-secondary-50/60 dark:from-slate-950/70 dark:via-slate-900/50 dark:to-purple-950/30" />
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-tr from-primary-300/25 to-emerald-300/25 dark:from-primary-900/10 dark:to-emerald-900/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-gradient-to-br from-secondary-300/20 to-purple-300/10 dark:from-secondary-900/10 dark:to-purple-900/5 rounded-full blur-3xl" />
+      {/* Hero — dark navy, executive */}
+      <section className="relative pt-32 pb-28 lg:pt-48 lg:pb-40 overflow-hidden bg-[#08142a]">
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-[0.035]" style={{backgroundImage: 'radial-gradient(circle, #4d83f5 1px, transparent 1px)', backgroundSize: '44px 44px'}} />
+        {/* Soft glow orbs */}
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-primary-700/20 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary-700/15 rounded-full blur-[100px]" />
+        {/* Horizontal accent line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/40 to-transparent" />
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary-700 dark:text-primary-300 bg-primary-100/60 dark:bg-primary-800/25 px-4 py-1.5 rounded-full mb-6 border border-primary-200/50 dark:border-primary-500/10">
-              <HiSparkles className="w-4 h-4 text-secondary-500" /> Trusted by 50,000+ job seekers
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
+            <span className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-7 bg-white/8 border border-white/12 text-primary-300">
+              <HiSparkles className="w-3.5 h-3.5 text-secondary-400" /> Trusted by 50,000+ job seekers
             </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-gray-900 dark:text-slate-100 leading-tight mb-6 tracking-tight">
-              Find Your <span className="gradient-text">Dream Job</span>
+            <h1 className="text-5xl sm:text-6xl lg:text-[84px] font-black text-white leading-[1.04] mb-6 tracking-tight">
+              Find Your{' '}<br className="hidden sm:block" />
+              <span className="gradient-text">Dream Job</span>
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-slate-350 max-w-2xl mx-auto mb-12 leading-relaxed">Discover high-paying opportunities at the world's best companies. Your next career move starts here.</p>
+            <p className="text-lg sm:text-xl text-slate-400 max-w-xl mx-auto mb-10 leading-relaxed font-normal">
+              Discover high-paying opportunities at the world's best companies. Your next career move starts here.
+            </p>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="max-w-4xl mx-auto shadow-xl shadow-primary-500/5 rounded-3xl">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }} className="max-w-3xl mx-auto">
             <SearchBar large />
           </motion.div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex flex-wrap items-center justify-center gap-3 mt-6 text-sm text-gray-500">
-            <span>Popular:</span>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.5 }} className="flex flex-wrap items-center justify-center gap-2.5 mt-7 text-sm">
+            <span className="font-medium text-slate-500">Trending:</span>
             {['React', 'Remote', 'Data Scientist', 'Product Designer'].map(t => (
-              <Link key={t} to={`/jobs?q=${t}`} className="text-primary-600 hover:text-primary-700 font-medium hover:underline">{t}</Link>
+              <Link key={t} to={`/jobs?q=${t}`} className="px-3 py-1 rounded-full text-xs font-semibold bg-white/6 border border-white/10 text-slate-400 hover:border-primary-400/50 hover:text-primary-300 hover:bg-primary-500/10 transition-all">{t}</Link>
             ))}
           </motion.div>
         </div>
       </section>
 
       {/* Statistics */}
-      <section className="py-16 bg-white">
+      <section className="py-14 bg-white border-y border-gray-100 dark:border-slate-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
             <StatisticsCard icon={HiBriefcase} label="Active Jobs" value="5,200+" color="primary" index={0} />
             <StatisticsCard icon={HiBuildingOffice2} label="Companies" value="1,800+" color="amber" index={1} />
             <StatisticsCard icon={HiUsers} label="Job Seekers" value="50,000+" color="emerald" index={2} />
@@ -84,20 +125,26 @@ export default function Home() {
       </section>
 
       {/* Featured Jobs */}
-      <section className="py-16 bg-gray-50/50">
+      <section className="py-20 bg-gray-50 dark:bg-slate-900/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-end justify-between mb-10">
             <div>
-              <h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900">Featured Jobs</h2>
-              <p className="text-gray-500 mt-1">High-paying opportunities from top companies</p>
+              <span className="section-label mb-3 inline-flex"><HiSparkles className="w-3.5 h-3.5" /> Top Picks</span>
+              <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white">Featured Jobs</h2>
+              <p className="text-gray-500 dark:text-slate-400 mt-2 text-base">Handpicked high-paying opportunities from top companies</p>
             </div>
-            <Link to="/jobs" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-primary-600 hover:text-primary-700">View all <HiArrowRight className="w-4 h-4" /></Link>
+            <Link to="/jobs" className="hidden sm:flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 group">
+              View all
+              <span className="w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-500/20 transition-colors">
+                <HiArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
             {featuredJobs.map((job, i) => <JobCard key={job.id} job={job} index={i} />)}
           </div>
           <div className="mt-8 text-center sm:hidden">
-            <Link to="/jobs" className="inline-flex items-center gap-1 text-sm font-semibold text-primary-600">View all jobs <HiArrowRight className="w-4 h-4" /></Link>
+            <Link to="/jobs" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600">View all jobs <HiArrowRight className="w-4 h-4" /></Link>
           </div>
         </div>
       </section>
@@ -105,21 +152,24 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4"><Banner300x250 /></div>
 
       {/* Popular Categories */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-white dark:bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900">Popular Categories</h2>
-            <p className="text-gray-500 mt-1">Explore jobs by category</p>
+          <div className="text-center mb-12">
+            <span className="section-label mb-4 inline-flex"><HiBriefcase className="w-3.5 h-3.5" /> Browse by field</span>
+            <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white">Popular Categories</h2>
+            <p className="text-gray-500 dark:text-slate-400 mt-2">Explore thousands of roles across every discipline</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {categories.map((cat, i) => {
               const Icon = iconMap[cat.icon] || HiBriefcase;
               return (
-                <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.05 }}>
-                  <Link to={`/jobs?category=${cat.name}`} className="block bg-white rounded-2xl p-5 shadow-sm border border-gray-100 card-hover text-center group">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: cat.color + '15', color: cat.color }}><Icon className="w-6 h-6" /></div>
-                    <h3 className="font-semibold text-gray-900 text-sm group-hover:text-primary-600 transition-colors">{cat.name}</h3>
-                    <p className="text-xs text-gray-400 mt-1">{cat.count} jobs</p>
+                <motion.div key={cat.id} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.05 }}>
+                  <Link to={`/jobs?category=${cat.name}`} className="flex flex-col items-center bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-800/60 card-hover text-center group">
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300" style={{ backgroundColor: cat.color + '18', color: cat.color }}>
+                      <Icon className="w-7 h-7" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 dark:text-slate-100 text-sm group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{cat.name}</h3>
+                    <p className="text-xs text-gray-400 dark:text-slate-500 mt-1 font-medium">{cat.count} open roles</p>
                   </Link>
                 </motion.div>
               );
@@ -129,11 +179,20 @@ export default function Home() {
       </section>
 
       {/* Top Companies */}
-      <section className="py-16 bg-gray-50/50">
+      <section className="py-20 bg-gray-50 dark:bg-slate-900/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div><h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900">Top Companies</h2><p className="text-gray-500 mt-1">Work at the best companies</p></div>
-            <Link to="/companies" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-primary-600 hover:text-primary-700">View all <HiArrowRight className="w-4 h-4" /></Link>
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <span className="section-label mb-3 inline-flex"><HiBuildingOffice2 className="w-3.5 h-3.5" /> Who's hiring</span>
+              <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white">Top Companies</h2>
+              <p className="text-gray-500 dark:text-slate-400 mt-2">Work at the world's most innovative organisations</p>
+            </div>
+            <Link to="/companies" className="hidden sm:flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 group">
+              View all
+              <span className="w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-500/20 transition-colors">
+                <HiArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {topCompanies.map((c, i) => <CompanyCard key={c.name} company={c} index={i} />)}
@@ -142,50 +201,108 @@ export default function Home() {
       </section>
 
       {/* Latest Jobs */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-white dark:bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div><h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900">Latest Jobs</h2><p className="text-gray-500 mt-1">Freshly posted opportunities</p></div>
-            <Link to="/jobs" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-primary-600 hover:text-primary-700">View all <HiArrowRight className="w-4 h-4" /></Link>
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <span className="section-label mb-3 inline-flex"><HiArrowUp className="w-3.5 h-3.5" /> Just posted</span>
+              <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white">Latest Jobs</h2>
+              <p className="text-gray-500 dark:text-slate-400 mt-2">Freshly posted opportunities updated daily</p>
+            </div>
+            <Link to="/jobs" className="hidden sm:flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 group">
+              View all
+              <span className="w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-500/20 transition-colors">
+                <HiArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
             {latestJobs.map((job, i) => <JobCard key={job.id} job={job} index={i} />)}
           </div>
         </div>
       </section>
 
       {/* Remote Jobs */}
-      <section className="py-16 bg-gray-50/50">
+      <section className="py-20 bg-gray-50 dark:bg-slate-900/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div><h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900">Remote Jobs</h2><p className="text-gray-500 mt-1">Work from anywhere</p></div>
-            <Link to="/jobs?mode=Remote" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-primary-600 hover:text-primary-700">View all <HiArrowRight className="w-4 h-4" /></Link>
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <span className="section-label mb-3 inline-flex"><HiGlobeAlt className="w-3.5 h-3.5" /> Work from anywhere</span>
+              <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white">Remote Jobs</h2>
+              <p className="text-gray-500 dark:text-slate-400 mt-2">Location-free roles from global companies</p>
+            </div>
+            <Link to="/jobs?mode=Remote" className="hidden sm:flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 group">
+              View all
+              <span className="w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-500/20 transition-colors">
+                <HiArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
             {remoteJobs.map((job, i) => <JobCard key={job.id} job={job} index={i} />)}
           </div>
         </div>
       </section>
 
-      {/* Career Tips */}
-      <section className="py-16 bg-white">
+      {/* Latest Freelance Projects */}
+      <section className="py-20 bg-white dark:bg-slate-950 border-y border-gray-100 dark:border-slate-800/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div><h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900">Career Tips & Advice</h2><p className="text-gray-500 mt-1">Expert guidance for your career</p></div>
-            <Link to="/career-tips" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-primary-600 hover:text-primary-700">View all <HiArrowRight className="w-4 h-4" /></Link>
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <span className="section-label mb-3 inline-flex"><HiCog6Tooth className="w-3.5 h-3.5" /> Project marketplace</span>
+              <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white">Freelance Projects</h2>
+              <p className="text-gray-500 dark:text-slate-400 mt-2">Gigs, contracts, and side-projects</p>
+            </div>
+            <Link to="/freelance" className="hidden sm:flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 group">
+              View all
+              <span className="w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-500/20 transition-colors">
+                <HiArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </Link>
+          </div>
+          {latestFreelance.length === 0 ? (
+            <div className="text-center py-20 bg-gray-50/60 dark:bg-slate-900/20 border border-dashed border-gray-200 dark:border-slate-700/60 rounded-3xl">
+              <p className="text-gray-400 dark:text-slate-500 text-sm">No freelance projects posted yet — check back soon!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+              {latestFreelance.map((job, i) => <JobCard key={job.id} job={job} index={i} isFreelance={true} />)}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Career Tips */}
+      <section className="py-20 bg-gray-50 dark:bg-slate-900/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <span className="section-label mb-3 inline-flex"><HiAcademicCap className="w-3.5 h-3.5" /> Grow your career</span>
+              <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white">Career Tips & Advice</h2>
+              <p className="text-gray-500 dark:text-slate-400 mt-2">Expert guidance to accelerate your career</p>
+            </div>
+            <Link to="/career-tips" className="hidden sm:flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 group">
+              View all
+              <span className="w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-primary-500/20 transition-colors">
+                <HiArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {CAREER_TIPS.slice(0, 3).map((tip, i) => (
-              <motion.div key={tip.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                <Link to="/career-tips" className="block bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 card-hover group">
-                  <div className="h-48 overflow-hidden"><img src={tip.image} alt={tip.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" /></div>
-                  <div className="p-5">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-xs font-medium text-primary-600 bg-primary-50 px-2.5 py-1 rounded-lg">{tip.category}</span>
-                      <span className="text-xs text-gray-400">{tip.readTime} read</span>
+              <motion.div key={tip.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="h-full">
+                <Link to="/career-tips" className="flex flex-col h-full bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-slate-800/60 card-hover group">
+                  <div className="h-48 overflow-hidden relative">
+                    <img src={tip.image} alt={tip.title} className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <span className="tag-primary">{tip.category}</span>
+                      <span className="text-xs text-gray-400 dark:text-slate-500">{tip.readTime} read</span>
                     </div>
-                    <h3 className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors line-clamp-2">{tip.title}</h3>
-                    <p className="text-sm text-gray-500 mt-2 line-clamp-2">{tip.excerpt}</p>
+                    <h3 className="font-bold text-gray-900 dark:text-slate-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2 text-base">{tip.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mt-2 line-clamp-2 mt-auto leading-relaxed">{tip.excerpt}</p>
                   </div>
                 </Link>
               </motion.div>
@@ -195,20 +312,32 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 bg-gray-50/50">
+      <section className="py-20 bg-white dark:bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900">What Job Seekers Say</h2>
-            <p className="text-gray-500 mt-1">Real stories from real people</p>
+          <div className="text-center mb-12">
+            <span className="section-label mb-4 inline-flex"><HiUsers className="w-3.5 h-3.5" /> Social proof</span>
+            <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white">What Job Seekers Say</h2>
+            <p className="text-gray-500 dark:text-slate-400 mt-2">Real stories from real people who found their dream jobs</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {TESTIMONIALS.slice(0, 3).map((t, i) => (
-              <motion.div key={t.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                <div className="flex gap-1 mb-4">{Array.from({ length: 5 }).map((_, s) => <HiSparkles key={s} className="w-4 h-4 text-amber-400" />)}</div>
-                <p className="text-gray-600 text-sm leading-relaxed mb-5">"{t.text}"</p>
-                <div className="flex items-center gap-3">
-                  <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover" loading="lazy" />
-                  <div><p className="text-sm font-semibold text-gray-900">{t.name}</p><p className="text-xs text-gray-500">{t.role}</p></div>
+              <motion.div key={t.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                <div className="h-full bg-white dark:bg-slate-900 rounded-2xl p-7 shadow-sm border border-gray-100 dark:border-slate-800/60 card-hover relative overflow-hidden">
+                  {/* Quote mark decoration */}
+                  <div className="absolute top-4 right-5 text-6xl font-black text-primary-100 dark:text-primary-900/40 leading-none select-none pointer-events-none">&ldquo;</div>
+                  <div className="flex gap-0.5 mb-4">
+                    {Array.from({ length: 5 }).map((_, s) => (
+                      <svg key={s} className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                    ))}
+                  </div>
+                  <p className="text-gray-600 dark:text-slate-300 text-sm leading-relaxed mb-6 relative z-10">&ldquo;{t.text}&rdquo;</p>
+                  <div className="flex items-center gap-3 mt-auto">
+                    <img src={t.avatar} alt={t.name} className="w-11 h-11 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-900/30" loading="lazy" />
+                    <div>
+                      <p className="text-sm font-bold text-gray-900 dark:text-slate-100">{t.name}</p>
+                      <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{t.role}</p>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -217,14 +346,38 @@ export default function Home() {
       </section>
 
       {/* Newsletter */}
-      <section className="py-16 bg-gradient-to-r from-primary-600 to-primary-800">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl lg:text-3xl font-extrabold text-white mb-3">Stay Updated</h2>
-          <p className="text-primary-100 mb-8">Get the latest jobs and career tips delivered to your inbox weekly.</p>
-          <form onSubmit={e => { e.preventDefault(); alert('Subscribed! (Demo only)'); }} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
-            <input type="email" required placeholder="Enter your email" className="flex-1 px-5 py-3.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-white/30" />
-            <button type="submit" className="px-8 py-3.5 bg-white text-primary-700 font-semibold rounded-xl hover:bg-primary-50 transition-colors text-sm">Subscribe</button>
-          </form>
+      <section className="relative py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#08142a] via-primary-900 to-secondary-900" />
+        <div className="absolute inset-0 opacity-[0.06]" style={{backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '30px 30px'}} />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary-600/15 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-secondary-600/15 rounded-full blur-3xl" />
+        <div className="relative max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/8 border border-white/12 text-white/80 text-xs font-bold uppercase tracking-widest mb-6">
+              <HiSparkles className="w-3.5 h-3.5 text-secondary-400" /> Weekly Newsletter
+            </div>
+            <h2 className="text-3xl lg:text-5xl font-black text-white mb-4 tracking-tight">Stay Ahead of the Curve</h2>
+            <p className="text-slate-400 mb-10 text-lg leading-relaxed">Get curated job picks, resume tips, and career insights delivered to your inbox every week.</p>
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input
+                type="email"
+                required
+                value={newsletterEmail}
+                onChange={e => setNewsletterEmail(e.target.value)}
+                placeholder="Enter your email address"
+                disabled={submittingNewsletter}
+                className="flex-1 px-5 py-4 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400/40 text-gray-900 bg-white shadow-lg placeholder-gray-400"
+              />
+              <button
+                type="submit"
+                disabled={submittingNewsletter}
+                className="px-7 py-4 bg-secondary-600 text-white font-bold rounded-xl hover:bg-secondary-500 transition-all text-sm disabled:opacity-60 shadow-lg whitespace-nowrap"
+              >
+                {submittingNewsletter ? 'Subscribing...' : 'Subscribe Free'}
+              </button>
+            </form>
+            <p className="mt-4 text-slate-500 text-xs">No spam, ever. Unsubscribe in one click.</p>
+          </motion.div>
         </div>
       </section>
     </>

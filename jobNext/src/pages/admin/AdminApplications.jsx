@@ -7,8 +7,10 @@ import { useToast } from "@context/ToastContext";
 import { getStatusColor } from "@utils/helpers";
 import { APPLICATION_STATUSES } from "@utils/constants";
 import { getAdminApplications, updateApplicationStatus, getResumeProxyUrl } from "../../services/jobService";
+import { getAdminFreelanceApplications, updateFreelanceApplicationStatus } from "../../services/freelanceService";
 
 export default function AdminApplications() {
+  const [activeTab, setActiveTab] = useState("jobs");
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState(null);
@@ -18,7 +20,9 @@ export default function AdminApplications() {
   const fetchApplications = async () => {
     setLoading(true);
     try {
-      const res = await getAdminApplications();
+      const res = activeTab === "jobs" 
+        ? await getAdminApplications() 
+        : await getAdminFreelanceApplications();
       if (res.data.success) {
         setApplications(res.data.data || []);
       }
@@ -32,11 +36,13 @@ export default function AdminApplications() {
 
   useEffect(() => {
     fetchApplications();
-  }, []);
+  }, [activeTab]);
 
   const handleStatusChange = async (appId, newStatus) => {
     try {
-      const res = await updateApplicationStatus(appId, newStatus);
+      const res = activeTab === "jobs"
+        ? await updateApplicationStatus(appId, newStatus)
+        : await updateFreelanceApplicationStatus(appId, newStatus);
       if (res.data.success) {
         setApplications(prev =>
           prev.map(app => (app._id === appId ? { ...app, status: newStatus } : app))
@@ -61,10 +67,40 @@ export default function AdminApplications() {
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-slate-100">Job Applications</h1>
+          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-slate-100">Candidate Applications</h1>
           <p className="text-sm text-gray-500 mt-1">Manage and track candidate profiles for your active listings</p>
         </div>
-        <span className="text-sm font-semibold bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 px-3.5 py-1.5 rounded-full border border-primary-100 dark:border-primary-500/20">
+      </div>
+
+      {/* Tab Switcher */}
+      <div className="flex items-center justify-between border-b border-gray-150 dark:border-slate-800/80 pb-1">
+        <div className="flex gap-5">
+          <button
+            onClick={() => setActiveTab("jobs")}
+            className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+              activeTab === "jobs"
+                ? "border-primary-500 text-primary-650 dark:text-primary-400"
+                : "border-transparent text-gray-500 dark:text-slate-450 hover:text-gray-700"
+            }`}
+          >
+            Permanent Jobs
+          </button>
+          <button
+            onClick={() => setActiveTab("freelance")}
+            className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+              activeTab === "freelance"
+                ? "border-secondary-500 text-secondary-650 dark:text-secondary-400"
+                : "border-transparent text-gray-500 dark:text-slate-450 hover:text-gray-700"
+            }`}
+          >
+            Freelance Projects
+          </button>
+        </div>
+        <span className={`text-sm font-semibold px-3.5 py-1.5 rounded-full border ${
+          activeTab === 'jobs'
+            ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 border-primary-100/50 dark:border-primary-500/20'
+            : 'bg-secondary-50 dark:bg-secondary-500/10 text-secondary-750 dark:text-secondary-400 border-secondary-100/50 dark:border-secondary-500/20'
+        }`}>
           {applications.length} Total
         </span>
       </div>

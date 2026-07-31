@@ -30,7 +30,7 @@ const companyDetailsSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const jobSchema = new mongoose.Schema(
+const freelanceSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -119,11 +119,6 @@ const jobSchema = new mongoose.Schema(
       default: true,
     },
 
-    isFreelance: {
-      type: Boolean,
-      default: false,
-    },
-
     companyDetails: {
       type: companyDetailsSchema,
       default: () => ({}),
@@ -134,4 +129,4 @@ const jobSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Job", jobSchema);
+export default mongoose.model("Freelance", freelanceSchema);

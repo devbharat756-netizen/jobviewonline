@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Newsletter from "../models/newsletter.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { uploadToCloudinary } from "../../../utils/cloudinary.js";
@@ -378,4 +379,61 @@ export const registerOrLoginCandidate = async (req, res) => {
     success: false,
     message: "This endpoint has been deprecated. Please use dedicated signup and login screens instead.",
   });
+};
+
+/**
+ * Subscribes a user's email to the newsletter.
+ */
+export const subscribeNewsletter = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || !email.trim()) {
+      return res.status(400).json({ success: false, message: "Email is required." });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, message: "Please provide a valid email." });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Check if already subscribed
+    const existing = await Newsletter.findOne({ email: normalizedEmail });
+    if (existing) {
+      return res.status(200).json({ success: true, message: "You are already subscribed to our newsletter!" });
+    }
+
+    await Newsletter.create({ email: normalizedEmail });
+    return res.status(201).json({ success: true, message: "Thank you for subscribing to our newsletter!" });
+  } catch (err) {
+    console.error("Newsletter subscription error:", err);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+/**
+ * Retrieves all newsletter subscribers.
+ */
+export const getNewsletterSubscribers = async (req, res) => {
+  try {
+    const subscribers = await Newsletter.find().sort({ createdAt: -1 });
+    return res.status(200).json({ success: true, data: subscribers });
+  } catch (err) {
+    console.error("Fetch subscribers error:", err);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+/**
+ * Removes a newsletter subscriber.
+ */
+export const removeNewsletterSubscriber = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Newsletter.findByIdAndDelete(id);
+    return res.status(200).json({ success: true, message: "Subscriber removed successfully." });
+  } catch (err) {
+    console.error("Remove subscriber error:", err);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
 };

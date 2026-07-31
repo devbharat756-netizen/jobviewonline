@@ -71,6 +71,11 @@ export const getResumeProxyUrl = (cloudinaryUrl, publicId) => {
   return base;
 };
 
+// Newsletter subscription
+export const subscribeNewsletter = (email) => API.post("/auth/newsletter/subscribe", { email });
+export const getNewsletterSubscribers = () => API.get("/auth/newsletter/subscribers");
+export const deleteNewsletterSubscriber = (id) => API.delete(`/auth/newsletter/subscribers/${id}`);
+
 // Authentication & Profile APIs
 export const signupCandidate = (data) => API.post("/auth/candidate/signup", data);
 export const loginCandidate = (data) => API.post("/auth/candidate/login", data);

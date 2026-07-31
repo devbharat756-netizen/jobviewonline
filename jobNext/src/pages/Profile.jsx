@@ -37,11 +37,21 @@ export default function Profile() {
 
   const safeProfile = formState;
 
-  const update = (key, value) => setFormState(prev => normalizeProfile({ ...prev, [key]: value }));
+  const update = (key, value) => {
+    let formatted = value;
+    if (key === 'phone' && typeof value === 'string') {
+      formatted = value.replace(/\D/g, '').slice(0, 10);
+    } else if (typeof value === 'string' && key !== 'email' && key !== 'portfolio' && key !== 'github' && key !== 'linkedin' && key !== 'avatar' && key !== 'resume') {
+      formatted = value.charAt(0).toUpperCase() + value.slice(1);
+    }
+    setFormState(prev => normalizeProfile({ ...prev, [key]: formatted }));
+  };
 
   const addSkill = () => {
     if (skillInput.trim() && !safeProfile.skills.includes(skillInput.trim())) {
-      update('skills', [...safeProfile.skills, skillInput.trim()]);
+      const tag = skillInput.trim();
+      const capitalized = tag.charAt(0).toUpperCase() + tag.slice(1);
+      update('skills', [...safeProfile.skills, capitalized]);
       setSkillInput('');
     }
   };
@@ -51,7 +61,11 @@ export default function Profile() {
   const addEducation = () => update('education', [...safeProfile.education, { degree: '', school: '', year: '' }]);
   const updateEducation = (i, key, val) => {
     const ed = [...safeProfile.education];
-    ed[i] = { ...ed[i], [key]: val };
+    let formatted = val;
+    if (typeof val === 'string' && key !== 'year') {
+      formatted = val.charAt(0).toUpperCase() + val.slice(1);
+    }
+    ed[i] = { ...ed[i], [key]: formatted };
     update('education', ed);
   };
   const removeEducation = (i) => update('education', safeProfile.education.filter((_, idx) => idx !== i));
@@ -59,7 +73,11 @@ export default function Profile() {
   const addExperience = () => update('experience', [...safeProfile.experience, { title: '', company: '', duration: '' }]);
   const updateExperience = (i, key, val) => {
     const ex = [...safeProfile.experience];
-    ex[i] = { ...ex[i], [key]: val };
+    let formatted = val;
+    if (typeof val === 'string' && key !== 'duration') {
+      formatted = val.charAt(0).toUpperCase() + val.slice(1);
+    }
+    ex[i] = { ...ex[i], [key]: formatted };
     update('experience', ex);
   };
   const removeExperience = (i) => update('experience', safeProfile.experience.filter((_, idx) => idx !== i));
@@ -186,7 +204,7 @@ export default function Profile() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label><input type="text" value={safeProfile.name} onChange={e => update('name', e.target.value)} className={inputClass} placeholder="John Doe" /></div>
                     <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label><input type="email" value={safeProfile.email} readOnly className={`${inputClass} bg-gray-100 cursor-not-allowed`} placeholder="john@example.com" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label><input type="tel" value={safeProfile.phone} onChange={e => update('phone', e.target.value)} className={inputClass} placeholder="+1 (555) 123-4567" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label><input type="tel" value={safeProfile.phone} onChange={e => update('phone', e.target.value)} className={inputClass} placeholder="e.g. 5550000000" /></div>
                     <div><label className="block text-sm font-medium text-gray-700 mb-1.5">Address</label><input type="text" value={safeProfile.address} onChange={e => update('address', e.target.value)} className={inputClass} placeholder="San Francisco, CA" /></div>
                   </div>
 
