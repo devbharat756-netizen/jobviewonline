@@ -18,7 +18,7 @@ export default function Contact() {
 
   return (
     <>
-      <SEO path="/contact" title="Contact Us" description="Get in touch with the jobView team. We're here to help with any questions about our platform." />
+      <SEO path="/contact" title="Contact Us" description="Get in touch with the viewjob team. We're here to help with any questions about our platform." />
       <div className="pt-28 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -30,7 +30,7 @@ export default function Contact() {
             {/* Info Cards */}
             <div className="space-y-4">
               {[
-                { icon: HiEnvelope, label: 'Email', value: 'support@jobview.online' },
+                { icon: HiEnvelope, label: 'Email', value: 'support@viewjob.online' },
                 { icon: HiPhone, label: 'Phone', value: '+917563003439' },
                 { icon: HiMapPin, label: 'Address', value: 'Tech Avenue, Patna, Bihar, India' },
               ].map(item => (

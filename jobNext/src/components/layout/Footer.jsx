@@ -19,7 +19,7 @@ export default function Footer() {
                 <HiBriefcase className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-extrabold text-white tracking-tight">
-                Job<span className="gradient-text">View</span>
+                view<span className="gradient-text">job</span>
               </span>
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed mb-6 max-w-xs">
@@ -63,7 +63,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-14 pt-8 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-slate-500">&copy; {currentYear} JobView. All rights reserved.</p>
+          <p className="text-sm text-slate-500">&copy; {currentYear} viewjob. All rights reserved.</p>
           <p className="text-xs text-slate-600">Made with ♥ for job seekers everywhere.</p>
         </div>
       </div>

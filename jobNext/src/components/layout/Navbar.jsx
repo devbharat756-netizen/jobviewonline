@@ -39,7 +39,7 @@ export default function Navbar() {
               <HiBriefcase className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-              Job<span className="gradient-text">View</span>
+              view<span className="gradient-text">job</span>
             </span>
           </Link>
 

@@ -15,7 +15,7 @@ app.use(morgan("dev"));
 app.get("/", (req, res) => {
   return res.json({
     success: true,
-    message: "JobView Backend Running 🚀",
+    message: "viewjob Backend Running 🚀",
   });
 });
 

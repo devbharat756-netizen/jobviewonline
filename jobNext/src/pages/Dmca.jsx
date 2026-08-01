@@ -3,7 +3,7 @@ import SEO from '@components/common/SEO';
 export default function Dmca() {
   return (
     <>
-      <SEO path="/dmca" title="DMCA Policy" description="jobView DMCA Copyright Infringement Policy - Guidelines for reporting copyright infringement." />
+      <SEO path="/dmca" title="DMCA Policy" description="viewjob DMCA Copyright Infringement Policy - Guidelines for reporting copyright infringement." />
       <div className="pt-28 pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-extrabold text-gray-900 mb-2">DMCA Copyright Policy</h1>
@@ -12,7 +12,7 @@ export default function Dmca() {
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Introduction</h2>
               <p>
-                jobView respects the intellectual property rights of others. In accordance with the Digital Millennium Copyright Act ("DMCA"), we have adopted the following policy toward copyright infringement. We reserve the right to remove or disable access to material that we believe in good faith infringes a copyright, and to terminate the accounts of repeat infringers.
+                viewjob respects the intellectual property rights of others. In accordance with the Digital Millennium Copyright Act ("DMCA"), we have adopted the following policy toward copyright infringement. We reserve the right to remove or disable access to material that we believe in good faith infringes a copyright, and to terminate the accounts of repeat infringers.
               </p>
             </section>
             
@@ -37,9 +37,9 @@ export default function Dmca() {
                 Please send infringement notifications to our designated copyright department at:
               </p>
               <div className="bg-gray-50 dark:bg-slate-800/30 p-4 rounded-xl border border-gray-200/60 dark:border-slate-800 mt-3 font-mono text-sm space-y-1">
-                <p>Email: copyright@jobviewonline.com</p>
+                <p>Email: copyright@viewjob.online</p>
                 <p>Subject Line: DMCA Copyright Infringement Notice</p>
-                <p>Address: jobView Copyright Agent, 100 Innovation Way, Suite 400, San Francisco, CA 94107</p>
+                <p>Address: viewjob Copyright Agent, 100 Innovation Way, Suite 400, San Francisco, CA 94107</p>
               </div>
             </section>
 
@@ -59,7 +59,7 @@ export default function Dmca() {
             <section>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Repeat Infringers</h2>
               <p>
-                jobView takes repeat infringement seriously. Any user account or employer profile that accumulates multiple valid DMCA take-down notifications will be permanently terminated from utilizing our platforms.
+                viewjob takes repeat infringement seriously. Any user account or employer profile that accumulates multiple valid DMCA take-down notifications will be permanently terminated from utilizing our platforms.
               </p>
             </section>
           </div>

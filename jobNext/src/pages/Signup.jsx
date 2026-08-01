@@ -51,7 +51,7 @@ export default function Signup() {
 
   return (
     <>
-      <SEO path="/signup" title="Signup" description="Create your candidate account on jobView." />
+      <SEO path="/signup" title="Signup" description="Create your candidate account on viewjob." />
 
       <div className="min-h-screen pt-32 pb-16 flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-amber-50/50 dark:from-slate-950 dark:via-slate-900/40 dark:to-slate-950 px-4 sm:px-6">
         <motion.div
@@ -67,7 +67,7 @@ export default function Signup() {
                 <HiBriefcase className="w-5.5 h-5.5 text-white" />
               </div>
               <span className="text-2xl font-extrabold text-gray-900 dark:text-slate-100">
-                Job<span className="text-primary-600">View</span>
+                view<span className="text-primary-600">job</span>
               </span>
             </Link>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Create Account</h2>

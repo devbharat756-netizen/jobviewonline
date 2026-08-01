@@ -75,7 +75,7 @@ export default function Home() {
 
   return (
     <>
-      <SEO path="/" description="jobView - Find Your Dream Job. Browse thousands of job listings from top companies worldwide." />
+      <SEO path="/" description="viewjob - Find Your Dream Job. Browse thousands of job listings from top companies worldwide." />
 
       {/* Hero — dark navy, executive */}
       <section className="relative pt-32 pb-28 lg:pt-48 lg:pb-40 overflow-hidden bg-[#08142a]">

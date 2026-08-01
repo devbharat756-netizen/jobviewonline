@@ -39,7 +39,7 @@ export default function Login() {
 
   return (
     <>
-      <SEO path="/login" title="Login" description="Sign in to your candidate account on jobView." />
+      <SEO path="/login" title="Login" description="Sign in to your candidate account on viewjob." />
 
       <div className="min-h-screen pt-32 pb-16 flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-amber-50/50 dark:from-slate-950 dark:via-slate-900/40 dark:to-slate-950 px-4 sm:px-6">
         <motion.div
@@ -55,7 +55,7 @@ export default function Login() {
                 <HiBriefcase className="w-5.5 h-5.5 text-white" />
               </div>
               <span className="text-2xl font-extrabold text-gray-900 dark:text-slate-100">
-                Job<span className="text-primary-600">View</span>
+                view<span className="text-primary-600">job</span>
               </span>
             </Link>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Welcome Back</h2>
@@ -120,7 +120,7 @@ export default function Login() {
 
             <div className="mt-6 text-center border-t border-gray-50 dark:border-slate-800/80 pt-5">
               <p className="text-sm text-gray-500">
-                New to JobView?{' '}
+                New to viewjob?{' '}
                 <Link to="/signup" className="text-primary-600 hover:text-primary-700 font-semibold">
                   Create an account
                 </Link>

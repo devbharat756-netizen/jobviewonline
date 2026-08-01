@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 export default function SEO({ title, description, path = '' }) {
   useEffect(() => {
     document.title = title
-      ? `${title} | jobView`
-      : 'jobView - Find Your Dream Job';
+      ? `${title} | viewjob`
+      : 'viewjob - Find Your Dream Job';
 
     const setMeta = (name, content) => {
       let el = document.querySelector(`meta[name="${name}"]`) || document.querySelector(`meta[property="${name}"]`);
@@ -17,7 +17,7 @@ export default function SEO({ title, description, path = '' }) {
     setMeta('description', desc);
     setMeta('og:title', document.title);
     setMeta('og:description', desc);
-    setMeta('og:url', `https://jobView.com${path}`);
+    setMeta('og:url', `https://viewjob.online${path}`);
     setMeta('og:type', 'website');
 
     // Structured Data
@@ -26,12 +26,12 @@ export default function SEO({ title, description, path = '' }) {
     script.textContent = JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      name: 'jobView',
-      url: 'https://jobView.com',
+      name: 'viewjob',
+      url: 'https://viewjob.online',
       description: desc,
       potentialAction: {
         '@type': 'SearchAction',
-        target: 'https://jobView.com/jobs?q={search_term_string}',
+        target: 'https://viewjob.online/jobs?q={search_term_string}',
         'query-input': 'required name=search_term_string',
       },
     });
