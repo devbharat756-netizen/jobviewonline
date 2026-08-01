@@ -5,6 +5,7 @@ import {
   loginCandidate,
   signupCandidate,
   getMe,
+  getSavedJobs,
   updateProfile as updateProfileApi,
   registerLogoutHandler,
 } from "../services/jobService";
@@ -20,6 +21,7 @@ export function AuthProvider({ children }) {
   // Decoupled logout logic
   const logout = () => {
     localStorage.removeItem("candidateToken");
+    localStorage.removeItem("savedJobs");
     setUser(null);
     addToast("Logged out successfully.", "success");
     navigate("/login");
@@ -29,6 +31,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     registerLogoutHandler(() => {
       localStorage.removeItem("candidateToken");
+      localStorage.removeItem("savedJobs");
       setUser(null);
       addToast("Session expired. Please login again.", "error");
       navigate("/login");
@@ -49,10 +52,21 @@ export function AuthProvider({ children }) {
         const res = await getMe();
         if (res.data.success) {
           setUser(res.data.user);
+          // Sync saved jobs list from DB
+          try {
+            const savedRes = await getSavedJobs();
+            if (savedRes.data.success) {
+              const savedList = (savedRes.data.data || []).map(j => ({ id: j.id || j._id, savedAt: new Date().toISOString() }));
+              localStorage.setItem("savedJobs", JSON.stringify(savedList));
+            }
+          } catch (err) {
+            console.warn("Could not sync saved jobs list to localStorage:", err.message);
+          }
         }
       } catch (err) {
         console.error("Failed to restore session:", err.message);
         localStorage.removeItem("candidateToken");
+        localStorage.removeItem("savedJobs");
         setUser(null);
       } finally {
         setLoading(false);
@@ -62,14 +76,26 @@ export function AuthProvider({ children }) {
     restoreSession();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, role) => {
     try {
-      const res = await loginCandidate({ email, password });
+      const res = await loginCandidate({ email, password, role });
       if (res.data.success) {
         localStorage.setItem("candidateToken", res.data.token);
         setUser(res.data.user);
+        // Sync saved jobs list from DB
+        try {
+          const savedRes = await getSavedJobs();
+          if (savedRes.data.success) {
+            const savedList = (savedRes.data.data || []).map(j => ({ id: j.id || j._id, savedAt: new Date().toISOString() }));
+            localStorage.setItem("savedJobs", JSON.stringify(savedList));
+          }
+        } catch (err) {
+          console.warn("Could not sync saved jobs list on login:", err.message);
+        }
         addToast("Logged in successfully!", "success");
-        navigate("/dashboard");
+        const searchParams = new URLSearchParams(window.location.search);
+        const redirect = searchParams.get("redirect") || "/dashboard";
+        navigate(redirect);
         return { success: true };
       }
     } catch (err) {
@@ -79,14 +105,17 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const signup = async (name, email, phone, password) => {
+  const signup = async (name, email, phone, password, role) => {
     try {
-      const res = await signupCandidate({ name, email, phone, password });
+      const res = await signupCandidate({ name, email, phone, password, role });
       if (res.data.success) {
         localStorage.setItem("candidateToken", res.data.token);
         setUser(res.data.user);
+        localStorage.setItem("savedJobs", JSON.stringify([])); // Empty for new signups
         addToast("Account created successfully!", "success");
-        navigate("/dashboard");
+        const searchParams = new URLSearchParams(window.location.search);
+        const redirect = searchParams.get("redirect") || "/dashboard";
+        navigate(redirect);
         return { success: true };
       }
     } catch (err) {

@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { HiHome, HiUserCircle, HiDocumentText, HiBookmark, HiArrowLeft } from 'react-icons/hi2';
+import { useAuth } from '../../context/AuthContext';
 
 const links = [
   { label: 'Overview', path: '/dashboard', icon: HiHome },
@@ -10,16 +11,27 @@ const links = [
 
 export default function DashboardSidebar() {
   const location = useLocation();
+  const { user } = useAuth();
   const isActive = (path) => location.pathname === path;
+
+  const filteredLinks = user?.role === 'recruiter'
+    ? links.filter(l => l.path === '/dashboard' || l.path === '/dashboard/profile')
+    : links;
 
   return (
     <aside className="w-full lg:w-64 flex-shrink-0">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-        <Link to="/" className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary-600 transition-colors mb-4 px-3 py-2">
-          <HiArrowLeft className="w-4 h-4" /> Back to Home
-        </Link>
+        {user?.role === 'recruiter' ? (
+          <Link to="/dashboard" className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary-600 transition-colors mb-4 px-3 py-2">
+            <HiArrowLeft className="w-4 h-4" /> Back to Dashboard
+          </Link>
+        ) : (
+          <Link to="/" className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary-600 transition-colors mb-4 px-3 py-2">
+            <HiArrowLeft className="w-4 h-4" /> Back to Home
+          </Link>
+        )}
         <nav className="space-y-1">
-          {links.map(link => (
+          {filteredLinks.map(link => (
             <Link
               key={link.path}
               to={link.path}

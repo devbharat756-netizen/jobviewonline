@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HiBriefcase, HiLockClosed } from 'react-icons/hi2';
+import { HiBriefcase, HiLockClosed, HiEye, HiEyeSlash } from 'react-icons/hi2';
 import { motion } from 'framer-motion';
 import { ADMIN_PASSWORD } from '@utils/constants';
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -35,7 +36,22 @@ export default function AdminLogin() {
             <label className="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
             <div className="relative">
               <HiLockClosed className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <input type="password" value={password} onChange={e => { setPassword(e.target.value); setError(''); }} className="w-full pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500" placeholder="Enter admin password" autoFocus />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={e => { setPassword(e.target.value); setError(''); }}
+                className="w-full pl-10 pr-10 py-3 bg-gray-700/50 border border-gray-600 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500"
+                placeholder="Enter admin password"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <HiEyeSlash className="w-4 h-4" /> : <HiEye className="w-4 h-4" />}
+              </button>
             </div>
             {error && <p className="text-red-400 text-xs mt-1.5">{error}</p>}
           </div>

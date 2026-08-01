@@ -5,24 +5,49 @@ import { useLocalStorage } from '@hooks/useLocalStorage';
 import { useToast } from '@context/ToastContext';
 import { formatDate, getModeColor } from '@utils/helpers';
 
-export default function JobCard({ job, index = 0, isFreelance = false }) {
-  const [savedJobs, setSavedJobs] = useLocalStorage('savedJobs', []);
-  const { addToast } = useToast();
-  const isSaved = savedJobs.some(s => s.id === job.id);
+import { useAuth } from '../../context/AuthContext';
+import { toggleSaveJob } from '../../services/jobService';
 
-  const toggleSave = (e) => {
+export default function JobCard({ job, index = 0, isFreelance = false, hideSaveButton = false }) {
+  const [savedJobs, setSavedJobs] = useLocalStorage('savedJobs', []);
+  const { user } = useAuth();
+  const { addToast } = useToast();
+  const isSaved = savedJobs.some(s => s.id === (job.id || job._id));
+
+  const toggleSave = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isSaved) {
-      setSavedJobs(prev => prev.filter(s => s.id !== job.id));
-      addToast('Job removed from saved', 'info');
-    } else {
-      setSavedJobs(prev => [...prev, { id: job.id, savedAt: new Date().toISOString() }]);
-      addToast('Job saved successfully', 'success');
+
+    if (isFreelance) {
+      addToast('Saving is currently only supported for regular jobs.', 'warning');
+      return;
+    }
+
+    if (!user) {
+      addToast('Please log in as a candidate to save jobs.', 'warning');
+      return;
+    }
+
+    try {
+      const targetId = job.id || job._id;
+      const res = await toggleSaveJob(targetId);
+      if (res.data.success) {
+        const newSaved = res.data.isSaved;
+        if (newSaved) {
+          setSavedJobs(prev => [...prev, { id: targetId, savedAt: new Date().toISOString() }]);
+          addToast(res.data.message || 'Job saved successfully', 'success');
+        } else {
+          setSavedJobs(prev => prev.filter(s => s.id !== targetId));
+          addToast(res.data.message || 'Job removed from saved', 'info');
+        }
+      }
+    } catch (err) {
+      console.error("Toggle save failed:", err);
+      addToast(err.response?.data?.message || 'Failed to save job.', 'error');
     }
   };
 
-  const linkTarget = isFreelance ? `/freelance/${job.id}` : `/jobs/${job.id}`;
+  const linkTarget = isFreelance ? `/freelance/${job.id || job._id}` : `/jobs/${job.id || job._id}`;
 
   return (
     <motion.div
@@ -43,15 +68,17 @@ export default function JobCard({ job, index = 0, isFreelance = false }) {
             <h3 className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors truncate">{job.title}</h3>
             <p className="text-sm text-gray-500">{job.company}</p>
           </div>
-          <button
-            onClick={toggleSave}
-            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all flex-shrink-0 ${
-              isSaved ? 'bg-primary-50 text-primary-600' : 'hover:bg-gray-100 text-gray-400'
-            }`}
-            aria-label={isSaved ? 'Unsave job' : 'Save job'}
-          >
-            <HiBookmark className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
-          </button>
+          {!hideSaveButton && (
+            <button
+              onClick={toggleSave}
+              className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all flex-shrink-0 ${
+                isSaved ? 'bg-primary-50 text-primary-600' : 'hover:bg-gray-100 text-gray-400'
+              }`}
+              aria-label={isSaved ? 'Unsave job' : 'Save job'}
+            >
+              <HiBookmark className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
+            </button>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2 mb-4">

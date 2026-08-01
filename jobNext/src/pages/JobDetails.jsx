@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiMapPin, HiClock, HiBriefcase, HiBookmark, HiShare, HiBuildingOffice2, HiGlobeAlt, HiCalendarDays, HiUserGroup, HiCurrencyDollar, HiDocumentText, HiCloudArrowUp, HiXMark, HiChevronDown } from 'react-icons/hi2';
 import SEO from '@components/common/SEO';
@@ -41,6 +41,7 @@ export default function JobDetails({ isFreelance = false }) {
   const freelanceHooks = useFreelance();
   const { addToast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -274,6 +275,18 @@ export default function JobDetails({ isFreelance = false }) {
     }
   };
 
+  const handleApplyClick = () => {
+    if (isApplied) return;
+    if (!user) {
+      addToast('Please login or register as a candidate to apply for this job.', 'warning');
+      setTimeout(() => {
+        navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      }, 1500);
+      return;
+    }
+    setShowApply(true);
+  };
+
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -344,7 +357,7 @@ export default function JobDetails({ isFreelance = false }) {
                 <div className="flex flex-wrap gap-3">
                   <button
                     disabled={isApplied}
-                    onClick={() => !isApplied && setShowApply(true)}
+                    onClick={handleApplyClick}
                     className={`gradient-btn text-white px-6 py-3 rounded-xl font-semibold text-sm flex-1 sm:flex-none min-w-[160px]
   ${isApplied ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >

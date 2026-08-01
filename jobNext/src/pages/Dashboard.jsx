@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HiDocumentText, HiBookmark, HiUserCircle, HiArrowRight } from 'react-icons/hi2';
@@ -5,16 +6,47 @@ import SEO from '@components/common/SEO';
 import DashboardSidebar from '@components/layout/DashboardSidebar';
 import StatisticsCard from '@components/common/StatisticsCard';
 import ProfileCard from '@components/common/ProfileCard';
-import { useLocalStorage } from '@hooks/useLocalStorage';
 import { useJobs } from '@hooks/useJobs';
+import { useAuth } from '../context/AuthContext';
+import { getSavedJobs, getAppliedJobs } from '../services/jobService';
+import RecruiterDashboard from './RecruiterDashboard';
 
 export default function Dashboard() {
-  const [profile] = useLocalStorage('userProfile', {});
-  const [savedJobs] = useLocalStorage('savedJobs', []);
-  const [appliedJobs] = useLocalStorage('appliedJobs', []);
+  const { user } = useAuth();
+  
+  if (user && user.role === 'recruiter') {
+    return <RecruiterDashboard />;
+  }
+
+  const profile = user;
+  const [savedJobs, setSavedJobs] = useState([]);
+  const [appliedJobs, setAppliedJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { jobs } = useJobs();
 
-  const recentApplied = appliedJobs.slice(-3).reverse();
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const [savedRes, appliedRes] = await Promise.all([
+          getSavedJobs(),
+          getAppliedJobs()
+        ]);
+        if (savedRes.data.success) {
+          setSavedJobs(savedRes.data.data || []);
+        }
+        if (appliedRes.data.success) {
+          setAppliedJobs(appliedRes.data.data || []);
+        }
+      } catch (err) {
+        console.error('Failed to load dashboard statistics:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardData();
+  }, []);
+
+  const recentApplied = appliedJobs.slice(0, 3);
 
   return (
     <>
@@ -28,8 +60,8 @@ export default function Dashboard() {
               <ProfileCard profile={profile} onEdit={() => window.location.href = '/dashboard/profile'} />
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <StatisticsCard icon={HiDocumentText} label="Applied Jobs" value={appliedJobs.length} color="primary" index={0} />
-                <StatisticsCard icon={HiBookmark} label="Saved Jobs" value={savedJobs.length} color="amber" index={1} />
+                <StatisticsCard icon={HiDocumentText} label="Applied Jobs" value={loading ? '...' : appliedJobs.length} color="primary" index={0} />
+                <StatisticsCard icon={HiBookmark} label="Saved Jobs" value={loading ? '...' : savedJobs.length} color="amber" index={1} />
                 <StatisticsCard icon={HiUserCircle} label="Profile Complete" value={profile?.name ? 'Yes' : 'No'} color="emerald" index={2} />
               </div>
 
@@ -41,7 +73,11 @@ export default function Dashboard() {
                     <Link to="/dashboard/applications" className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">View all <HiArrowRight className="w-4 h-4" /></Link>
                   )}
                 </div>
-                {recentApplied.length === 0 ? (
+                {loading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : recentApplied.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-6">No applications yet. <Link to="/jobs" className="text-primary-600 font-medium">Browse jobs</Link> to get started.</p>
                 ) : (
                   <div className="space-y-3">

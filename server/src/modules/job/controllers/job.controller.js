@@ -1,12 +1,18 @@
 import Job from "../models/job.model.js";
 import Application from "../models/application.model.js";
 import SavedJob from "../models/savedJob.model.js";
+import FreelanceApplication from "../models/freelanceApplication.model.js";
+import Freelance from "../models/freelance.model.js";
 import { uploadToCloudinary, getSignedCloudinaryUrl } from "../../../utils/cloudinary.js";
 import https from "https";
 
 export const createJob = async (req, res) => {
   try {
-    const job = await Job.create(req.body);
+    const jobData = {
+      ...req.body,
+      postedBy: req.user?._id || null,
+    };
+    const job = await Job.create(jobData);
 
     return res.status(201).json({
       success: true,
@@ -78,10 +84,7 @@ export const getJobById = async (req, res) => {
 
 export const updateJob = async (req, res) => {
   try {
-    const job = await Job.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const job = await Job.findById(req.params.id);
 
     if (!job) {
       return res.status(404).json({
@@ -89,6 +92,18 @@ export const updateJob = async (req, res) => {
         message: "Job not found.",
       });
     }
+
+    if (req.user && req.user.role === "recruiter") {
+      if (!job.postedBy || job.postedBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden: You can only edit your own listings.",
+        });
+      }
+    }
+
+    Object.assign(job, req.body);
+    await job.save();
 
     return res.json({
       success: true,
@@ -105,7 +120,7 @@ export const updateJob = async (req, res) => {
 
 export const deleteJob = async (req, res) => {
   try {
-    const job = await Job.findByIdAndDelete(req.params.id);
+    const job = await Job.findById(req.params.id);
 
     if (!job) {
       return res.status(404).json({
@@ -113,6 +128,17 @@ export const deleteJob = async (req, res) => {
         message: "Job not found.",
       });
     }
+
+    if (req.user && req.user.role === "recruiter") {
+      if (!job.postedBy || job.postedBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden: You can only delete your own listings.",
+        });
+      }
+    }
+
+    await Job.findByIdAndDelete(req.params.id);
 
     return res.json({
       success: true,
@@ -135,6 +161,15 @@ export const togglePublish = async (req, res) => {
         success: false,
         message: "Job not found.",
       });
+    }
+
+    if (req.user && req.user.role === "recruiter") {
+      if (!job.postedBy || job.postedBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden: You can only publish/unpublish your own listings.",
+        });
+      }
     }
 
     job.published = !job.published;
@@ -389,13 +424,38 @@ export const getAppliedJobs = async (req, res) => {
           companyLogo: app.job.companyLogo,
           appliedAt: app.createdAt,
           status: app.status,
+          isFreelance: false,
         };
       });
 
+    // Fetch freelance applications and populate project details
+    const freelanceApplications = await FreelanceApplication.find({ user: userId })
+      .populate("freelance")
+      .sort({ createdAt: -1 });
+
+    const freelanceAppliedListings = freelanceApplications
+      .filter(app => app.freelance !== null)
+      .map(app => {
+        return {
+          id: app._id,
+          jobId: app.freelance._id,
+          jobTitle: app.freelance.title,
+          company: app.freelance.company || "Freelance Project",
+          companyLogo: app.freelance.companyLogo,
+          appliedAt: app.createdAt,
+          status: app.status,
+          isFreelance: true,
+        };
+      });
+
+    // Combine both arrays and sort by appliedAt descending
+    const allApplied = [...appliedJobListings, ...freelanceAppliedListings]
+      .sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt));
+
     return res.status(200).json({
       success: true,
-      count: appliedJobListings.length,
-      data: appliedJobListings,
+      count: allApplied.length,
+      data: allApplied,
     });
   } catch (error) {
     console.error("Get Applied Jobs Error:", error);
@@ -539,5 +599,155 @@ export const resumeProxy = (req, res) => {
   } catch (error) {
     console.error("Resume Proxy Exception:", error.message);
     res.status(500).send("Internal server error in resume proxy.");
+  }
+};
+
+export const getRecruiterListings = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const jobs = await Job.find({ postedBy: userId }).sort({ createdAt: -1 });
+    const freelance = await Freelance.find({ postedBy: userId }).sort({ createdAt: -1 });
+    
+    const combined = [
+      ...jobs.map(j => ({ ...j.toObject(), id: j._id, isFreelance: false })),
+      ...freelance.map(f => ({ ...f.toObject(), id: f._id, isFreelance: true }))
+    ].sort((a, b) => b.createdAt - a.createdAt);
+
+    return res.status(200).json({
+      success: true,
+      count: combined.length,
+      data: combined
+    });
+  } catch (error) {
+    console.error("Get Recruiter Listings Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error fetching your listings."
+    });
+  }
+};
+
+export const getRecruiterApplications = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    
+    const userJobs = await Job.find({ postedBy: userId }).select("_id");
+    const userFreelance = await Freelance.find({ postedBy: userId }).select("_id");
+    
+    const jobIds = userJobs.map(j => j._id);
+    const freelanceIds = userFreelance.map(f => f._id);
+    
+    const jobApps = await Application.find({ job: { $in: jobIds } })
+      .populate("job")
+      .sort({ createdAt: -1 });
+      
+    const freelanceApps = await FreelanceApplication.find({ freelance: { $in: freelanceIds } })
+      .populate("freelance")
+      .sort({ createdAt: -1 });
+      
+    const combined = [
+      ...jobApps.map(app => ({
+        _id: app._id,
+        fullName: app.fullName,
+        email: app.email,
+        phone: app.phone,
+        expectedSalary: app.expectedSalary,
+        currentSalary: app.currentSalary,
+        yearsOfExperience: app.yearsOfExperience,
+        noticePeriod: app.noticePeriod,
+        availability: app.availability,
+        relocation: app.relocation,
+        linkedIn: app.linkedIn,
+        portfolio: app.portfolio,
+        coverLetter: app.coverLetter,
+        resume: app.resume,
+        status: app.status,
+        jobTitle: app.job?.title || "N/A",
+        company: app.job?.company || "N/A",
+        isFreelance: false,
+        jobId: app.job?._id,
+        appliedAt: app.createdAt
+      })),
+      ...freelanceApps.map(app => ({
+        _id: app._id,
+        fullName: app.fullName,
+        email: app.email,
+        phone: app.phone,
+        expectedSalary: app.expectedSalary,
+        currentSalary: app.currentSalary,
+        yearsOfExperience: app.yearsOfExperience,
+        noticePeriod: app.noticePeriod,
+        availability: app.availability,
+        relocation: app.relocation,
+        linkedIn: app.linkedIn,
+        portfolio: app.portfolio,
+        coverLetter: app.coverLetter,
+        resume: app.resume,
+        status: app.status,
+        jobTitle: app.freelance?.title || "N/A",
+        company: app.freelance?.company || "N/A",
+        isFreelance: true,
+        jobId: app.freelance?._id,
+        appliedAt: app.createdAt
+      }))
+    ].sort((a, b) => b.appliedAt - a.appliedAt); // Sort ascending or descending, usually descending for recent
+    
+    return res.status(200).json({
+      success: true,
+      count: combined.length,
+      data: combined
+    });
+  } catch (error) {
+    console.error("Get Recruiter Applications Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error fetching candidate applications."
+    });
+  }
+};
+
+export const updateApplicationStatusByRecruiter = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const userId = req.user._id;
+
+    let application = await Application.findById(id).populate("job");
+    let isFreelance = false;
+
+    if (!application) {
+      application = await FreelanceApplication.findById(id).populate("freelance");
+      isFreelance = true;
+    }
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found."
+      });
+    }
+
+    const jobOwnerId = isFreelance ? application.freelance?.postedBy : application.job?.postedBy;
+    if (!jobOwnerId || jobOwnerId.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: You can only update statuses of candidates applying to your own listings."
+      });
+    }
+
+    application.status = status;
+    await application.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Candidate application status updated successfully.",
+      data: application
+    });
+  } catch (error) {
+    console.error("Update Application Status Recruiter Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error updating candidate status."
+    });
   }
 };

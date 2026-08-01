@@ -68,8 +68,8 @@ export default function SavedJobs() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {savedJobList.map((job, i) => (
                     <div key={job.id || job._id} className="relative">
-                      <JobCard job={job} index={i} />
-                      <button onClick={() => remove(job.id || job._id)} className="absolute top-4 right-4 z-10 w-8 h-8 rounded-lg bg-red-50 text-red-400 hover:text-red-600 hover:bg-red-100 flex items-center justify-center transition-colors" title="Remove"><HiTrash className="w-4 h-4" /></button>
+                      <JobCard job={job} index={i} hideSaveButton={true} />
+                      <button onClick={() => remove(job.id || job._id)} className="absolute top-6 right-6 z-10 w-9 h-9 rounded-lg bg-red-50 text-red-500 hover:text-red-600 hover:bg-red-100 flex items-center justify-center transition-colors" title="Remove"><HiTrash className="w-4 h-4" /></button>
                     </div>
                   ))}
                 </div>

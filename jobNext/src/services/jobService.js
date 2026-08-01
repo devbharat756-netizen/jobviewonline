@@ -59,6 +59,11 @@ export const getAppliedJobs = () => API.get("/jobs/applied");
 // Admin Applications APIs
 export const getAdminApplications = () => API.get("/jobs/admin/applications");
 export const updateApplicationStatus = (id, status) => API.put(`/jobs/admin/applications/${id}/status`, { status });
+
+// Recruiter APIs
+export const getRecruiterListings = () => API.get("/jobs/recruiter/listings");
+export const getRecruiterApplications = () => API.get("/jobs/recruiter/applications");
+export const updateApplicationStatusByRecruiter = (id, status) => API.put(`/jobs/recruiter/applications/${id}/status`, { status });
 export const getResumeProxyUrl = (cloudinaryUrl, publicId) => {
   if (!cloudinaryUrl) return "";
   if (cloudinaryUrl.includes("/resume-proxy")) {

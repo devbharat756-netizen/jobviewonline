@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HiUser, HiEnvelope, HiPhone, HiLockClosed, HiArrowRight, HiBriefcase } from 'react-icons/hi2';
+import { HiUser, HiEnvelope, HiPhone, HiLockClosed, HiArrowRight, HiBriefcase, HiEye, HiEyeSlash } from 'react-icons/hi2';
 import SEO from '@components/common/SEO';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,11 +13,13 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState('candidate');
 
   const validate = () => {
     const errs = {};
     if (!name.trim()) {
-      errs.name = 'Full name is required';
+      errs.name = role === 'candidate' ? 'Full name is required' : 'Company name is required';
     }
     if (!email.trim()) {
       errs.email = 'Email address is required';
@@ -43,11 +45,11 @@ export default function Signup() {
     if (!validate()) return;
 
     setSubmitting(true);
-    await signup(name, email, phone, password);
+    await signup(name, email, phone, password, role);
     setSubmitting(false);
   };
 
-  const inputClass = (field) => `w-full pl-11 pr-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors ${errors[field] ? 'border-red-300 bg-red-50/30' : 'border-gray-200 dark:border-slate-800'}`;
+  const inputClass = (field) => `w-full pl-11 ${field === 'password' ? 'pr-11' : 'pr-4'} py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors ${errors[field] ? 'border-red-300 bg-red-50/30' : 'border-gray-200 dark:border-slate-800'}`;
 
   return (
     <>
@@ -71,15 +73,47 @@ export default function Signup() {
               </span>
             </Link>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Create Account</h2>
-            <p className="text-sm text-gray-500 mt-1.5">Join us to start applying for jobs and tracking status</p>
+            <p className="text-sm text-gray-500 mt-1.5">
+              {role === 'candidate' 
+                ? 'Join us to start applying for jobs and tracking status' 
+                : 'Register your company to post job listings and hire talent'}
+            </p>
           </div>
 
           {/* Form Card */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-slate-800/80">
+            {/* Role Selection Tabs */}
+            <div className="flex bg-gray-100 dark:bg-slate-800 p-1 rounded-xl mb-6">
+              <button
+                type="button"
+                onClick={() => setRole('candidate')}
+                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                  role === 'candidate'
+                    ? 'bg-white dark:bg-slate-700 text-primary-600 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-slate-300'
+                }`}
+              >
+                Candidate
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('recruiter')}
+                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
+                  role === 'recruiter'
+                    ? 'bg-white dark:bg-slate-700 text-primary-600 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-slate-300'
+                }`}
+              >
+                Employer / Company
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Full Name */}
+              {/* Name field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Full Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">
+                  {role === 'candidate' ? 'Full Name' : 'Company Name'}
+                </label>
                 <div className="relative">
                   <HiUser className="w-5 h-5 text-gray-400 absolute left-4 top-3.5" />
                   <input
@@ -134,13 +168,21 @@ export default function Signup() {
                 <div className="relative">
                   <HiLockClosed className="w-5 h-5 text-gray-400 absolute left-4 top-3.5" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className={inputClass('password')}
                     placeholder="•••••••• (Min 6 chars)"
                     disabled={submitting}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <HiEyeSlash className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
+                  </button>
                 </div>
                 {errors.password && <p className="text-xs text-red-500 mt-1.5">{errors.password}</p>}
               </div>

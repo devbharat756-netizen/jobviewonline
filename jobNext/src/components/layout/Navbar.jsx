@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { HiBars3, HiXMark, HiBriefcase, HiUserCircle, HiSun, HiMoon } from 'react-icons/hi2';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NAV_LINKS } from '@utils/constants';
@@ -12,7 +12,18 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    if (user && user.role === 'recruiter') {
+      const candidatePaths = ['/jobs', '/freelance', '/companies', '/career-tips', '/faq', '/about', '/contact', '/dashboard/applications', '/dashboard/saved-jobs'];
+      const isCurrentPathCandidate = candidatePaths.some(p => location.pathname === p || location.pathname.startsWith(p + '/'));
+      if (location.pathname === '/' || isCurrentPathCandidate) {
+        navigate('/dashboard');
+      }
+    }
+  }, [user, location.pathname, navigate]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -34,7 +45,7 @@ export default function Navbar() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[68px]">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 flex-shrink-0 group">
+          <Link to={user?.role === 'recruiter' ? "/dashboard" : "/"} className="flex items-center gap-3 flex-shrink-0 group">
             <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-secondary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-700/30 group-hover:shadow-primary-600/50 transition-shadow duration-300">
               <HiBriefcase className="w-5 h-5 text-white" />
             </div>
@@ -45,7 +56,7 @@ export default function Navbar() {
 
           {/* Desktop Links */}
           <div className="hidden lg:flex items-center gap-1">
-            {NAV_LINKS.map(link => (
+            {user?.role !== 'recruiter' && NAV_LINKS.map(link => (
               <Link
                 key={link.path}
                 to={link.path}
@@ -109,7 +120,7 @@ export default function Navbar() {
             className="lg:hidden bg-white/97 dark:bg-slate-950/97 backdrop-blur-2xl border-t border-gray-100 dark:border-slate-800/60 overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1">
-              {NAV_LINKS.map(link => (
+              {user?.role !== 'recruiter' && NAV_LINKS.map(link => (
                 <Link
                   key={link.path}
                   to={link.path}

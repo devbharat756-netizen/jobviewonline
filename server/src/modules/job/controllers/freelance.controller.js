@@ -4,7 +4,11 @@ import { uploadToCloudinary } from "../../../utils/cloudinary.js";
 
 export const createFreelance = async (req, res) => {
   try {
-    const freelance = await Freelance.create(req.body);
+    const freelanceData = {
+      ...req.body,
+      postedBy: req.user?._id || null,
+    };
+    const freelance = await Freelance.create(freelanceData);
     return res.status(201).json({
       success: true,
       message: "Freelance project created successfully.",
@@ -68,10 +72,7 @@ export const getFreelanceProjectById = async (req, res) => {
 
 export const updateFreelanceProject = async (req, res) => {
   try {
-    const project = await Freelance.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const project = await Freelance.findById(req.params.id);
 
     if (!project) {
       return res.status(404).json({
@@ -79,6 +80,18 @@ export const updateFreelanceProject = async (req, res) => {
         message: "Freelance project not found.",
       });
     }
+
+    if (req.user && req.user.role === "recruiter") {
+      if (!project.postedBy || project.postedBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden: You can only edit your own listings.",
+        });
+      }
+    }
+
+    Object.assign(project, req.body);
+    await project.save();
 
     return res.json({
       success: true,
@@ -95,7 +108,7 @@ export const updateFreelanceProject = async (req, res) => {
 
 export const deleteFreelanceProject = async (req, res) => {
   try {
-    const project = await Freelance.findByIdAndDelete(req.params.id);
+    const project = await Freelance.findById(req.params.id);
     if (!project) {
       return res.status(404).json({
         success: false,
@@ -103,8 +116,18 @@ export const deleteFreelanceProject = async (req, res) => {
       });
     }
 
+    if (req.user && req.user.role === "recruiter") {
+      if (!project.postedBy || project.postedBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden: You can only delete your own listings.",
+        });
+      }
+    }
+
     // Delete associated applications
     await FreelanceApplication.deleteMany({ freelance: project._id });
+    await Freelance.findByIdAndDelete(req.params.id);
 
     return res.json({
       success: true,
@@ -126,6 +149,15 @@ export const togglePublishFreelance = async (req, res) => {
         success: false,
         message: "Freelance project not found.",
       });
+    }
+
+    if (req.user && req.user.role === "recruiter") {
+      if (!project.postedBy || project.postedBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden: You can only publish/unpublish your own listings.",
+        });
+      }
     }
 
     project.published = !project.published;

@@ -24,7 +24,7 @@ const generateToken = (id) => {
  */
 export const signupCandidate = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
     // Field Validations
     if (!name || !name.trim()) {
@@ -66,13 +66,15 @@ export const signupCandidate = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const targetRole = role && ["candidate", "recruiter"].includes(role) ? role : "candidate";
+
     // Create user record
     const user = await User.create({
       name: name.trim(),
       email: normalizedEmail,
       phone: phone.trim(),
       password: hashedPassword,
-      role: "candidate",
+      role: targetRole,
     });
 
     const token = generateToken(user._id);
@@ -103,7 +105,7 @@ export const signupCandidate = async (req, res) => {
  */
 export const loginCandidate = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     if (!email || !email.trim()) {
       return res.status(400).json({ success: false, message: "Email is required." });
@@ -123,11 +125,13 @@ export const loginCandidate = async (req, res) => {
       });
     }
 
-    // Verify role candidate
-    if (user.role !== "candidate") {
+    const targetRole = role && ["candidate", "recruiter"].includes(role) ? role : "candidate";
+
+    // Verify role matches selection
+    if (user.role !== targetRole) {
       return res.status(403).json({
         success: false,
-        message: "Forbidden: This login screen is restricted to candidates.",
+        message: `Forbidden: This login screen is restricted to ${targetRole === 'candidate' ? 'candidates' : 'employers'}.`,
       });
     }
 

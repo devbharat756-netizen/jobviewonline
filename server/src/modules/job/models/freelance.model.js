@@ -123,6 +123,11 @@ const freelanceSchema = new mongoose.Schema(
       type: companyDetailsSchema,
       default: () => ({}),
     },
+    postedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   {
     timestamps: true,

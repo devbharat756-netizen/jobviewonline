@@ -5,7 +5,6 @@ import DashboardSidebar from '@components/layout/DashboardSidebar';
 import EmptyState from '@components/common/EmptyState';
 import { useToast } from '@context/ToastContext';
 import { getStatusColor } from '@utils/helpers';
-import { APPLICATION_STATUSES } from '@utils/constants';
 import { useState, useEffect } from 'react';
 import { getAppliedJobs } from '../services/jobService';
 import LoadingSkeleton from '@components/common/LoadingSkeleton';
@@ -39,12 +38,6 @@ export default function Applications() {
     addToast('Application withdrawn successfully', 'info');
   };
 
-  const changeStatus = (idx, status) => {
-    const updated = [...appliedJobs];
-    updated[idx] = { ...updated[idx], status };
-    setAppliedJobs(updated);
-    addToast(`Status updated to ${status} (local preview only)`, 'success');
-  };
 
   return (
     <>
@@ -74,10 +67,10 @@ export default function Applications() {
                           <p className="text-sm text-gray-500">{app.company} • Applied {new Date(app.appliedAt).toLocaleDateString()}</p>
                         </div>
                         <div className="flex items-center gap-3">
-                          <select value={app.status} onChange={e => changeStatus(realIdx, e.target.value)} className={`text-xs font-medium px-3 py-1.5 rounded-lg border-0 cursor-pointer ${getStatusColor(app.status)}`}>
-                            {APPLICATION_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-                          </select>
-                          <Link to={`/jobs/${app.jobId}`} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-primary-600 transition-colors" title="View Job"><HiEye className="w-4 h-4" /></Link>
+                          <span className={`text-xs font-semibold px-3 py-1.5 rounded-lg select-none ${getStatusColor(app.status)}`}>
+                            {app.status}
+                          </span>
+                          <Link to={app.isFreelance ? `/freelance/${app.jobId}` : `/jobs/${app.jobId}`} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-primary-600 transition-colors" title={app.isFreelance ? "View Project" : "View Job"}><HiEye className="w-4 h-4" /></Link>
                           <button onClick={() => withdraw(realIdx)} className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors" title="Withdraw"><HiTrash className="w-4 h-4" /></button>
                         </div>
                       </div>
