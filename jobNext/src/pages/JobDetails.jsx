@@ -180,7 +180,7 @@ export default function JobDetails({ isFreelance = false }) {
     let formattedValue = value;
     if (key === 'phone' && typeof value === 'string') {
       formattedValue = value.replace(/\D/g, '').slice(0, 10);
-    } else if (typeof value === 'string' && key !== 'email' && key !== 'linkedIn' && key !== 'portfolio' && key !== 'resumeName') {
+    } else if (typeof value === 'string' && key !== 'email' && key !== 'linkedIn' && key !== 'portfolio' && key !== 'resumeName' && key !== 'relocation') {
       formattedValue = value.charAt(0).toUpperCase() + value.slice(1);
     }
     setForm(prev => ({ ...prev, [key]: formattedValue }));

@@ -91,8 +91,11 @@ freelanceApplicationSchema.index(
   { user: 1, freelance: 1 },
   { 
     unique: true, 
-    partialFilterExpression: { user: { $exists: true, $ne: null } } 
+    partialFilterExpression: { user: { $type: "objectId" } } 
   }
 );
+
+// Index on freelance for counting applicants and querying by freelance project efficiently
+freelanceApplicationSchema.index({ freelance: 1 });
 
 export default mongoose.model("FreelanceApplication", freelanceApplicationSchema);

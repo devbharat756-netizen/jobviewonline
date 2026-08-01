@@ -91,8 +91,11 @@ applicationSchema.index(
   { user: 1, job: 1 },
   { 
     unique: true, 
-    partialFilterExpression: { user: { $exists: true, $ne: null } } 
+    partialFilterExpression: { user: { $type: "objectId" } } 
   }
 );
+
+// Index on job for counting applicants and querying by job efficiently
+applicationSchema.index({ job: 1 });
 
 export default mongoose.model("Application", applicationSchema);
