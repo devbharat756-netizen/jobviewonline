@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HiMapPin, HiClock, HiBriefcase, HiBookmark, HiShare, HiBuildingOffice2, HiGlobeAlt, HiCalendarDays, HiUserGroup, HiCurrencyDollar, HiDocumentText, HiCloudArrowUp, HiXMark, HiChevronDown } from 'react-icons/hi2';
+import { HiMapPin, HiClock, HiBriefcase, HiBookmark, HiShare, HiBuildingOffice2, HiGlobeAlt, HiCalendarDays, HiUserGroup, HiCurrencyRupee, HiDocumentText, HiCloudArrowUp, HiXMark, HiChevronDown } from 'react-icons/hi2';
 import SEO from '@components/common/SEO';
 import Breadcrumb from '@components/common/Breadcrumb';
 import JobCard from '@components/common/JobCard';
@@ -350,7 +350,7 @@ export default function JobDetails({ isFreelance = false }) {
                 </div>
 
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="text-lg font-bold text-primary-600 flex items-center gap-1.5"><HiCurrencyDollar className="w-5 h-5" />{job.salary}</span>
+                  <span className="text-lg font-bold text-primary-600 flex items-center gap-1.5"><HiCurrencyRupee className="w-5 h-5" />{job.salary}</span>
                   <span className="text-sm text-gray-400">Posted {formatDate(job.postedDate)}</span>
                 </div>
 
@@ -457,7 +457,7 @@ export default function JobDetails({ isFreelance = false }) {
                     {
                       label: isFreelance ? 'Project Budget' : 'Salary',
                       value: job.salary || 'Not disclosed',
-                      icon: HiCurrencyDollar,
+                      icon: HiCurrencyRupee,
                     },
                     {
                       label: isFreelance ? 'Project Duration' : 'Experience',

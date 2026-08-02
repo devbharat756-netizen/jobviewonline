@@ -122,8 +122,8 @@ export default function RecruiterJobsModal({ isOpen, onClose, editingListing, on
     setSubmitting(true);
     const computedSalary = form.salaryMin || form.salaryMax
       ? (form.isFreelance
-          ? `$${Number(form.salaryMin).toLocaleString()} - $${Number(form.salaryMax).toLocaleString()} (Project Budget)`
-          : `$${Number(form.salaryMin).toLocaleString()} - $${Number(form.salaryMax).toLocaleString()}`)
+        ? `₹${Number(form.salaryMin).toLocaleString()} - ₹${Number(form.salaryMax).toLocaleString()} (Project Budget)`
+        : `₹${Number(form.salaryMin).toLocaleString()} - ₹${Number(form.salaryMax).toLocaleString()}`)
       : "Negotiable";
 
     const payload = {
@@ -165,30 +165,28 @@ export default function RecruiterJobsModal({ isOpen, onClose, editingListing, on
 
   const inputClass =
     "w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors";
-  const labelClass = "block text-sm font-medium text-gray-700 mb-1";
+  const labelClass = "block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={editingListing ? (form.isFreelance ? "Edit Freelance Project" : "Edit Job") : (form.isFreelance ? "Post Freelance Project" : "Post a Job")} size="full">
       <form onSubmit={handleSubmit} className="space-y-6 pb-6">
-        
+
         {/* Toggle Listing Type (only on create) */}
         {!editingListing && (
           <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
             <button
               type="button"
               onClick={() => updateField("isFreelance", false)}
-              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                !form.isFreelance ? "bg-white text-primary-650 shadow-sm" : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${!form.isFreelance ? "bg-white text-primary-650 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               Permanent Job
             </button>
             <button
               type="button"
               onClick={() => updateField("isFreelance", true)}
-              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                form.isFreelance ? "bg-white text-secondary-650 shadow-sm" : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${form.isFreelance ? "bg-white text-secondary-650 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                }`}
             >
               Freelance Project
             </button>
@@ -197,7 +195,7 @@ export default function RecruiterJobsModal({ isOpen, onClose, editingListing, on
 
         {/* Section 1: Overview */}
         <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-150 space-y-4">
-          <h3 className="font-bold text-gray-950 text-sm border-b border-gray-100 pb-2">
+          <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">
             {form.isFreelance ? "Project Overview" : "Role Overview"}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -226,7 +224,7 @@ export default function RecruiterJobsModal({ isOpen, onClose, editingListing, on
 
         {/* Section 2: Work Parameters */}
         <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-150 space-y-4">
-          <h3 className="font-bold text-gray-950 text-sm border-b border-gray-100 pb-2">Work Parameters</h3>
+          <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">Work Parameters</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className={labelClass}>Employment Type</label>
@@ -255,16 +253,16 @@ export default function RecruiterJobsModal({ isOpen, onClose, editingListing, on
 
         {/* Section 3: Compensation */}
         <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-150 space-y-4">
-          <h3 className="font-bold text-gray-950 text-sm border-b border-gray-100 pb-2">
-            {form.isFreelance ? "Project Budget (USD)" : "Compensation (USD per annum)"}
+          <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">
+            {form.isFreelance ? "Project Budget (INR)" : "Compensation (INR per annum)"}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className={labelClass}>{form.isFreelance ? "Minimum Budget ($)" : "Minimum Salary ($)"}</label>
+              <label className={labelClass}>{form.isFreelance ? "Minimum Budget (INR)" : "Minimum Salary (INR)"}</label>
               <input type="number" value={form.salaryMin || ""} onChange={e => updateField("salaryMin", Number(e.target.value))} className={inputClass} placeholder="e.g. 5000" />
             </div>
             <div>
-              <label className={labelClass}>{form.isFreelance ? "Maximum Budget ($)" : "Maximum Salary ($)"}</label>
+              <label className={labelClass}>{form.isFreelance ? "Maximum Budget (INR)" : "Maximum Salary (INR)"}</label>
               <input type="number" value={form.salaryMax || ""} onChange={e => updateField("salaryMax", Number(e.target.value))} className={inputClass} placeholder="e.g. 10000" />
             </div>
           </div>
@@ -272,7 +270,7 @@ export default function RecruiterJobsModal({ isOpen, onClose, editingListing, on
 
         {/* Section 4: Details & Skills */}
         <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-150 space-y-4">
-          <h3 className="font-bold text-gray-950 text-sm border-b border-gray-100 pb-2">Details & Skills</h3>
+          <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">Details & Skills</h3>
           <div>
             <label className={labelClass}>Description</label>
             <textarea rows={4} value={form.description} onChange={e => updateField("description", e.target.value)} className={`${inputClass} resize-none`} placeholder="Write details about the role/project..." />
@@ -300,18 +298,16 @@ export default function RecruiterJobsModal({ isOpen, onClose, editingListing, on
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Responsibilities */}
           <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-150 space-y-3">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-              <h3 className="font-bold text-gray-950 text-sm">Responsibilities</h3>
-              <button type="button" onClick={() => addListItem("responsibilities")} className="text-xs text-primary-600 font-semibold hover:underline">+ Add</button>
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2">
+              <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm pb-1">Responsibilities</h3>
+              <button type="button" onClick={() => addListItem("responsibilities")} className="text-xs text-primary-650 font-semibold hover:underline">+ Add</button>
             </div>
             <div className="space-y-2">
               {form.responsibilities.map((r, i) => (
                 <div key={i} className="flex gap-2">
-                  <input type="text" value={r} onChange={e => updateListItem("responsibilities", i, e.target.value)} className={`${inputClass} flex-1`} placeholder="Responsibility..." />
+                  <input type="text" value={r} onChange={e => updateListItem("responsibilities", i, e.target.value)} className={inputClass + " flex-1"} placeholder="Responsibility..." />
                   {form.responsibilities.length > 1 && (
-                    <button type="button" onClick={() => removeListItem("responsibilities", i)} className="text-red-400 hover:text-red-650">
-                      <HiXMark className="w-5 h-5" />
-                    </button>
+                    <button type="button" onClick={() => removeListItem("responsibilities", i)} className="text-red-400 hover:text-red-650"><HiXMark className="w-5 h-5" /></button>
                   )}
                 </div>
               ))}
@@ -320,9 +316,9 @@ export default function RecruiterJobsModal({ isOpen, onClose, editingListing, on
 
           {/* Requirements */}
           <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-150 space-y-3">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-              <h3 className="font-bold text-gray-950 text-sm">Requirements</h3>
-              <button type="button" onClick={() => addListItem("requirements")} className="text-xs text-primary-600 font-semibold hover:underline">+ Add</button>
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-2">
+              <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm pb-1">Requirements</h3>
+              <button type="button" onClick={() => addListItem("requirements")} className="text-xs text-primary-650 font-semibold hover:underline">+ Add</button>
             </div>
             <div className="space-y-2">
               {form.requirements.map((reqItem, i) => (
@@ -339,9 +335,9 @@ export default function RecruiterJobsModal({ isOpen, onClose, editingListing, on
           </div>
         </div>
 
-        {/* Section 6: Company Profile details */}
+        {/* Section 6: Client details */}
         <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-150 space-y-4">
-          <h3 className="font-bold text-gray-950 text-sm border-b border-gray-100 pb-2">Company Profile details</h3>
+          <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">Client Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Company Website</label>

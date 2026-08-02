@@ -119,10 +119,10 @@ export default function AdminJobs() {
       return;
     }
 
-    const computedSalary = form.salaryMin || form.salaryMax 
-      ? (activeTab === "freelance" 
-          ? `$${Number(form.salaryMin).toLocaleString()} - $${Number(form.salaryMax).toLocaleString()} (Project Budget)`
-          : `$${Number(form.salaryMin).toLocaleString()} - $${Number(form.salaryMax).toLocaleString()}`)
+    const computedSalary = form.salaryMin || form.salaryMax
+      ? (activeTab === "freelance"
+        ? `₹${Number(form.salaryMin).toLocaleString()} - ₹${Number(form.salaryMax).toLocaleString()} (Project Budget)`
+        : `₹${Number(form.salaryMin).toLocaleString()} - ₹${Number(form.salaryMax).toLocaleString()}`)
       : "Negotiable";
 
     const payload = {
@@ -237,7 +237,7 @@ export default function AdminJobs() {
   const addSkill = () => {
     if (
       skillInput.trim() &&
-     !(form.skills || []).includes(skillInput.trim())
+      !(form.skills || []).includes(skillInput.trim())
     ) {
       const tag = skillInput.trim();
       const capitalized = tag.charAt(0).toUpperCase() + tag.slice(1);
@@ -251,7 +251,7 @@ export default function AdminJobs() {
     "w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500";
 
   const labelClass =
-    "block text-sm font-medium text-gray-700 mb-1";
+    "block text-sm font-medium text-gray-700 dark:text-slate-350 mb-1";
 
   return (
     <div className="space-y-6">
@@ -260,21 +260,19 @@ export default function AdminJobs() {
         <div className="flex gap-5">
           <button
             onClick={() => setActiveTab("jobs")}
-            className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${
-              activeTab === "jobs"
+            className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${activeTab === "jobs"
                 ? "border-primary-500 text-primary-650 dark:text-primary-400"
                 : "border-transparent text-gray-500 dark:text-slate-450 hover:text-gray-700"
-            }`}
+              }`}
           >
             Permanent Jobs ({jobHooks.allJobs.length})
           </button>
           <button
             onClick={() => setActiveTab("freelance")}
-            className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${
-              activeTab === "freelance"
+            className={`pb-3 text-sm font-bold border-b-2 transition-all cursor-pointer ${activeTab === "freelance"
                 ? "border-secondary-500 text-secondary-650 dark:text-secondary-400"
                 : "border-transparent text-gray-500 dark:text-slate-450 hover:text-gray-700"
-            }`}
+              }`}
           >
             Freelance Projects ({freelanceHooks.allJobs.length})
           </button>
@@ -302,10 +300,10 @@ export default function AdminJobs() {
                   <tr key={j._id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/10 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <img 
-                          src={j.companyLogo || `https://ui-avatars.com/api/?name=${encodeURIComponent(j.company)}&background=random`} 
-                          alt={j.company} 
-                          className="w-10 h-10 rounded-xl object-cover bg-white shadow-sm flex-shrink-0 border border-gray-100 dark:border-slate-800/65" 
+                        <img
+                          src={j.companyLogo || `https://ui-avatars.com/api/?name=${encodeURIComponent(j.company)}&background=random`}
+                          alt={j.company}
+                          className="w-10 h-10 rounded-xl object-cover bg-white shadow-sm flex-shrink-0 border border-gray-100 dark:border-slate-800/65"
                         />
                         <div>
                           <p className="font-semibold text-gray-900 dark:text-slate-200 flex items-center gap-1.5">
@@ -320,35 +318,32 @@ export default function AdminJobs() {
                       {j.salary || "Negotiable"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`text-xs font-semibold px-2.5 py-1.5 rounded-lg border ${
-                        j.mode === 'Remote' 
-                          ? 'bg-emerald-50/50 border-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' 
-                          : j.mode === 'Hybrid' 
-                            ? 'bg-amber-50/50 border-amber-100 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400' 
+                      <span className={`text-xs font-semibold px-2.5 py-1.5 rounded-lg border ${j.mode === 'Remote'
+                          ? 'bg-emerald-50/50 border-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400'
+                          : j.mode === 'Hybrid'
+                            ? 'bg-amber-50/50 border-amber-100 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400'
                             : 'bg-blue-50/50 border-blue-100 text-blue-700 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400'
-                      }`}>
+                        }`}>
                         {j.mode}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                        j.published !== false 
-                          ? 'bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' 
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${j.published !== false
+                          ? 'bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400'
                           : 'bg-amber-50 border-amber-100 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400'
-                      }`}>
+                        }`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${j.published !== false ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                         {j.published !== false ? 'Published' : 'Draft'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
-                        <button 
-                          onClick={() => handleTogglePublish(j._id)} 
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors border ${
-                            j.published !== false 
-                              ? 'text-amber-600 hover:bg-amber-50 border-amber-100 dark:text-amber-400 dark:border-amber-500/25 dark:hover:bg-amber-500/10' 
+                        <button
+                          onClick={() => handleTogglePublish(j._id)}
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors border ${j.published !== false
+                              ? 'text-amber-600 hover:bg-amber-50 border-amber-100 dark:text-amber-400 dark:border-amber-500/25 dark:hover:bg-amber-500/10'
                               : 'text-emerald-600 hover:bg-emerald-50 border-emerald-100 dark:text-emerald-400 dark:border-emerald-500/25 dark:hover:bg-emerald-500/10'
-                          }`} 
+                            }`}
                           title={j.published !== false ? 'Change to Draft' : 'Publish Job'}
                         >
                           {j.published !== false ? <HiEyeSlash className="w-4.5 h-4.5" /> : <HiEye className="w-4.5 h-4.5" />}
@@ -413,10 +408,10 @@ export default function AdminJobs() {
 
           {/* Section 3: Compensation */}
           <div className="bg-gray-50/50 dark:bg-slate-800/10 p-5 rounded-2xl border border-gray-150 dark:border-slate-800/50 space-y-4">
-            <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">{form.isFreelance ? 'Project Budget (USD)' : 'Compensation (USD per annum)'}</h3>
+            <h3 className="font-bold text-gray-950 dark:text-slate-200 text-sm border-b border-gray-100 dark:border-slate-800 pb-2">{form.isFreelance ? 'Project Budget (INR)' : 'Compensation (INR per annum)'}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><label className={labelClass}>{form.isFreelance ? 'Minimum Budget ($)' : 'Minimum Salary ($)'}</label><input type="number" value={form.salaryMin || ''} onChange={e => updateField('salaryMin', Number(e.target.value))} className={inputClass} placeholder={form.isFreelance ? 'e.g. 5000' : 'e.g. 120000'} /></div>
-              <div><label className={labelClass}>{form.isFreelance ? 'Maximum Budget ($)' : 'Maximum Salary ($)'}</label><input type="number" value={form.salaryMax || ''} onChange={e => updateField('salaryMax', Number(e.target.value))} className={inputClass} placeholder={form.isFreelance ? 'e.g. 10000' : 'e.g. 160000'} /></div>
+              <div><label className={labelClass}>{form.isFreelance ? 'Minimum Budget (INR)' : 'Minimum Salary (INR)'}</label><input type="number" value={form.salaryMin || ''} onChange={e => updateField('salaryMin', Number(e.target.value))} className={inputClass} placeholder={form.isFreelance ? 'e.g. 5000' : 'e.g. 120000'} /></div>
+              <div><label className={labelClass}>{form.isFreelance ? 'Maximum Budget (INR)' : 'Maximum Salary (INR)'}</label><input type="number" value={form.salaryMax || ''} onChange={e => updateField('salaryMax', Number(e.target.value))} className={inputClass} placeholder={form.isFreelance ? 'e.g. 10000' : 'e.g. 160000'} /></div>
             </div>
           </div>
 
@@ -431,7 +426,7 @@ export default function AdminJobs() {
                 <button type="button" onClick={addSkill} className="px-5 py-2.5 bg-gray-150 dark:bg-slate-800 text-gray-700 dark:text-slate-250 rounded-xl text-sm font-semibold hover:bg-gray-200 dark:hover:bg-slate-700 cursor-pointer">Add</button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {(form.skills||[]).map(s => (
+                {(form.skills || []).map(s => (
                   <span key={s} className="inline-flex items-center gap-1.5 text-xs text-primary-750 bg-primary-50 dark:bg-primary-500/10 dark:text-primary-400 px-3 py-1.5 rounded-xl font-medium border border-primary-100/50 dark:border-primary-500/20">
                     {s}
                     <button type="button" onClick={() => updateField('skills', form.skills.filter(sk => sk !== s))} className="text-primary-500 hover:text-primary-700"><HiXMark className="w-3.5 h-3.5" /></button>
@@ -480,11 +475,10 @@ export default function AdminJobs() {
               <button
                 type="button"
                 onClick={() => updateField('published', false)}
-                className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer ${
-                  form.published === false
+                className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer ${form.published === false
                     ? 'border-amber-500 bg-amber-500/[0.03] dark:border-amber-500/80 dark:bg-amber-500/[0.05]'
                     : 'border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700'
-                }`}
+                  }`}
               >
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${form.published === false ? 'border-amber-500 font-semibold text-amber-500' : 'border-gray-300'}`}>
                   {form.published === false && <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />}
@@ -499,11 +493,10 @@ export default function AdminJobs() {
               <button
                 type="button"
                 onClick={() => updateField('published', true)}
-                className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer ${
-                  form.published !== false
+                className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer ${form.published !== false
                     ? 'border-emerald-500 bg-emerald-500/[0.03] dark:border-emerald-500/80 dark:bg-emerald-500/[0.05]'
                     : 'border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700'
-                }`}
+                  }`}
               >
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${form.published !== false ? 'border-emerald-500 font-semibold text-emerald-500' : 'border-gray-300'}`}>
                   {form.published !== false && <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />}

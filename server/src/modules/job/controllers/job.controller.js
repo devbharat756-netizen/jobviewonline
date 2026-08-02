@@ -607,7 +607,7 @@ export const getRecruiterListings = async (req, res) => {
     const userId = req.user._id;
     const jobs = await Job.find({ postedBy: userId }).sort({ createdAt: -1 });
     const freelance = await Freelance.find({ postedBy: userId }).sort({ createdAt: -1 });
-    
+
     const combined = [
       ...jobs.map(j => ({ ...j.toObject(), id: j._id, isFreelance: false })),
       ...freelance.map(f => ({ ...f.toObject(), id: f._id, isFreelance: true }))
@@ -630,21 +630,21 @@ export const getRecruiterListings = async (req, res) => {
 export const getRecruiterApplications = async (req, res) => {
   try {
     const userId = req.user._id;
-    
+
     const userJobs = await Job.find({ postedBy: userId }).select("_id");
     const userFreelance = await Freelance.find({ postedBy: userId }).select("_id");
-    
+
     const jobIds = userJobs.map(j => j._id);
     const freelanceIds = userFreelance.map(f => f._id);
-    
+
     const jobApps = await Application.find({ job: { $in: jobIds } })
       .populate("job")
       .sort({ createdAt: -1 });
-      
+
     const freelanceApps = await FreelanceApplication.find({ freelance: { $in: freelanceIds } })
       .populate("freelance")
       .sort({ createdAt: -1 });
-      
+
     const combined = [
       ...jobApps.map(app => ({
         _id: app._id,
@@ -691,7 +691,7 @@ export const getRecruiterApplications = async (req, res) => {
         appliedAt: app.createdAt
       }))
     ].sort((a, b) => b.appliedAt - a.appliedAt); // Sort ascending or descending, usually descending for recent
-    
+
     return res.status(200).json({
       success: true,
       count: combined.length,

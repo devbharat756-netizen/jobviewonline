@@ -3,11 +3,11 @@ export const TAGLINE = 'Find Your Dream Job';
 export const ADMIN_PASSWORD = 'vivek789456';
 
 export const SALARY_RANGES = [
-  { label: '$50k+', value: '50000-999999' },
-  { label: '$75k+', value: '75000-999999' },
-  { label: '$100k+', value: '100000-999999' },
-  { label: '$125k+', value: '125000-999999' },
-  { label: '$150k+', value: '150000-999999' },
+  { label: '₹50k+', value: '50000-999999' },
+  { label: '₹75k+', value: '75000-999999' },
+  { label: '₹100k+', value: '100000-999999' },
+  { label: '₹125k+', value: '125000-999999' },
+  { label: '₹150k+', value: '150000-999999' },
 ];
 
 export const EXPERIENCE_LEVELS = [
