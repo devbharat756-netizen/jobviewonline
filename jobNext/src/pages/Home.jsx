@@ -106,18 +106,6 @@ export default function Home() {
               <Link key={t} to={`/jobs?q=${t}`} className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800/40 border border-slate-700/50 text-slate-400 hover:border-sky-500/50 hover:text-sky-400 hover:bg-sky-500/10 transition-all">{t}</Link>
             ))}
           </motion.div>
-
-          {/* Trust Partner Logos */}
-          <div className="mt-16 pt-8 border-t border-slate-850/60 max-w-4xl mx-auto">
-            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-5">Connect with opportunities at verified companies</p>
-            <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 opacity-40 grayscale">
-              <span className="text-white text-base font-black tracking-wider">TATA</span>
-              <span className="text-white text-base font-black tracking-wider">RELIANCE</span>
-              <span className="text-white text-base font-black tracking-wider">INFOSYS</span>
-              <span className="text-white text-base font-black tracking-wider">WIPRO</span>
-              <span className="text-white text-base font-black tracking-wider">ACCENTURE</span>
-            </div>
-          </div>
         </div>
       </section>
 
