@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { HiBars3, HiXMark, HiBriefcase, HiUserCircle, HiSun, HiMoon } from 'react-icons/hi2';
+import { HiBars3, HiXMark, HiUserCircle, HiSun, HiMoon } from 'react-icons/hi2';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NAV_LINKS } from '@utils/constants';
 import { useTheme } from '@context/ThemeContext';
 import AdPlaceholder from '@components/common/AdPlaceholder';
 import { useAuth } from '../../context/AuthContext';
+import viewjobLogo from '../../assets/viewjobLogo.png';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,22 +37,13 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
-      scrolled
-        ? 'nav-frosted dark:bg-slate-950/90'
-        : 'bg-transparent'
-    }`}>
+    <header className="fixed top-0 left-0 right-0 z-40 transition-all duration-500 nav-frosted">
       <AdPlaceholder type="horizontal" label="Header Ad Space" />
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[68px]">
           {/* Logo */}
-          <Link to={user?.role === 'recruiter' ? "/dashboard" : "/"} className="flex items-center gap-3 flex-shrink-0 group">
-            <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-secondary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-700/30 group-hover:shadow-primary-600/50 transition-shadow duration-300">
-              <HiBriefcase className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-              view<span className="gradient-text">job</span>
-            </span>
+          <Link to={user?.role === 'recruiter' ? "/dashboard" : "/"} className="flex items-center flex-shrink-0">
+            <img src={viewjobLogo} alt="viewjob Logo" className="h-10 w-auto object-contain" />
           </Link>
 
           {/* Desktop Links */}
@@ -60,11 +52,10 @@ export default function Navbar() {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  isActive(link.path)
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${isActive(link.path)
                     ? 'text-primary-700 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/12 font-semibold'
                     : 'text-gray-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-300 hover:bg-primary-50/60 dark:hover:bg-primary-500/8'
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
@@ -124,11 +115,10 @@ export default function Navbar() {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                    isActive(link.path)
+                  className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive(link.path)
                       ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10 font-semibold'
                       : 'text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800/60'
-                  }`}
+                    }`}
                 >
                   {link.label}
                 </Link>

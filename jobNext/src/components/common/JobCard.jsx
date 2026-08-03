@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { HiBookmark, HiMapPin, HiClock, HiBriefcase } from 'react-icons/hi2';
+import { HiBookmark, HiMapPin, HiClock, HiBriefcase, HiCheckBadge } from 'react-icons/hi2';
 import { motion } from 'framer-motion';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { useToast } from '@context/ToastContext';
@@ -66,7 +66,10 @@ export default function JobCard({ job, index = 0, isFreelance = false, hideSaveB
           />
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors truncate">{job.title}</h3>
-            <p className="text-sm text-gray-500">{job.company}</p>
+            <div className="flex items-center gap-1 mt-0.5">
+              <span className="text-sm text-gray-500 truncate">{job.company}</span>
+              <HiCheckBadge className="w-4 h-4 text-emerald-500 flex-shrink-0" title="Verified Employer" />
+            </div>
           </div>
           {!hideSaveButton && (
             <button

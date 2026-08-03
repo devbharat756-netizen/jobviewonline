@@ -3,21 +3,43 @@ import { useNavigate } from 'react-router-dom';
 import { HiBriefcase, HiLockClosed, HiEye, HiEyeSlash } from 'react-icons/hi2';
 import { motion } from 'framer-motion';
 import { ADMIN_PASSWORD } from '@utils/constants';
+import { loginCandidate } from '../../services/jobService';
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem('adminAuth', 'true');
-      navigate('/admin');
-    } else {
+    if (password !== ADMIN_PASSWORD) {
       setError('Invalid password');
       setPassword('');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await loginCandidate({
+        email: "admin@viewjob.online",
+        password: password,
+        role: "admin",
+      });
+
+      if (res.data.success) {
+        sessionStorage.setItem('adminAuth', 'true');
+        localStorage.setItem('candidateToken', res.data.token);
+        navigate('/admin');
+      } else {
+        setError(res.data.message || 'Login failed');
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || 'Server error, failed to authenticate admin.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -55,7 +77,9 @@ export default function AdminLogin() {
             </div>
             {error && <p className="text-red-400 text-xs mt-1.5">{error}</p>}
           </div>
-          <button type="submit" className="w-full gradient-btn text-white py-3 rounded-xl font-semibold text-sm">Sign In</button>
+          <button type="submit" disabled={submitting} className={`w-full gradient-btn text-white py-3 rounded-xl font-semibold text-sm ${submitting ? 'opacity-70 cursor-wait' : ''}`}>
+            {submitting ? 'Signing In...' : 'Sign In'}
+          </button>
         </form>
       </motion.div>
     </div>

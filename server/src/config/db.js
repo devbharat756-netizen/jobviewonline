@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import User from "../modules/user/models/user.model.js";
+import bcrypt from "bcryptjs";
 
 const connectDB = async () => {
   try {
@@ -9,6 +11,26 @@ const connectDB = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
 
     console.log("✅ MongoDB Connected");
+
+    // Seed default admin user
+    try {
+      const adminExists = await User.findOne({ role: "admin" });
+      if (!adminExists) {
+        console.log("Seeding default admin user...");
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash("vivek789456", salt);
+        await User.create({
+          name: "Admin",
+          email: "admin@viewjob.online",
+          phone: "0000000000",
+          password: hashedPassword,
+          role: "admin",
+        });
+        console.log("✅ Default admin user seeded successfully (admin@viewjob.online / vivek789456)");
+      }
+    } catch (seedErr) {
+      console.warn("⚠️ Warning seeding admin user (ignored):", seedErr.message);
+    }
 
     try {
       await mongoose.connection.db.collection("applications").dropIndex("user_1_job_1");

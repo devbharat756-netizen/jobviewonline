@@ -77,38 +77,47 @@ export default function Home() {
     <>
       <SEO path="/" description="viewjob - Find Your Dream Job. Browse thousands of job listings from top companies worldwide." />
 
-      {/* Hero — dark navy, executive */}
-      <section className="relative pt-32 pb-28 lg:pt-48 lg:pb-40 overflow-hidden bg-[#08142a]">
+      {/* Hero — clean corporate dark navy */}
+      <section className="relative pt-32 pb-24 lg:pt-40 lg:pb-32 overflow-hidden bg-[#0a0f1d] border-b border-slate-800/40">
         {/* Subtle grid pattern */}
-        <div className="absolute inset-0 opacity-[0.035]" style={{backgroundImage: 'radial-gradient(circle, #4d83f5 1px, transparent 1px)', backgroundSize: '44px 44px'}} />
-        {/* Soft glow orbs */}
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-primary-700/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-secondary-700/15 rounded-full blur-[100px]" />
+        <div className="absolute inset-0 opacity-[0.02]" style={{backgroundImage: 'radial-gradient(circle, #38bdf8 1px, transparent 1px)', backgroundSize: '40px 40px'}} />
         {/* Horizontal accent line */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-slate-800/60" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
-            <span className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-7 bg-white/8 border border-white/12 text-primary-300">
-              <HiSparkles className="w-3.5 h-3.5 text-secondary-400" /> Trusted by 50,000+ job seekers
+            <span className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-7 bg-slate-800/50 border border-slate-700/50 text-sky-400">
+              <HiShieldCheck className="w-4 h-4 text-emerald-400" /> Verified Recruiter Network • Safe Apply Standards
             </span>
-            <h1 className="text-5xl sm:text-6xl lg:text-[84px] font-black text-white leading-[1.04] mb-6 tracking-tight">
-              Find Your{' '}<br className="hidden sm:block" />
-              <span className="gradient-text">Dream Job</span>
+            <h1 className="text-5xl sm:text-6xl lg:text-[76px] font-black text-white leading-[1.08] mb-6 tracking-tight">
+              Find Your Next<br />
+              <span className="text-sky-400">Dream Career</span>
             </h1>
             <p className="text-lg sm:text-xl text-slate-400 max-w-xl mx-auto mb-10 leading-relaxed font-normal">
-              Discover high-paying opportunities at the world's best companies. Your next career move starts here.
+              Direct connection to hiring managers at verified companies. No intermediaries, no spam.
             </p>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }} className="max-w-3xl mx-auto">
             <SearchBar large />
           </motion.div>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.5 }} className="flex flex-wrap items-center justify-center gap-2.5 mt-7 text-sm">
-            <span className="font-medium text-slate-500">Trending:</span>
-            {['React', 'Remote', 'Data Scientist', 'Product Designer'].map(t => (
-              <Link key={t} to={`/jobs?q=${t}`} className="px-3 py-1 rounded-full text-xs font-semibold bg-white/6 border border-white/10 text-slate-400 hover:border-primary-400/50 hover:text-primary-300 hover:bg-primary-500/10 transition-all">{t}</Link>
+            <span className="font-medium text-slate-500">Popular:</span>
+            {['React', 'Remote', 'Node.js', 'UI Designer'].map(t => (
+              <Link key={t} to={`/jobs?q=${t}`} className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-800/40 border border-slate-700/50 text-slate-400 hover:border-sky-500/50 hover:text-sky-400 hover:bg-sky-500/10 transition-all">{t}</Link>
             ))}
           </motion.div>
+
+          {/* Trust Partner Logos */}
+          <div className="mt-16 pt-8 border-t border-slate-850/60 max-w-4xl mx-auto">
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-5">Connect with opportunities at verified companies</p>
+            <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 opacity-40 grayscale">
+              <span className="text-white text-base font-black tracking-wider">TATA</span>
+              <span className="text-white text-base font-black tracking-wider">RELIANCE</span>
+              <span className="text-white text-base font-black tracking-wider">INFOSYS</span>
+              <span className="text-white text-base font-black tracking-wider">WIPRO</span>
+              <span className="text-white text-base font-black tracking-wider">ACCENTURE</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -120,6 +129,46 @@ export default function Home() {
             <StatisticsCard icon={HiBuildingOffice2} label="Companies" value="1,800+" color="amber" index={1} />
             <StatisticsCard icon={HiUsers} label="Job Seekers" value="50,000+" color="emerald" index={2} />
             <StatisticsCard icon={HiGlobeAlt} label="Locations" value="120+" color="violet" index={3} />
+          </div>
+        </div>
+      </section>
+
+      {/* Trust & Security Guarantee */}
+      <section className="py-16 bg-slate-50 dark:bg-slate-900/10 border-b border-gray-100 dark:border-slate-800/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <span className="section-label mb-3 inline-flex"><HiShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Security Assured</span>
+            <h2 className="text-3xl font-black text-gray-900 dark:text-white">Our Trust & Safety Standards</h2>
+            <p className="text-gray-500 dark:text-slate-400 mt-2">Every listing is audited to protect candidates from spam and fraud</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex gap-4 p-6 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800/40 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                <HiShieldCheck className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900 dark:text-slate-100 mb-1">100% Audited Listings</h4>
+                <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">No automated scraping. Our moderators manually verify all job post details.</p>
+              </div>
+            </div>
+            <div className="flex gap-4 p-6 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800/40 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-sky-100 dark:bg-sky-500/10 text-sky-600 dark:text-sky-455 flex items-center justify-center flex-shrink-0">
+                <HiUsers className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900 dark:text-slate-100 mb-1">Verified Employers</h4>
+                <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">Hiring managers are authenticated with verified business credentials before posting.</p>
+              </div>
+            </div>
+            <div className="flex gap-4 p-6 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800/40 shadow-sm">
+              <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                <HiGlobeAlt className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900 dark:text-slate-100 mb-1">Secure Privacy Vault</h4>
+                <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">Your resume and files are encrypted and only accessible to employers you apply to.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

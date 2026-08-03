@@ -125,13 +125,13 @@ export const loginCandidate = async (req, res) => {
       });
     }
 
-    const targetRole = role && ["candidate", "recruiter"].includes(role) ? role : "candidate";
+    const targetRole = role && ["candidate", "recruiter", "admin"].includes(role) ? role : "candidate";
 
     // Verify role matches selection
     if (user.role !== targetRole) {
       return res.status(403).json({
         success: false,
-        message: `Forbidden: This login screen is restricted to ${targetRole === 'candidate' ? 'candidates' : 'employers'}.`,
+        message: `Forbidden: This login screen is restricted to ${targetRole === 'candidate' ? 'candidates' : targetRole === 'recruiter' ? 'employers' : 'admins'}.`,
       });
     }
 
