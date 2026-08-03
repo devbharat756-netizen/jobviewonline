@@ -15,18 +15,26 @@ app.use(helmet());
 
 // Strict CORS configuration
 const allowedOrigins = [
+  // Local development
   "http://localhost:5173",
   "http://localhost:3000",
   "http://localhost:5174",
-  process.env.FRONTEND_URL,
+  // Production domains (both www and non-www)
+  "https://www.viewjob.online",
+  "https://viewjob.online",
+  // Additional origins from environment (supports comma-separated list)
+  ...(process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(",").map((u) => u.trim())
+    : []),
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Allow server-to-server requests (no origin header)
       if (!origin) return callback(null, true);
       const isLocalhost = /^http:\/\/localhost(:\d+)?$/.test(origin) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin);
-      if (isLocalhost || allowedOrigins.includes(origin) || process.env.NODE_ENV === "development") {
+      if (isLocalhost || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
       return callback(new Error("CORS policy violation: Unauthorized origin."), false);
