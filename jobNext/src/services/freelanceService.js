@@ -37,6 +37,9 @@ export const createFreelanceProject = (data) => API.post("/freelance", data);
 export const updateFreelanceProject = (id, data) => API.put(`/freelance/${id}`, data);
 export const deleteFreelanceProject = (id) => API.delete(`/freelance/${id}`);
 export const togglePublishFreelance = (id) => API.patch(`/freelance/${id}/publish`);
+export const approveFreelanceProject = (id) => API.patch(`/freelance/${id}/approve`);
+export const rejectFreelanceProject = (id) => API.patch(`/freelance/${id}/reject`);
+
 
 // Freelance Details, Apply APIs
 export const getFreelanceProjectDetails = (id) => API.get(`/freelance/${id}`);

@@ -19,8 +19,9 @@ router.post("/candidate/login", loginCandidate);
 
 // Newsletter subscription
 router.post("/newsletter/subscribe", subscribeNewsletter);
-router.get("/newsletter/subscribers", getNewsletterSubscribers);
-router.delete("/newsletter/subscribers/:id", removeNewsletterSubscriber);
+router.get("/newsletter/subscribers", protect, restrictTo("admin"), getNewsletterSubscribers);
+router.delete("/newsletter/subscribers/:id", protect, restrictTo("admin"), removeNewsletterSubscriber);
+
 
 // Session check
 router.get("/me", protect, getMe);

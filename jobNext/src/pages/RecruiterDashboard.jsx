@@ -43,12 +43,12 @@ const TABS = [
 export default function RecruiterDashboard() {
   const { user } = useAuth();
   const { addToast } = useToast();
-  
+
   const [activeTab, setActiveTab] = useState("overview");
   const [listings, setListings] = useState([]);
   const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [showModal, setShowModal] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
 
@@ -59,7 +59,7 @@ export default function RecruiterDashboard() {
         getRecruiterListings(),
         getRecruiterApplications(),
       ]);
-      
+
       if (listingsRes.data.success) {
         setListings(listingsRes.data.data || []);
       }
@@ -80,7 +80,7 @@ export default function RecruiterDashboard() {
 
   const handleDeleteListing = async (listing) => {
     if (!confirm("Are you sure you want to permanently delete this listing? All applications will be lost.")) return;
-    
+
     try {
       if (listing.isFreelance) {
         await deleteFreelanceProject(listing.id || listing._id);
@@ -138,17 +138,17 @@ export default function RecruiterDashboard() {
   const totalListings = listings.length;
   const activeListings = listings.filter(l => l.published !== false).length;
   const totalApplicants = applicants.length;
-  
+
   const recentListings = listings.slice(0, 3);
   const recentApplicants = applicants.slice(0, 3);
 
   return (
     <>
       <SEO path="/dashboard" title="Employer Dashboard" description="Manage your job postings and applicants on viewjob." />
-      
+
       <div className="pt-28 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
               <h1 className="text-3xl font-extrabold text-gray-900">Employer Dashboard</h1>
@@ -163,7 +163,7 @@ export default function RecruiterDashboard() {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8">
-            
+
             {/* Sidebar Navigation */}
             <div className="w-full lg:w-64 flex-shrink-0">
               <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-800/80 space-y-1">
@@ -173,11 +173,10 @@ export default function RecruiterDashboard() {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-                        activeTab === tab.id
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activeTab === tab.id
                           ? "bg-primary-50 dark:bg-primary-500/10 text-primary-650 dark:text-primary-400"
                           : "text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800/50 hover:text-gray-700"
-                      }`}
+                        }`}
                     >
                       <Icon className="w-5 h-5" />
                       {tab.label}
@@ -189,7 +188,7 @@ export default function RecruiterDashboard() {
 
             {/* Main Panels */}
             <div className="flex-1 min-w-0 space-y-6">
-              
+
               {/* Profile Overview Banner */}
               {activeTab === "overview" && (
                 <ProfileCard profile={user} onEdit={() => window.location.href = "/dashboard/profile"} />
@@ -226,13 +225,22 @@ export default function RecruiterDashboard() {
                                 <h4 className="font-semibold text-sm text-gray-900 dark:text-slate-200 truncate">{l.title}</h4>
                                 <p className="text-xs text-gray-500">{l.isFreelance ? "Freelance Project" : "Permanent Job"} • {l.location}</p>
                               </div>
-                              <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg border ${
-                                l.published !== false 
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400"
-                                  : "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400"
-                              }`}>
-                                {l.published !== false ? "Active" : "Draft"}
-                              </span>
+                              <div className="flex flex-col items-end gap-1">
+                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${l.published !== false
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400"
+                                    : "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400"
+                                  }`}>
+                                  {l.published !== false ? "Visible" : "Draft"}
+                                </span>
+                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${l.status === 'approved'
+                                    ? 'bg-emerald-50/50 border-emerald-100 text-emerald-700'
+                                    : l.status === 'rejected'
+                                      ? 'bg-red-50/50 border-red-100 text-red-700'
+                                      : 'bg-amber-50/50 border-amber-100 text-amber-700'
+                                  }`}>
+                                  {l.status ? l.status.toUpperCase() : 'PENDING'}
+                                </span>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -259,13 +267,12 @@ export default function RecruiterDashboard() {
                                 <h4 className="font-semibold text-sm text-gray-900 dark:text-slate-200 truncate">{app.fullName}</h4>
                                 <p className="text-xs text-gray-500">Applied for {app.jobTitle} • {new Date(app.appliedAt).toLocaleDateString()}</p>
                               </div>
-                              <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg border ${
-                                app.status === "Hired" 
+                              <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg border ${app.status === "Hired"
                                   ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400"
                                   : app.status === "Rejected"
                                     ? "bg-red-50 text-red-700 border-red-100 dark:bg-red-500/10 dark:border-red-500/20 dark:text-red-400"
                                     : "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400"
-                              }`}>
+                                }`}>
                                 {app.status}
                               </span>
                             </div>
@@ -318,34 +325,41 @@ export default function RecruiterDashboard() {
                                 <div className="text-xs text-gray-500">{l.location}</div>
                               </td>
                               <td className="px-6 py-4">
-                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-lg border ${
-                                  l.isFreelance
+                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-lg border ${l.isFreelance
                                     ? "bg-secondary-50 border-secondary-100 text-secondary-700 dark:bg-secondary-500/10 dark:border-secondary-500/20 dark:text-secondary-400"
                                     : "bg-primary-50 border-primary-100 text-primary-700 dark:bg-primary-500/10 dark:border-primary-500/20 dark:text-primary-400"
-                                }`}>
+                                  }`}>
                                   {l.isFreelance ? "Freelance" : "Job"}
                                 </span>
                               </td>
                               <td className="px-6 py-4 text-gray-700">{l.salary || "Negotiable"}</td>
                               <td className="px-6 py-4">
-                                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                                  l.published !== false 
-                                    ? "bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400" 
-                                    : "bg-amber-50 border-amber-100 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400"
-                                }`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${l.published !== false ? "bg-emerald-500" : "bg-amber-500"}`} />
-                                  {l.published !== false ? "Active" : "Draft"}
-                                </span>
+                                <div className="flex flex-col gap-1.5">
+                                  <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border w-fit ${l.published !== false
+                                      ? "bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400"
+                                      : "bg-amber-50 border-amber-100 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400"
+                                    }`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${l.published !== false ? "bg-emerald-500" : "bg-amber-500"}`} />
+                                    {l.published !== false ? "Visible" : "Draft"}
+                                  </span>
+                                  <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded border w-fit ${l.status === 'approved'
+                                      ? 'bg-emerald-50/50 border-emerald-100 text-emerald-700'
+                                      : l.status === 'rejected'
+                                        ? 'bg-red-50/50 border-red-100 text-red-700'
+                                        : 'bg-amber-50/50 border-amber-100 text-amber-700'
+                                    }`}>
+                                    {l.status ? l.status.toUpperCase() : 'PENDING'}
+                                  </span>
+                                </div>
                               </td>
                               <td className="px-6 py-4">
                                 <div className="flex items-center justify-end gap-2">
-                                  <button 
-                                    onClick={() => handleTogglePublish(l)} 
-                                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors border ${
-                                      l.published !== false 
-                                        ? "text-amber-600 hover:bg-amber-50 border-amber-100" 
+                                  <button
+                                    onClick={() => handleTogglePublish(l)}
+                                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors border ${l.published !== false
+                                        ? "text-amber-600 hover:bg-amber-50 border-amber-100"
                                         : "text-emerald-600 hover:bg-emerald-50 border-emerald-100"
-                                    }`} 
+                                      }`}
                                     title={l.published !== false ? "Change to Draft" : "Publish listing"}
                                   >
                                     {l.published !== false ? <HiEyeSlash className="w-4.5 h-4.5" /> : <HiEye className="w-4.5 h-4.5" />}
@@ -427,8 +441,7 @@ export default function RecruiterDashboard() {
                               <select
                                 value={app.status}
                                 onChange={(e) => handleStatusChange(app._id, e.target.value)}
-                                className={`text-xs font-bold px-3 py-1.5 pr-8 rounded-lg border-0 cursor-pointer appearance-none shadow-sm focus:ring-2 focus:ring-primary-500/20 ${
-                                  app.status === "Applied"
+                                className={`text-xs font-bold px-3 py-1.5 pr-8 rounded-lg border-0 cursor-pointer appearance-none shadow-sm focus:ring-2 focus:ring-primary-500/20 ${app.status === "Applied"
                                     ? "bg-blue-50 text-blue-700"
                                     : app.status === "Shortlisted"
                                       ? "bg-emerald-50 text-emerald-700"
@@ -437,7 +450,7 @@ export default function RecruiterDashboard() {
                                         : app.status === "Rejected"
                                           ? "bg-red-50 text-red-700"
                                           : "bg-gray-100 text-gray-700"
-                                }`}
+                                  }`}
                               >
                                 {["Applied", "Shortlisted", "Interview", "Rejected", "Hired"].map((status) => (
                                   <option key={status} value={status} className="bg-white text-gray-900 font-normal">{status}</option>

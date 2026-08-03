@@ -1,12 +1,15 @@
 import Freelance from "../models/freelance.model.js";
 import FreelanceApplication from "../models/freelanceApplication.model.js";
+import AuditLog from "../../admin/models/auditLog.model.js";
 import { uploadToCloudinary } from "../../../utils/cloudinary.js";
 
 export const createFreelance = async (req, res) => {
   try {
+    const status = req.user && req.user.role === "admin" ? "approved" : "pending";
     const freelanceData = {
       ...req.body,
       postedBy: req.user?._id || null,
+      status,
     };
     const freelance = await Freelance.create(freelanceData);
     return res.status(201).json({
@@ -24,7 +27,24 @@ export const createFreelance = async (req, res) => {
 
 export const getFreelanceProjects = async (req, res) => {
   try {
-    const projects = await Freelance.find().sort({ createdAt: -1 });
+    let query = {};
+    const isAdmin = req.user && req.user.role === "admin";
+
+    if (!isAdmin) {
+      query = { status: "approved", published: true };
+    }
+
+    let projectsQuery = Freelance.find(query).sort({ createdAt: -1 });
+
+    if (!isAdmin) {
+      // Expose only candidate-facing fields to prevent sensitive data leakage
+      projectsQuery = projectsQuery.select(
+        "title company companyLogo salary salaryMin salaryMax experience location type mode category skills description responsibilities requirements postedDate published companyDetails status"
+      );
+    }
+
+    const projects = await projectsQuery;
+
     return res.json({
       success: true,
       count: projects.length,
@@ -48,6 +68,18 @@ export const getFreelanceProjectById = async (req, res) => {
       });
     }
 
+    // Resource Enumeration protection: return 404 if not approved/published, unless owner or admin
+    const isOwner = req.user && project.postedBy && project.postedBy.toString() === req.user._id.toString();
+    const isAdmin = req.user && req.user.role === "admin";
+    const isAccessible = project.status === "approved" && project.published !== false;
+
+    if (!isAccessible && !isOwner && !isAdmin) {
+      return res.status(404).json({
+        success: false,
+        message: "Freelance project not found.",
+      });
+    }
+
     let isApplied = false;
     if (req.user) {
       isApplied = await FreelanceApplication.exists({ user: req.user._id, freelance: project._id }) !== null;
@@ -55,6 +87,12 @@ export const getFreelanceProjectById = async (req, res) => {
 
     const totalApplicantCount = await FreelanceApplication.countDocuments({ freelance: project._id });
     const projectData = project.toObject();
+
+    // Prevent exposing poster information/recruiter metadata to standard candidates/guests
+    if (!isAdmin) {
+      delete projectData.postedBy;
+    }
+
     projectData.isApplied = isApplied;
     projectData.totalApplicantCount = totalApplicantCount;
 
@@ -90,7 +128,13 @@ export const updateFreelanceProject = async (req, res) => {
       }
     }
 
-    Object.assign(project, req.body);
+    // Preserve status/approval properties unless updated by admin
+    const updateData = { ...req.body };
+    if (req.user.role !== "admin") {
+      delete updateData.status;
+    }
+
+    Object.assign(project, updateData);
     await project.save();
 
     return res.json({
@@ -129,6 +173,18 @@ export const deleteFreelanceProject = async (req, res) => {
     await FreelanceApplication.deleteMany({ freelance: project._id });
     await Freelance.findByIdAndDelete(req.params.id);
 
+    // Audit administrative deletes
+    if (req.user && req.user.role === "admin") {
+      await AuditLog.create({
+        action: "DELETE_PROJECT",
+        performedBy: req.user._id,
+        targetType: "Freelance",
+        targetId: project._id,
+        details: `Deleted freelance project "${project.title}" from company "${project.company}"`,
+        ipAddress: req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "",
+      });
+    }
+
     return res.json({
       success: true,
       message: "Freelance project deleted successfully.",
@@ -140,6 +196,77 @@ export const deleteFreelanceProject = async (req, res) => {
     });
   }
 };
+
+export const approveFreelanceProject = async (req, res) => {
+  try {
+    const project = await Freelance.findById(req.params.id);
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Freelance project not found.",
+      });
+    }
+
+    project.status = "approved";
+    await project.save();
+
+    await AuditLog.create({
+      action: "APPROVE_PROJECT",
+      performedBy: req.user._id,
+      targetType: "Freelance",
+      targetId: project._id,
+      details: `Approved freelance project "${project.title}" for company "${project.company}"`,
+      ipAddress: req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "",
+    });
+
+    return res.json({
+      success: true,
+      message: "Freelance project approved successfully.",
+      data: project,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const rejectFreelanceProject = async (req, res) => {
+  try {
+    const project = await Freelance.findById(req.params.id);
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Freelance project not found.",
+      });
+    }
+
+    project.status = "rejected";
+    await project.save();
+
+    await AuditLog.create({
+      action: "REJECT_PROJECT",
+      performedBy: req.user._id,
+      targetType: "Freelance",
+      targetId: project._id,
+      details: `Rejected freelance project "${project.title}" for company "${project.company}"`,
+      ipAddress: req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "",
+    });
+
+    return res.json({
+      success: true,
+      message: "Freelance project rejected successfully.",
+      data: project,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
 export const togglePublishFreelance = async (req, res) => {
   try {
@@ -260,7 +387,13 @@ export const applyFreelance = async (req, res) => {
 export const getAdminFreelanceApplications = async (req, res) => {
   try {
     const applications = await FreelanceApplication.find()
-      .populate("freelance")
+      .populate({
+        path: "freelance",
+        populate: {
+          path: "postedBy",
+          select: "role",
+        }
+      })
       .sort({ createdAt: -1 });
 
     const formatted = applications.map(app => ({
@@ -280,6 +413,7 @@ export const getAdminFreelanceApplications = async (req, res) => {
       resume: app.resume,
       status: app.status,
       createdAt: app.createdAt,
+      postedByRole: app.freelance?.postedBy?.role || "admin",
       job: app.freelance, // Aliased for client compatibility
     }));
 

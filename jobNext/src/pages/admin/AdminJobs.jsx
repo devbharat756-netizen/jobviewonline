@@ -7,6 +7,7 @@ import {
   HiEyeSlash,
   HiXMark,
   HiChevronDown,
+  HiCheck,
 } from "react-icons/hi2";
 
 import Modal from "@components/common/Modal";
@@ -21,12 +22,16 @@ import {
   updateJob,
   deleteJob,
   togglePublish,
+  approveJob,
+  rejectJob,
 } from "../../services/jobService";
 import {
   createFreelanceProject,
   updateFreelanceProject,
   deleteFreelanceProject,
   togglePublishFreelance,
+  approveFreelanceProject,
+  rejectFreelanceProject,
 } from "../../services/freelanceService";
 
 const getEmptyJob = () => ({
@@ -193,6 +198,36 @@ export default function AdminJobs() {
     }
   };
 
+  const handleApprove = async (id) => {
+    try {
+      if (activeTab === "freelance") {
+        await approveFreelanceProject(id);
+      } else {
+        await approveJob(id);
+      }
+      await currentHooks.fetchJobs();
+      addToast("Listing approved successfully", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to approve listing", "error");
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      if (activeTab === "freelance") {
+        await rejectFreelanceProject(id);
+      } else {
+        await rejectJob(id);
+      }
+      await currentHooks.fetchJobs();
+      addToast("Listing rejected successfully", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to reject listing", "error");
+    }
+  };
+
   const updateField = (key, val) => {
     let formatted = val;
     if (typeof val === "string" && key !== "companyLogo" && key !== "website") {
@@ -291,7 +326,8 @@ export default function AdminJobs() {
                   <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Job / Company</th>
                   <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Salary Range</th>
                   <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Mode</th>
-                  <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Visibility</th>
+                  <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wider">Approval</th>
                   <th className="px-6 py-4 font-bold text-gray-500 dark:text-slate-400 text-xs tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
@@ -337,10 +373,39 @@ export default function AdminJobs() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${j.status === 'approved'
+                          ? 'bg-emerald-50 border-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400'
+                          : j.status === 'rejected'
+                            ? 'bg-red-50 border-red-100 text-red-700 dark:bg-red-500/10 dark:border-red-500/20 dark:text-red-400'
+                            : 'bg-amber-50 border-amber-100 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400'
+                        }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${j.status === 'approved' ? 'bg-emerald-500' : j.status === 'rejected' ? 'bg-red-500' : 'bg-amber-500'}`} />
+                        {j.status ? j.status.charAt(0).toUpperCase() + j.status.slice(1) : 'Pending'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
+                        {j.status !== 'approved' && (
+                          <button
+                            onClick={() => handleApprove(j._id)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center border border-emerald-100 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500/25 dark:text-emerald-400 dark:hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                            title="Approve Listing"
+                          >
+                            <HiCheck className="w-4.5 h-4.5" />
+                          </button>
+                        )}
+                        {j.status !== 'rejected' && (
+                          <button
+                            onClick={() => handleReject(j._id)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center border border-red-100 text-red-500 hover:bg-red-50 dark:border-red-500/25 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                            title="Reject Listing"
+                          >
+                            <HiXMark className="w-4.5 h-4.5" />
+                          </button>
+                        )}
                         <button
                           onClick={() => handleTogglePublish(j._id)}
-                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors border ${j.published !== false
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors border cursor-pointer ${j.published !== false
                               ? 'text-amber-600 hover:bg-amber-50 border-amber-100 dark:text-amber-400 dark:border-amber-500/25 dark:hover:bg-amber-500/10'
                               : 'text-emerald-600 hover:bg-emerald-50 border-emerald-100 dark:text-emerald-400 dark:border-emerald-500/25 dark:hover:bg-emerald-500/10'
                             }`}
@@ -348,8 +413,8 @@ export default function AdminJobs() {
                         >
                           {j.published !== false ? <HiEyeSlash className="w-4.5 h-4.5" /> : <HiEye className="w-4.5 h-4.5" />}
                         </button>
-                        <button onClick={() => openEdit(j)} className="w-8 h-8 rounded-lg border border-gray-150 dark:border-slate-800/80 hover:bg-gray-100 dark:hover:bg-slate-800 flex items-center justify-center text-gray-500 dark:text-slate-400 transition-colors" title="Edit"><HiPencilSquare className="w-4.5 h-4.5" /></button>
-                        <button onClick={() => handleDelete(j._id)} className="w-8 h-8 rounded-lg border border-red-100 dark:border-red-500/20 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center justify-center text-red-500 transition-colors" title="Delete"><HiTrash className="w-4.5 h-4.5" /></button>
+                        <button onClick={() => openEdit(j)} className="w-8 h-8 rounded-lg border border-gray-150 dark:border-slate-800/80 hover:bg-gray-100 dark:hover:bg-slate-800 flex items-center justify-center text-gray-500 dark:text-slate-400 transition-colors cursor-pointer" title="Edit"><HiPencilSquare className="w-4.5 h-4.5" /></button>
+                        <button onClick={() => handleDelete(j._id)} className="w-8 h-8 rounded-lg border border-red-100 dark:border-red-500/20 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center justify-center text-red-500 transition-colors cursor-pointer" title="Delete"><HiTrash className="w-4.5 h-4.5" /></button>
                       </div>
                     </td>
                   </tr>

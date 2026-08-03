@@ -12,6 +12,14 @@ import { getAdminFreelanceApplications, updateFreelanceApplicationStatus } from 
 export default function AdminApplications() {
   const [activeTab, setActiveTab] = useState("jobs");
   const [applications, setApplications] = useState([]);
+  const [sourceFilter, setSourceFilter] = useState("admin");
+
+  const filteredApplications = applications.filter(app => {
+    if (sourceFilter === "admin") {
+      return app.postedByRole !== "recruiter";
+    }
+    return app.postedByRole === "recruiter";
+  });
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -101,17 +109,41 @@ export default function AdminApplications() {
             ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-400 border-primary-100/50 dark:border-primary-500/20'
             : 'bg-secondary-50 dark:bg-secondary-500/10 text-secondary-750 dark:text-secondary-400 border-secondary-100/50 dark:border-secondary-500/20'
         }`}>
-          {applications.length} Total
+          {filteredApplications.length} Total
         </span>
+      </div>
+
+      {/* Source Filter Switcher (Admin vs Recruiter) */}
+      <div className="flex gap-3 bg-gray-50 dark:bg-slate-800/40 p-1 rounded-xl w-fit border border-gray-150 dark:border-slate-800/60">
+        <button
+          onClick={() => setSourceFilter("admin")}
+          className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+            sourceFilter === "admin"
+              ? "bg-white dark:bg-slate-700 text-primary-650 dark:text-primary-400 shadow-sm font-bold"
+              : "text-gray-500 hover:text-gray-700 dark:text-slate-400"
+          }`}
+        >
+          Posted by Admin
+        </button>
+        <button
+          onClick={() => setSourceFilter("recruiter")}
+          className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+            sourceFilter === "recruiter"
+              ? "bg-white dark:bg-slate-700 text-secondary-650 dark:text-secondary-400 shadow-sm font-bold"
+              : "text-gray-500 hover:text-gray-700 dark:text-slate-400"
+          }`}
+        >
+          Posted by Recruiters
+        </button>
       </div>
 
       {loading ? (
         <LoadingSkeleton count={3} />
-      ) : applications.length === 0 ? (
+      ) : filteredApplications.length === 0 ? (
         <EmptyState
           icon={HiDocumentText}
-          title="No applications yet"
-          description="Applications submitted by job seekers will appear here."
+          title="No applications found"
+          description={`There are currently no applications for ${activeTab === 'jobs' ? 'job listings' : 'freelance projects'} posted by ${sourceFilter === 'admin' ? 'Admins' : 'Recruiters'}.`}
         />
       ) : (
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-150 dark:border-slate-800/80 overflow-hidden">
@@ -127,7 +159,7 @@ export default function AdminApplications() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-150 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
-                {applications.map((app) => (
+                {filteredApplications.map((app) => (
                   <tr key={app._id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/10 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col">

@@ -119,6 +119,12 @@ const jobSchema = new mongoose.Schema(
       default: true,
     },
 
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+
     isFreelance: {
       type: Boolean,
       default: false,

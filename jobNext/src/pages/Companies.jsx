@@ -41,7 +41,7 @@ export default function Companies() {
           {filtered.length === 0 ? (
             <EmptyState title="No companies found" description="Try a different search term." />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 items-stretch">
               {filtered.map((c, i) => <CompanyCard key={c.name} company={c} index={i} />)}
             </div>
           )}

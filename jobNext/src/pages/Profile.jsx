@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiArrowLeft, HiCloudArrowUp, HiTrash, HiDocumentText } from 'react-icons/hi2';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SEO from '@components/common/SEO';
 import DashboardSidebar from '@components/layout/DashboardSidebar';
 import { useToast } from '@context/ToastContext';
@@ -25,6 +25,7 @@ const normalizeProfile = (value) => ({
 export default function Profile() {
   const { user, updateProfile } = useAuth();
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const [skillInput, setSkillInput] = useState('');
   const [formState, setFormState] = useState(normalizeProfile(user));
   const [submitting, setSubmitting] = useState(false);
@@ -89,10 +90,13 @@ export default function Profile() {
       addToast("Please upload an image file (PNG, JPG, WebP).", "error");
       return;
     }
-    update('avatarFile', file);
     const reader = new FileReader();
     reader.onload = (ev) => {
-      update('avatar', ev.target.result);
+      setFormState(prev => normalizeProfile({
+        ...prev,
+        avatarFile: file,
+        avatar: ev.target.result
+      }));
       addToast('Profile image selected locally. Click Save to upload.', 'info');
     };
     reader.readAsDataURL(file);
@@ -105,9 +109,19 @@ export default function Profile() {
       addToast('Please upload a PDF file.', 'error');
       return;
     }
-    update('resumeFile', file);
-    update('resume', file.name);
+    setFormState(prev => normalizeProfile({
+      ...prev,
+      resumeFile: file,
+      resume: file.name
+    }));
     addToast('Resume file selected locally. Click Save to upload.', 'info');
+  };
+
+  const getResumeUrl = () => {
+    if (formState.resumeFile) {
+      return URL.createObjectURL(formState.resumeFile);
+    }
+    return safeProfile.resume;
   };
 
   const handleSave = async () => {
@@ -145,6 +159,7 @@ export default function Profile() {
           avatarFile: null,
           resumeFile: null,
         }));
+        navigate('/dashboard');
       }
     } catch (err) {
       console.error(err);
@@ -186,7 +201,7 @@ export default function Profile() {
                         </label>
                         {safeProfile.resume && (
                           <a
-                            href={safeProfile.resume}
+                            href={getResumeUrl()}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-4 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl text-sm font-semibold border border-emerald-200 transition-colors flex items-center gap-1.5"

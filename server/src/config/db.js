@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import User from "../modules/user/models/user.model.js";
 import bcrypt from "bcryptjs";
+import Job from "../modules/job/models/job.model.js";
+import Freelance from "../modules/job/models/freelance.model.js";
 
 const connectDB = async () => {
   try {
@@ -30,6 +32,17 @@ const connectDB = async () => {
       }
     } catch (seedErr) {
       console.warn("⚠️ Warning seeding admin user (ignored):", seedErr.message);
+    }
+
+    // Migrate legacy jobs/projects to status: "approved"
+    try {
+      const jobMigration = await Job.updateMany({ status: { $exists: false } }, { status: "approved" });
+      const freelanceMigration = await Freelance.updateMany({ status: { $exists: false } }, { status: "approved" });
+      if (jobMigration.modifiedCount > 0 || freelanceMigration.modifiedCount > 0) {
+        console.log(`✅ Migrated legacy data: ${jobMigration.modifiedCount} jobs and ${freelanceMigration.modifiedCount} freelance projects set to "approved".`);
+      }
+    } catch (migrateErr) {
+      console.warn("⚠️ Legacy migration warning (ignored):", migrateErr.message);
     }
 
     try {

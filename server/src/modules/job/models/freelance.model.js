@@ -119,6 +119,12 @@ const freelanceSchema = new mongoose.Schema(
       default: true,
     },
 
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+
     companyDetails: {
       type: companyDetailsSchema,
       default: () => ({}),

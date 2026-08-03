@@ -46,6 +46,9 @@ export const createJob = (data) => API.post("/jobs", data);
 export const updateJob = (id, data) => API.put(`/jobs/${id}`, data);
 export const deleteJob = (id) => API.delete(`/jobs/${id}`);
 export const togglePublish = (id) => API.patch(`/jobs/${id}/publish`);
+export const approveJob = (id) => API.patch(`/jobs/${id}/approve`);
+export const rejectJob = (id) => API.patch(`/jobs/${id}/reject`);
+
 
 // Job Details, Apply and Save APIs
 export const getJobDetails = (id) => API.get(`/jobs/${id}`);

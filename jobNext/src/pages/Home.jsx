@@ -231,7 +231,7 @@ export default function Home() {
               </span>
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-stretch">
             {topCompanies.map((c, i) => <CompanyCard key={c.name} company={c} index={i} />)}
           </div>
         </div>

@@ -3,14 +3,17 @@ import Application from "../models/application.model.js";
 import SavedJob from "../models/savedJob.model.js";
 import FreelanceApplication from "../models/freelanceApplication.model.js";
 import Freelance from "../models/freelance.model.js";
+import AuditLog from "../../admin/models/auditLog.model.js";
 import { uploadToCloudinary, getSignedCloudinaryUrl } from "../../../utils/cloudinary.js";
 import https from "https";
 
 export const createJob = async (req, res) => {
   try {
+    const status = req.user && req.user.role === "admin" ? "approved" : "pending";
     const jobData = {
       ...req.body,
       postedBy: req.user?._id || null,
+      status,
     };
     const job = await Job.create(jobData);
 
@@ -29,7 +32,23 @@ export const createJob = async (req, res) => {
 
 export const getJobs = async (req, res) => {
   try {
-    const jobs = await Job.find().sort({ createdAt: -1 });
+    let query = {};
+    const isAdmin = req.user && req.user.role === "admin";
+
+    if (!isAdmin) {
+      query = { status: "approved", published: true };
+    }
+
+    let jobsQuery = Job.find(query).sort({ createdAt: -1 });
+
+    if (!isAdmin) {
+      // Enforce strict response filtering for candidates/public users to prevent sensitive leakage
+      jobsQuery = jobsQuery.select(
+        "title company companyLogo salary salaryMin salaryMax experience location type mode category skills description responsibilities requirements postedDate published isFreelance companyDetails status"
+      );
+    }
+
+    const jobs = await jobsQuery;
 
     return res.json({
       success: true,
@@ -55,6 +74,18 @@ export const getJobById = async (req, res) => {
       });
     }
 
+    // Resource Enumeration protection: return 404 if not approved/published, unless requester is owner or admin
+    const isOwner = req.user && job.postedBy && job.postedBy.toString() === req.user._id.toString();
+    const isAdmin = req.user && req.user.role === "admin";
+    const isAccessible = job.status === "approved" && job.published !== false;
+
+    if (!isAccessible && !isOwner && !isAdmin) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found.",
+      });
+    }
+
     let isApplied = false;
     let isSaved = false;
 
@@ -66,6 +97,12 @@ export const getJobById = async (req, res) => {
     const totalApplicantCount = await Application.countDocuments({ job: job._id });
 
     const jobData = job.toObject();
+
+    // Prevent exposing poster information/recruiter metadata to standard candidates/guests
+    if (!isAdmin) {
+      delete jobData.postedBy;
+    }
+
     jobData.isApplied = isApplied;
     jobData.isSaved = isSaved;
     jobData.totalApplicantCount = totalApplicantCount;
@@ -102,7 +139,13 @@ export const updateJob = async (req, res) => {
       }
     }
 
-    Object.assign(job, req.body);
+    // Preserve status/approval properties unless updated by admin
+    const updateData = { ...req.body };
+    if (req.user.role !== "admin") {
+      delete updateData.status;
+    }
+
+    Object.assign(job, updateData);
     await job.save();
 
     return res.json({
@@ -140,6 +183,18 @@ export const deleteJob = async (req, res) => {
 
     await Job.findByIdAndDelete(req.params.id);
 
+    // Audit administrative deletes
+    if (req.user && req.user.role === "admin") {
+      await AuditLog.create({
+        action: "DELETE_JOB",
+        performedBy: req.user._id,
+        targetType: "Job",
+        targetId: job._id,
+        details: `Deleted job "${job.title}" from company "${job.company}"`,
+        ipAddress: req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "",
+      });
+    }
+
     return res.json({
       success: true,
       message: "Job deleted successfully.",
@@ -151,6 +206,77 @@ export const deleteJob = async (req, res) => {
     });
   }
 };
+
+export const approveJob = async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found.",
+      });
+    }
+
+    job.status = "approved";
+    await job.save();
+
+    await AuditLog.create({
+      action: "APPROVE_JOB",
+      performedBy: req.user._id,
+      targetType: "Job",
+      targetId: job._id,
+      details: `Approved job "${job.title}" for company "${job.company}"`,
+      ipAddress: req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "",
+    });
+
+    return res.json({
+      success: true,
+      message: "Job approved successfully.",
+      data: job,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const rejectJob = async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found.",
+      });
+    }
+
+    job.status = "rejected";
+    await job.save();
+
+    await AuditLog.create({
+      action: "REJECT_JOB",
+      performedBy: req.user._id,
+      targetType: "Job",
+      targetId: job._id,
+      details: `Rejected job "${job.title}" for company "${job.company}"`,
+      ipAddress: req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "",
+    });
+
+    return res.json({
+      success: true,
+      message: "Job rejected successfully.",
+      data: job,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 
 export const togglePublish = async (req, res) => {
   try {
@@ -469,7 +595,13 @@ export const getAppliedJobs = async (req, res) => {
 export const getAdminApplications = async (req, res) => {
   try {
     const applications = await Application.find()
-      .populate("job")
+      .populate({
+        path: "job",
+        populate: {
+          path: "postedBy",
+          select: "role",
+        }
+      })
       .sort({ createdAt: -1 });
 
     const formatted = applications.map(app => ({
@@ -489,6 +621,7 @@ export const getAdminApplications = async (req, res) => {
       resume: app.resume,
       status: app.status,
       createdAt: app.createdAt,
+      postedByRole: app.job?.postedBy?.role || "admin",
       job: app.job ? {
         _id: app.job._id,
         title: app.job.title,
