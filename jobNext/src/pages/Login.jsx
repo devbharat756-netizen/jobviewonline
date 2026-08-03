@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { HiEnvelope, HiLockClosed, HiArrowRight, HiEye, HiEyeSlash } from 'react-icons/hi2';
+import { HiEnvelope, HiLockClosed, HiArrowRight, HiEye, HiEyeSlash, HiBriefcase } from 'react-icons/hi2';
 import SEO from '@components/common/SEO';
 import { useAuth } from '../context/AuthContext';
-import viewjobLogo from '../assets/viewjobLogo.png';
 
 export default function Login() {
   const { login } = useAuth();
@@ -23,9 +22,7 @@ export default function Login() {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       errs.email = 'Please enter a valid email address';
     }
-    if (!password) {
-      errs.password = 'Password is required';
-    }
+    if (!password) errs.password = 'Password is required';
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -54,13 +51,18 @@ export default function Login() {
         >
           {/* Logo & Header */}
           <div className="text-center mb-8">
-            <Link to="/" className="inline-flex items-center mb-4">
-              <img src={viewjobLogo} alt="viewjob Logo" className="h-10 w-auto object-contain" />
+            <Link to="/" className="inline-flex items-center gap-2.5 mb-4">
+              <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-md shadow-primary-200">
+                <HiBriefcase className="w-5.5 h-5.5 text-white" />
+              </div>
+              <span className="text-2xl font-extrabold text-gray-900 dark:text-slate-100">
+                view<span className="text-primary-600">job</span>
+              </span>
             </Link>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Welcome Back</h2>
             <p className="text-sm text-gray-500 mt-1.5">
-              {role === 'candidate' 
-                ? 'Sign in to search jobs and manage applications' 
+              {role === 'candidate'
+                ? 'Sign in to search jobs and manage applications'
                 : 'Sign in to post jobs and review candidates'}
             </p>
           </div>
@@ -72,22 +74,20 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setRole('candidate')}
-                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-                  role === 'candidate'
+                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${role === 'candidate'
                     ? 'bg-white dark:bg-slate-700 text-primary-600 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700 dark:hover:text-slate-300'
-                }`}
+                  }`}
               >
                 Candidate
               </button>
               <button
                 type="button"
                 onClick={() => setRole('recruiter')}
-                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${
-                  role === 'recruiter'
+                className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${role === 'recruiter'
                     ? 'bg-white dark:bg-slate-700 text-primary-600 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700 dark:hover:text-slate-300'
-                }`}
+                  }`}
               >
                 Employer / Company
               </button>

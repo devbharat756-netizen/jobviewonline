@@ -33,8 +33,8 @@ export default function AdminLayout() {
       <aside className={`fixed inset-y-0 left-0 w-64 bg-slate-950 border-r border-slate-850/80 z-50 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between p-5 border-b border-slate-900">
           <Link to="/admin" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-600 rounded-lg flex items-center justify-center shadow-md shadow-primary-500/10"><HiBriefcase className="w-4 h-4 text-white" /></div>
-            <span className="text-lg font-extrabold text-white tracking-tight">Job<span className="text-primary-400 font-semibold">Nest</span></span>
+            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center shadow-md shadow-primary-700/10"><HiBriefcase className="w-4 h-4 text-white" /></div>
+            <span className="text-lg font-extrabold text-white tracking-tight">view<span className="text-sky-400 font-semibold">job</span></span>
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-400 hover:text-white"><HiXMark className="w-5 h-5" /></button>
         </div>
@@ -55,7 +55,7 @@ export default function AdminLayout() {
       {sidebarOpen && <div className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />}
  
       {/* Main */}
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1 lg:ml-64 min-w-0">
         <header className="bg-white/90 dark:bg-slate-900/90 border-b border-gray-150 dark:border-slate-800/80 px-6 py-4 flex items-center justify-between sticky top-0 z-30 backdrop-blur-md">
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 flex items-center justify-center"><HiBars3 className="w-5 h-5 text-gray-600 dark:text-slate-350" /></button>
           <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100 capitalize">{location.pathname.split('/').pop() || 'Dashboard'}</h2>

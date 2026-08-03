@@ -607,12 +607,12 @@ export default function JobDetails({ isFreelance = false }) {
                 {errorText('noticePeriod')}
               </div>
               <div>
-                <label className={labelClass}>Current Salary (USD per annum)</label>
-                <input type="text" value={form.currentSalary} onChange={e => updateField('currentSalary', e.target.value)} className={inputClass('currentSalary')} placeholder="e.g. $100,000 (optional)" />
+                <label className={labelClass}>Current Salary (INR per annum)</label>
+                <input type="text" value={form.currentSalary} onChange={e => updateField('currentSalary', e.target.value)} className={inputClass('currentSalary')} placeholder="e.g. ₹6,00,000 (optional)" />
               </div>
               <div>
-                <label className={labelClass}>Expected Salary (USD per annum) <span className="text-red-500">*</span></label>
-                <input type="text" value={form.expectedSalary} onChange={e => updateField('expectedSalary', e.target.value)} className={inputClass('expectedSalary')} placeholder="e.g. $120,000" />
+                <label className={labelClass}>Expected Salary (INR per annum) <span className="text-red-500">*</span></label>
+                <input type="text" value={form.expectedSalary} onChange={e => updateField('expectedSalary', e.target.value)} className={inputClass('expectedSalary')} placeholder="e.g. ₹8,00,000" />
                 {errorText('expectedSalary')}
               </div>
             </div>

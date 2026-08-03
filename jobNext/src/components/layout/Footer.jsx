@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
+import { HiBriefcase } from 'react-icons/hi2';
 import AdPlaceholder from '@components/common/AdPlaceholder';
-import viewjobLogo from '../../assets/viewjobLogo.png';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -14,8 +14,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center mb-5">
-              <img src={viewjobLogo} alt="viewjob Logo" className="h-9 w-auto object-contain brightness-0 invert" />
+            <Link to="/" className="flex items-center gap-3 mb-5 group">
+              <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-700/20 group-hover:shadow-primary-650/40 transition-shadow duration-300">
+                <HiBriefcase className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-extrabold text-white tracking-tight">
+                view<span className="gradient-text">job</span>
+              </span>
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed mb-6 max-w-xs">
               Connecting talented professionals with world-class companies. Your next great opportunity is just a search away.
