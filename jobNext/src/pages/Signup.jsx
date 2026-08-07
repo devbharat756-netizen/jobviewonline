@@ -55,7 +55,7 @@ export default function Signup() {
     <>
       <SEO path="/signup" title="Signup" description="Create your candidate account on viewjob." />
 
-      <div className="min-h-screen pt-32 pb-16 flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-amber-50/50 dark:from-slate-950 dark:via-slate-900/40 dark:to-slate-950 px-4 sm:px-6">
+      <div className="min-h-screen pt-4 pb-16 flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-amber-50/50 dark:from-slate-950 dark:via-slate-900/40 dark:to-slate-950 px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

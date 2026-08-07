@@ -10,7 +10,7 @@ export default function FAQ() {
   return (
     <>
       <SEO path="/faq" title="Frequently Asked Questions" description="Find answers to common questions about viewjob - how to search, apply, save jobs, and manage your profile." />
-      <div className="pt-28 pb-16">
+      <div className="pt-4 pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Frequently Asked Questions</h1>

@@ -24,7 +24,7 @@ export default function Companies() {
   return (
     <>
       <SEO path="/companies" title="Companies" description="Explore top companies hiring on viewjob. Find your next employer from hundreds of leading organizations." />
-      <div className="pt-28 pb-16">
+      <div className="pt-4 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Companies</h1>

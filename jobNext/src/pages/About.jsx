@@ -16,7 +16,7 @@ export default function About() {
   return (
     <>
       <SEO path="/about" title="About Us" description="Learn about jobNext, our mission, values, and the team behind the platform connecting job seekers with top companies." />
-      <div className="pt-28 pb-16">
+      <div className="pt-4 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center max-w-3xl mx-auto mb-16">

@@ -7,7 +7,6 @@ import SearchBar from '@components/common/SearchBar';
 import JobCard from '@components/common/JobCard';
 import CompanyCard from '@components/common/CompanyCard';
 import StatisticsCard from '@components/common/StatisticsCard';
-import AdPlaceholder from '@components/common/AdPlaceholder';
 import Banner300x250 from '@components/common/Banner300x250';
 import { useJobs } from '@hooks/useJobs';
 import { useFreelance } from '@hooks/useFreelance';
@@ -78,7 +77,7 @@ export default function Home() {
       <SEO path="/" description="viewjob - Find Your Dream Job. Browse thousands of job listings from top companies worldwide." />
 
       {/* Hero — clean corporate dark navy */}
-      <section className="relative pt-32 pb-24 lg:pt-40 lg:pb-32 overflow-hidden bg-[#0a0f1d] border-b border-slate-800/40">
+      <section className="relative pt-10 pb-24 lg:pt-12 lg:pb-32 overflow-hidden bg-[#0a0f1d] border-b border-slate-800/40">
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 opacity-[0.02]" style={{backgroundImage: 'radial-gradient(circle, #38bdf8 1px, transparent 1px)', backgroundSize: '40px 40px'}} />
         {/* Horizontal accent line */}

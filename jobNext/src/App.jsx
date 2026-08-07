@@ -35,6 +35,16 @@ import AdminNewsletter from './pages/admin/AdminNewsletter';
 import ScrollToTop from './components/common/ScrollToTop';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+import TopAdBar from './components/common/TopAdBar';
+
+const PublicLayout = ({ children }) => (
+  <>
+    <TopAdBar />
+    <Navbar />
+    {children}
+    <Footer />
+  </>
+);
 
 export default function App() {
   return (
@@ -42,21 +52,21 @@ export default function App() {
       <ScrollToTop />
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<><Navbar /><Home /><Footer /></>} />
-        <Route path="/jobs" element={<><Navbar /><Jobs /><Footer /></>} />
-        <Route path="/jobs/:id" element={<><Navbar /><JobDetails /><Footer /></>} />
-        <Route path="/freelance" element={<><Navbar /><FreelanceJobs /><Footer /></>} />
-        <Route path="/freelance/:id" element={<><Navbar /><JobDetails isFreelance={true} /><Footer /></>} />
-        <Route path="/companies" element={<><Navbar /><Companies /><Footer /></>} />
-        <Route path="/career-tips" element={<><Navbar /><CareerTips /><Footer /></>} />
-        <Route path="/about" element={<><Navbar /><About /><Footer /></>} />
-        <Route path="/contact" element={<><Navbar /><Contact /><Footer /></>} />
-        <Route path="/faq" element={<><Navbar /><FAQ /><Footer /></>} />
-        <Route path="/privacy-policy" element={<><Navbar /><PrivacyPolicy /><Footer /></>} />
-        <Route path="/terms" element={<><Navbar /><Terms /><Footer /></>} />
-        <Route path="/disclaimer" element={<><Navbar /><Disclaimer /><Footer /></>} />
-        <Route path="/dmca" element={<><Navbar /><Dmca /><Footer /></>} />
-        
+        <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
+        <Route path="/jobs" element={<PublicLayout><Jobs /></PublicLayout>} />
+        <Route path="/jobs/:id" element={<PublicLayout><JobDetails /></PublicLayout>} />
+        <Route path="/freelance" element={<PublicLayout><FreelanceJobs /></PublicLayout>} />
+        <Route path="/freelance/:id" element={<PublicLayout><JobDetails isFreelance={true} /></PublicLayout>} />
+        <Route path="/companies" element={<PublicLayout><Companies /></PublicLayout>} />
+        <Route path="/career-tips" element={<PublicLayout><CareerTips /></PublicLayout>} />
+        <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
+        <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
+        <Route path="/faq" element={<PublicLayout><FAQ /></PublicLayout>} />
+        <Route path="/privacy-policy" element={<PublicLayout><PrivacyPolicy /></PublicLayout>} />
+        <Route path="/terms" element={<PublicLayout><Terms /></PublicLayout>} />
+        <Route path="/disclaimer" element={<PublicLayout><Disclaimer /></PublicLayout>} />
+        <Route path="/dmca" element={<PublicLayout><Dmca /></PublicLayout>} />
+
         {/* Guest Auth Routes */}
         <Route path="/login" element={<><Navbar /><Login /><Footer /></>} />
         <Route path="/signup" element={<><Navbar /><Signup /><Footer /></>} />
@@ -71,7 +81,7 @@ export default function App() {
 
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
-         <Route path="/admin/*" element={<AdminLayout />}>
+        <Route path="/admin/*" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="jobs" element={<AdminJobs />} />
           <Route path="companies" element={<AdminCompanies />} />
@@ -84,7 +94,7 @@ export default function App() {
         </Route>
 
         {/* 404 */}
-        <Route path="*" element={<><Navbar /><NotFound /><Footer /></>} />
+        <Route path="*" element={<PublicLayout><NotFound /></PublicLayout>} />
       </Routes>
     </AuthProvider>
   );

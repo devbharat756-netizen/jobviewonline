@@ -7,7 +7,7 @@ import FilterSidebar from '@components/common/FilterSidebar';
 import Pagination from '@components/common/Pagination';
 import LoadingSkeleton from '@components/common/LoadingSkeleton';
 import EmptyState from '@components/common/EmptyState';
-import AdPlaceholder from '@components/common/AdPlaceholder';
+import Banner300x250 from '@components/common/Banner300x250';
 import SearchBar from '@components/common/SearchBar';
 import { useJobs } from '@hooks/useJobs';
 
@@ -65,7 +65,7 @@ export default function Jobs() {
     <>
       <SEO path="/jobs" title="Browse Jobs" description="Search and filter thousands of job listings. Find opportunities by location, salary, skills, and work mode." />
 
-      <div className="pt-28 pb-16">
+      <div className="pt-4 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
@@ -143,7 +143,7 @@ export default function Jobs() {
             {/* Sidebar Ad */}
             <div className="hidden xl:block w-[300px] flex-shrink-0">
               <div className="sticky top-28 space-y-6">
-                <AdPlaceholder type="vertical" label="Sidebar Ad" />
+                <Banner300x250 />
               </div>
             </div>
           </div>

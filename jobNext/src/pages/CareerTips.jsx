@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { HiClock, HiArrowRight } from 'react-icons/hi2';
 import SEO from '@components/common/SEO';
 import Modal from '@components/common/Modal';
-import AdPlaceholder from '@components/common/AdPlaceholder';
+import Banner300x250 from '@components/common/Banner300x250';
 import { CAREER_TIPS } from '@utils/constants';
 
 export default function CareerTips() {
@@ -15,7 +15,7 @@ export default function CareerTips() {
   return (
     <>
       <SEO path="/career-tips" title="Career Tips & Advice" description="Expert career advice, resume tips, interview strategies, salary negotiation guides, and more." />
-      <div className="pt-28 pb-16">
+      <div className="pt-4 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Career Tips & Advice</h1>
@@ -50,7 +50,7 @@ export default function CareerTips() {
             </div>
             <div className="hidden lg:block w-[300px] flex-shrink-0">
               <div className="sticky top-28 space-y-6">
-                <AdPlaceholder type="vertical" label="Sidebar Ad" />
+                <Banner300x250 />
               </div>
             </div>
           </div>

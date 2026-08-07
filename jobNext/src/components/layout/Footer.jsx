@@ -1,13 +1,11 @@
 import { Link } from 'react-router-dom';
 import { HiBriefcase } from 'react-icons/hi2';
-import AdPlaceholder from '@components/common/AdPlaceholder';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className="bg-slate-950 text-slate-400">
-      <AdPlaceholder type="horizontal" label="Footer Ad Space" />
       {/* Gradient accent bar */}
       <div className="h-px bg-gradient-to-r from-transparent via-primary-500/60 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

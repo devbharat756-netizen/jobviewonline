@@ -6,7 +6,7 @@ import Breadcrumb from '@components/common/Breadcrumb';
 import JobCard from '@components/common/JobCard';
 import EmptyState from '@components/common/EmptyState';
 import Modal from '@components/common/Modal';
-import AdPlaceholder from '@components/common/AdPlaceholder';
+import Banner300x250 from '@components/common/Banner300x250';
 import { useJobs } from '@hooks/useJobs';
 import { useFreelance } from '@hooks/useFreelance';
 import { useToast } from '@context/ToastContext';
@@ -42,11 +42,11 @@ export default function JobDetails({ isFreelance = false }) {
   const { addToast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const [isSaved, setIsSaved] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
   const [applicantCount, setApplicantCount] = useState(0);
@@ -86,7 +86,7 @@ export default function JobDetails({ isFreelance = false }) {
       setForm(getResetForm());
 
       try {
-        const res = isFreelance 
+        const res = isFreelance
           ? await getFreelanceProjectDetails(id)
           : await getJobDetails(id);
         if (res.data.success) {
@@ -104,7 +104,7 @@ export default function JobDetails({ isFreelance = false }) {
         } else {
           // Re-fetch as guest to display public details
           try {
-            const guestRes = isFreelance 
+            const guestRes = isFreelance
               ? await getFreelanceProjectDetails(id)
               : await getJobDetails(id);
             if (guestRes.data.success) {
@@ -127,7 +127,7 @@ export default function JobDetails({ isFreelance = false }) {
 
   if (loading) {
     return (
-      <div className="pt-32 pb-16 max-w-4xl mx-auto px-4">
+      <div className="pt-4 pb-16 max-w-4xl mx-auto px-4">
         <LoadingSkeleton type="detail" />
       </div>
     );
@@ -135,7 +135,7 @@ export default function JobDetails({ isFreelance = false }) {
 
   if (error) {
     return (
-      <div className="pt-32 pb-16 max-w-4xl mx-auto px-4">
+      <div className="pt-4 pb-16 max-w-4xl mx-auto px-4">
         <EmptyState
           title={isFreelance ? "Error Loading Project" : "Error Loading Job"}
           description={error}
@@ -147,7 +147,7 @@ export default function JobDetails({ isFreelance = false }) {
 
   if (!job) {
     return (
-      <div className="pt-32 pb-16 max-w-4xl mx-auto px-4">
+      <div className="pt-4 pb-16 max-w-4xl mx-auto px-4">
         <EmptyState
           title={isFreelance ? "Project Not Found" : "Job Not Found"}
           description={isFreelance ? "This freelance listing may have been removed or doesn't exist." : "This job listing may have been removed or doesn't exist."}
@@ -252,7 +252,7 @@ export default function JobDetails({ isFreelance = false }) {
       formData.append('coverLetter', form.coverLetter);
       formData.append('resume', form.resume);
 
-      const res = isFreelance 
+      const res = isFreelance
         ? await applyFreelance(jobId, formData)
         : await applyJob(jobId, formData);
 
@@ -444,7 +444,7 @@ export default function JobDetails({ isFreelance = false }) {
 
             {/* Sidebar */}
             <div className="lg:w-80 flex-shrink-0 space-y-6">
-              <AdPlaceholder type="square" label="Sidebar Ad" />
+              <Banner300x250 />
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                 <h3 className="font-bold text-gray-900 mb-4">{isFreelance ? 'Project Overview' : 'Job Overview'}</h3>
                 <div className="space-y-4">
@@ -503,7 +503,7 @@ export default function JobDetails({ isFreelance = false }) {
               <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{job.company} · {job.location} · {job.salary}</p>
             </div>
           </div>
- 
+
           {/* Personal Information */}
           <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-150 dark:border-slate-800/80 space-y-4">
             <h3 className="text-sm font-bold text-gray-950 dark:text-slate-200 border-b border-gray-100 dark:border-slate-800 pb-2 flex items-center gap-2">

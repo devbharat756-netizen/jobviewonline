@@ -14,7 +14,7 @@ export function useJobs({ isFreelance = false } = {}) {
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const jobsPerPage = 9;
+  const jobsPerPage = 6;
 
   const fetchJobs = async () => {
     try {

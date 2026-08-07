@@ -42,7 +42,7 @@ export default function Applications() {
   return (
     <>
       <SEO path="/dashboard/applications" title="My Applications" description="Track your job applications on viewjob." />
-      <div className="pt-28 pb-16">
+      <div className="pt-4 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-8">
             <DashboardSidebar />

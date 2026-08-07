@@ -4,7 +4,7 @@ export default function Terms() {
   return (
     <>
       <SEO path="/terms" title="Terms of Service" description="jobNext Terms of Service - The rules and guidelines for using our platform." />
-      <div className="pt-28 pb-16">
+      <div className="pt-4 pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Terms of Service</h1>
           <p className="text-sm text-gray-400 mb-8">Last updated: January 2025</p>

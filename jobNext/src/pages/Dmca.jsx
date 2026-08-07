@@ -4,7 +4,7 @@ export default function Dmca() {
   return (
     <>
       <SEO path="/dmca" title="DMCA Policy" description="viewjob DMCA Copyright Infringement Policy - Guidelines for reporting copyright infringement." />
-      <div className="pt-28 pb-16">
+      <div className="pt-4 pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-extrabold text-gray-900 mb-2">DMCA Copyright Policy</h1>
           <p className="text-sm text-gray-400 mb-8">Last updated: July 2026</p>
