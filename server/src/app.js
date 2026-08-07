@@ -7,6 +7,7 @@ import { rateLimit } from "express-rate-limit";
 import jobRoutes from "./modules/job/index.js";
 import freelanceRoutes from "./modules/job/routes/freelance.routes.js";
 import userRoutes from "./modules/user/index.js";
+import blogRoutes from "./modules/blog/index.js";
 
 const app = express();
 
@@ -118,5 +119,6 @@ app.get("/", (req, res) => {
 app.use("/api/jobs", jobRoutes);
 app.use("/api/freelance", freelanceRoutes);
 app.use("/api/auth", userRoutes);
+app.use("/api/blogs", blogRoutes);
 
 export default app;

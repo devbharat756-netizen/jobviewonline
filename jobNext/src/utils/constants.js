@@ -29,6 +29,7 @@ export const NAV_LINKS = [
   { label: 'Jobs', path: '/jobs' },
   { label: 'Freelance', path: '/freelance' },
   { label: 'Companies', path: '/companies' },
+  { label: 'Blog', path: '/blog' },
   { label: 'Career Tips', path: '/career-tips' },
   { label: 'About', path: '/about' },
   { label: 'Contact', path: '/contact' },

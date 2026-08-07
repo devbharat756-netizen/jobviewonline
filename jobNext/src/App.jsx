@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -36,15 +37,51 @@ import ScrollToTop from './components/common/ScrollToTop';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import TopAdBar from './components/common/TopAdBar';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+import AdminBlog from './pages/admin/AdminBlog';
+import AdminBlogCategories from './pages/admin/AdminBlogCategories';
 
-const PublicLayout = ({ children }) => (
-  <>
-    <TopAdBar />
-    <Navbar />
-    {children}
-    <Footer />
-  </>
-);
+const PublicLayout = ({ children }) => {
+  useEffect(() => {
+    const popunderSrc = "https://pl30738727.effectivecpmnetwork.com/88/75/c4/8875c47c2cfc87b126cca195feb558de.js";
+    const socialBarSrc = "https://pl30738729.effectivecpmnetwork.com/ae/d5/77/aed577b53e7f651c7ff08feb83c10bf4.js";
+
+    let popunderScript = document.querySelector(`script[src="${popunderSrc}"]`);
+    if (!popunderScript) {
+      popunderScript = document.createElement("script");
+      popunderScript.src = popunderSrc;
+      popunderScript.async = true;
+      document.head.appendChild(popunderScript);
+    }
+
+    let socialBarScript = document.querySelector(`script[src="${socialBarSrc}"]`);
+    if (!socialBarScript) {
+      socialBarScript = document.createElement("script");
+      socialBarScript.src = socialBarSrc;
+      socialBarScript.async = true;
+      document.head.appendChild(socialBarScript);
+    }
+
+    return () => {
+      if (popunderScript && popunderScript.parentNode) {
+        popunderScript.parentNode.removeChild(popunderScript);
+      }
+      if (socialBarScript && socialBarScript.parentNode) {
+        socialBarScript.parentNode.removeChild(socialBarScript);
+      }
+    };
+  }, []);
+
+  return (
+    <>
+      <TopAdBar />
+      <Navbar />
+      {children}
+      <Footer />
+    </>
+  );
+};
 
 export default function App() {
   return (
@@ -66,6 +103,8 @@ export default function App() {
         <Route path="/terms" element={<PublicLayout><Terms /></PublicLayout>} />
         <Route path="/disclaimer" element={<PublicLayout><Disclaimer /></PublicLayout>} />
         <Route path="/dmca" element={<PublicLayout><Dmca /></PublicLayout>} />
+        <Route path="/blog" element={<PublicLayout><Blog /></PublicLayout>} />
+        <Route path="/blog/:slug" element={<PublicLayout><BlogPost /></PublicLayout>} />
 
         {/* Guest Auth Routes */}
         <Route path="/login" element={<><Navbar /><Login /><Footer /></>} />
@@ -89,8 +128,10 @@ export default function App() {
           <Route path="skills" element={<AdminSkills />} />
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="settings" element={<AdminSettings />} />
-          <Route path="applications" element={<AdminApplications />} />
+           <Route path="applications" element={<AdminApplications />} />
           <Route path="newsletter" element={<AdminNewsletter />} />
+          <Route path="blog" element={<AdminBlog />} />
+          <Route path="blog-categories" element={<AdminBlogCategories />} />
         </Route>
 
         {/* 404 */}
